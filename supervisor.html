@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Cashier Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header><h1>The Coffee Affair Bistro <span class="user-role">- Cashier</span></h1></header>
+    <main class="dashboard-grid">
+        <div class="dashboard-card">
+            <h2>New Orders</h2>
+            <div id="new-orders"></div>
+        </div>
+        <div class="dashboard-card">
+            <h2>Preparing</h2>
+            <div id="preparing-orders"></div>
+        </div>
+    </main>
+    <script src="data-manager.js"></script>
+    <script>
+        function renderOrders() {
+            const orders = getOrders();
+            const newOrdersDiv = document.getElementById('new-orders');
+            const preparingOrdersDiv = document.getElementById('preparing-orders');
+            newOrdersDiv.innerHTML = '';
+            preparingOrdersDiv.innerHTML = '';
+
+            orders.forEach(order => {
+                const orderHtml = `
+                    <div class="order-item">
+                        <div class="order-details">
+                            <strong>Order #${order.id}</strong> (${order.orderType})<br>
+                            Customer: ${order.customerName}<br>
+                            Items: ${order.items.map(i => `${i.name} (x${i.qty})`).join(', ')}<br>
+                            Total: ₱${order.totalPrice.toFixed(2)}
+                        </div>
+                        ${order.status === 'New' ? `<button class="btn btn-green" onclick="acceptOrder(${order.id})">Accept</button>` : ''}
+                        ${order.status === 'Preparing' ? `<button class="btn btn-blue" onclick="finishOrder(${order.id})">Ready</button>` : ''}
+                    </div>
+                `;
+                if (order.status === 'New') newOrdersDiv.innerHTML += orderHtml;
+                if (order.status === 'Preparing') preparingOrdersDiv.innerHTML += orderHtml;
+            });
+        }
+
+        function acceptOrder(orderId) {
+            updateOrderStatus(orderId, 'Preparing');
+            renderOrders();
+        }
+
+        function finishOrder(orderId) {
+            updateOrderStatus(orderId, 'Ready');
+            renderOrders();
+        }
+
+        window.onload = renderOrders;
+    </script>
+</body>
+</html>

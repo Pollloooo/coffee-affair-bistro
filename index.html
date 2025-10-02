@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>The Coffee Affair Bistro</title>
+    <link rel="stylesheet" href="style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" />
+</head>
+<body>
+    <header class="site-header">
+<div class="header-content">
+    <h1 class="site-title"><a href="index.html" style="color: inherit; text-decoration: none;">The Coffee Affair Bistro</a></h1>
+    <nav class="header-nav" style="margin-left: 40px;">
+        <ul>
+            <li class="dropdown">
+                <a href="menu.html">MENU</a>
+                <ul class="dropdown-menu">
+                    <li><a href="menu.html#hot-coffee">Hot Coffee</a></li>
+                    <li><a href="menu.html#iced-coffee">Non-Coffee</a></li>
+                    <li><a href="menu.html#breakfast">Tea</a></li>
+                    <li><a href="menu.html#lunch">Signature Drinks</a></li>
+                    <li><a href="menu.html#wedges">Appetizers</a></li>
+                    <li><a href="menu.html#donuts">Burger & Sandswich</a></li>
+                    <li><a href="menu.html#baked-goods">Pasta</a></li>
+                    <li><a href="menu.html#retail-packs">Desserts</a></li>
+                    <li><a href="menu.html#whats-new">Signature Milkshakes</a></li>
+                </ul>
+            </li>
+            <li><a href="locations.html">LOCATIONS</a></li>
+            <li><a href="about.html">OUR HISTORY</a></li>
+            <li><a href="#" id="timscaresph-link">#TCABISTROPH</a></li>
+        </ul>
+    </nav>
+    <div class="header-actions">
+        <a href="login.html" class="login-icon"><i class="fas fa-user"></i></a>
+    </div>
+</div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="hero-content">
+                <h1>The Coffee Affair Bistro</h1>
+                <p>A trendy coffeeshop that’s not just your ordinary affair, but your extraordinary coffee experience! Santa Cruz, Laguna</p>
+                <a href="about.html" class="btn-learn-more">Learn More</a>
+            </div>
+            <div class="hero-image">
+                <img src="images/main.jpg" alt="Coffee Affair Bistro Interior" />
+            </div>
+        </section>
+
+        <section class="products-section">
+            <div class="container">
+                <h2 class="section-title">Featured Drinks</h2>
+                <div class="product-grid">
+                    <div class="product-card">
+                        <div class="product-image-container">
+                            <img src="images/classic americano.jpg" alt="Classic Americano" />
+                        </div>
+                        <p class="product-name">Classic Americano</p>
+                    </div>
+                    <div class="product-card">
+                        <div class="product-image-container">
+                            <img src="images/darkmocha x caramel macchiato.jpg" alt="Darkmocha & Caramel Macchiato" />
+                        </div>
+                        <p class="product-name">Darkmocha & Caramel Macchiato</p>
+                    </div>
+                    <div class="product-card">
+                        <div class="product-image-container">
+                            <img src="images/ice spanish latte.jpg" alt="Ice Spanish Latte" />
+                        </div>
+                        <p class="product-name">Ice Spanish Latte</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Slide header up on scroll down
+        const header = document.querySelector('.site-header');
+        let lastScrollTop = 0;
+        window.addEventListener('scroll', () => {
+            let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            if (scrollTop > lastScrollTop) {
+                // Scrolling down
+                header.style.transform = 'translateY(-100%)';
+                header.style.pointerEvents = 'none';
+            } else {
+                // Scrolling up
+                header.style.transform = 'translateY(0)';
+                header.style.pointerEvents = 'auto';
+            }
+            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; // For Mobile or negative scrolling
+        });
+    </script>
+</body>
+</html>

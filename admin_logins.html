@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin Login History</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <header>
+        <h1>Bistro Admin - Login History</h1>
+        <nav><a href="admin.html" class="btn btn-brown" style="padding: 6px 12px; border-radius: 4px; text-decoration: none;">Back to Dashboard</a></nav>
+    </header>
+    <main>
+        <div class="dashboard-card">
+            <h2>Customer Login History</h2>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Customer Name</th>
+                        <th>Email</th>
+                        <th>Login Date &amp; Time</th>
+                    </tr>
+                </thead>
+                <tbody id="login-history-body"></tbody>
+            </table>
+        </div>
+    </main>
+<script>
+    // Load login history from localStorage and display in table
+    document.addEventListener('DOMContentLoaded', function() {
+        const loginHistory = JSON.parse(localStorage.getItem('bistroLoginHistory')) || [];
+        const tbody = document.getElementById('login-history-body');
+
+        loginHistory.forEach(entry => {
+            const tr = document.createElement('tr');
+
+            const nameTd = document.createElement('td');
+            nameTd.textContent = entry.name;
+            tr.appendChild(nameTd);
+
+            const emailTd = document.createElement('td');
+            emailTd.textContent = entry.email;
+            tr.appendChild(emailTd);
+
+            const dateTd = document.createElement('td');
+            const date = new Date(entry.loginTime);
+            dateTd.textContent = date.toLocaleString();
+            tr.appendChild(dateTd);
+
+            tbody.appendChild(tr);
+        });
+    });
+</script>
+</body>
+</html>

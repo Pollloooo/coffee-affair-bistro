@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Inventory Management</title>
+    <link rel="stylesheet" href="style.css">
+    <style> .stock-low { color: #d90429; font-weight: bold; } </style>
+</head>
+<body>
+    <header>
+        <h1>Bistro Admin <span class="user-role">- Inventory</span></h1>
+        <nav>
+            <a href="admin.html" class="btn btn-green" style="margin-right: 10px;">Back to Dashboard</a>
+        </nav>
+    </header>
+    <main>
+        <div class="dashboard-card">
+            <h2>Product Inventory & Sales</h2>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Product Name</th>
+                        <th>Category</th>
+                        <th>In Stock (Unused)</th>
+                        <th>Sold (Used)</th>
+                    </tr>
+                </thead>
+                <tbody id="inventory-body"></tbody>
+            </table>
+        </div>
+    </main>
+    <script src="data-manager.js"></script>
+    <script>
+        function renderInventory() {
+            const menu = getMenu();
+            const tableBody = document.getElementById('inventory-body');
+            tableBody.innerHTML = '';
+            
+            menu.sort((a,b) => a.stock - b.stock).forEach(item => {
+                const row = document.createElement('tr');
+                const stockClass = item.stock < 10 ? 'stock-low' : '';
+                row.innerHTML = `
+                    <td>${item.name}</td>
+                    <td>${item.category}</td>
+                    <td class="${stockClass}">${item.stock}</td>
+                    <td>${item.sold}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+        window.onload = renderInventory;
+    </script>
+</body>
+</html>

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Coffee Affair Bistro</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Reusing login card styles for consistency */
+        .register-card {
+            max-width: 450px;
+            margin: 4rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        .register-card h2 {
+            text-align: center;
+            margin-top: 0;
+            color: #6f4e37;
+        }
+        .btn-register {
+            background: #a05a2c;
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 0.8rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .btn-register:hover {
+            background: #8c6d52;
+        }
+        .login-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+        }
+        .login-link a {
+            color: #a05a2c;
+            font-weight: 600;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <header><h1>The Coffee Affair Bistro</h1></header>
+    <main>
+        <div class="register-card">
+            <h2>Create Your Customer Account</h2>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required minlength="9" >
+                    <small id="passwordHelp" class="form-text" style="color: #6f4e37;">Password must be at least 9 characters long and must include uppercase, lowercase, numbers, and special characters.</small>
+                </div>
+                <button type="submit" class="btn-register">Register</button>
+            </form>
+            <div class="login-link" style="color: #6f4e37;">
+                Already have an account? <a href="login.html">Login here</a>
+            </div>
+        </div>
+    </main>
+
+ <script>
+        // --- 1. The necessary function from data-manager.js is now here ---
+        function registerCustomer(name, email, password) {
+            const users = JSON.parse(localStorage.getItem('bistroUsers')) || [];
+
+            const userExists = users.some(user => user.email === email);
+            if (userExists) {
+                return false; // Indicate failure
+            }
+
+            const newId = users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1;
+
+            const newCustomer = {
+                id: newId,
+                name: name,
+                email: email,
+                password: password, // In a real app, this MUST be hashed!
+                role: 'customer'
+            };
+
+            users.push(newCustomer);
+            localStorage.setItem('bistroUsers', JSON.stringify(users));
+            
+            return true; // Indicate success
+        }
+
+        // --- 2. The form submission logic remains the same ---
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            const success = registerCustomer(name, email, password);
+
+            if (success) {
+                alert('Registration successful! You can now log in.');
+                window.location.href = 'login.html';
+            } else {
+                alert('An account with this email already exists. Please try another one.');
+            }
+        });
+    </script>
+</body>
+</html>

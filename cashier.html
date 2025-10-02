@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Cashier</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<header>
+    <h1>The Coffee Affair Bistro – Cashier</h1>
+</header>
+    <main>
+        <div class="dashboard-card" style="margin-top: 2rem;">
+            <h2>New Orders</h2>
+            <div id="new-orders-container">
+                <p>No orders in this category.</p>
+            </div>
+        </div>
+        <div class="dashboard-card" style="margin-top: 2rem;">
+            <h2>Preparing</h2>
+            <div id="preparing-orders-container">
+                <p>No orders in this category.</p>
+            </div>
+        </div>
+    </main>
+    <script src="data_manager.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const newOrdersContainer = document.getElementById('new-orders-container');
+            const preparingOrdersContainer = document.getElementById('preparing-orders-container');
+            const orders = JSON.parse(localStorage.getItem('bistroOrders')) || [];
+
+            function renderOrders() {
+                const newOrders = orders.filter(order => order.status === 'New');
+                const preparingOrders = orders.filter(order => order.status === 'Preparing');
+
+                if (newOrders.length === 0) {
+                    newOrdersContainer.innerHTML = '<p>No orders in this category.</p>';
+                } else {
+                    newOrdersContainer.innerHTML = '';
+                    newOrders.forEach(order => {
+                        const orderDiv = document.createElement('div');
+                        orderDiv.classList.add('order-card');
+                        orderDiv.textContent = `Order ID: ${order.id} - Customer: ${order.customerName} - Total: ₱${order.totalPrice.toFixed(2)}`;
+                        newOrdersContainer.appendChild(orderDiv);
+                    });
+                }
+
+                if (preparingOrders.length === 0) {
+                    preparingOrdersContainer.innerHTML = '<p>No orders in this category.</p>';
+                } else {
+                    preparingOrdersContainer.innerHTML = '';
+                    preparingOrders.forEach(order => {
+                        const orderDiv = document.createElement('div');
+                        orderDiv.classList.add('order-card');
+                        orderDiv.textContent = `Order ID: ${order.id} - Customer: ${order.customerName} - Total: ₱${order.totalPrice.toFixed(2)}`;
+                        preparingOrdersContainer.appendChild(orderDiv);
+                    });
+                }
+            }
+
+            renderOrders();
+        });
+    </script>
+</body>
+</html>

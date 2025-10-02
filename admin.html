@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Coffee Affair Bistro</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>The Coffee Affair Bistro <span class="user-role">- Admin Dashboard</span></h1>
+        <nav><a href="login.html" class="btn btn-brown" style="padding: 6px 12px; border-radius: 4px; text-decoration: none;">Logout</a></nav>
+    </header>
+    <main>
+        <!-- Navigation Buttons -->
+        <div class="admin-nav-buttons">
+            <a href="admin_inventory.html" class="btn">Manage Inventory</a>
+            <a href="admin_logins.html" class="btn">View Login History</a>
+            <a href="cashier.html" class="btn">Go to Cashier View</a>
+            <a href="menu.html" class="btn btn-brown" style="margin-left: 10px;">Edit Menu</a>
+        </div>
+
+        <!-- Stat Card Grid -->
+        <div class="admin-grid">
+            <div class="stat-card">
+                <div id="total-sales" class="stat-value">₱0.00</div>
+                <div class="stat-label">Total Sales</div>
+            </div>
+            <div class="stat-card">
+                <div id="orders-today" class="stat-value">0</div>
+                <div class="stat-label">Orders Today</div>
+            </div>
+            <div class="stat-card">
+                <div id="total-customers" class="stat-value">0</div>
+                <div class="stat-label">Total Customers</div>
+            </div>
+        </div> 
+
+        <!-- Data Tables (Now separate from the grid) -->
+        <div class="dashboard-card" style="margin-top: 2rem;">
+            <h2>Recent Orders</h2>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Total Price</th>
+                        <th>Status</th>
+                        <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody id="recent-orders-body"></tbody>
+            </table>
+        </div>
+
+        <div class="dashboard-card" style="margin-top: 2rem;">
+            <h2>Items Low on Stock (Under 20)</h2>
+            <table class="data-table">
+                 <thead>
+                    <tr>
+                        <th>Product Name</th>
+                        <th>Category</th>
+                        <th>Stock Remaining</th>
+                    </tr>
+                </thead>
+                <tbody id="low-stock-body"></tbody>
+            </table>
+        </div>
+
+        <!-- Manage Items Section -->
+        <div class="dashboard-card" style="margin-top: 2rem;">
+            <h2>Manage Menu Items</h2>
+            <form id="item-form" style="background-color: #f9f9f9; padding: 15px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); max-width: 600px; color: black;">
+                <input type="hidden" id="item-id" value="">
+                <div style="margin-bottom: 10px;">
+                    <label for="item-name" style="display: block; font-weight: 600; margin-bottom: 5px; color: black;">Name:</label>
+                    <input type="text" id="item-name" required style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; color: black;">
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <label for="item-description" style="display: block; font-weight: 600; margin-bottom: 5px; color: black;">Description:</label>
+                    <input type="text" id="item-description" required style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; color: black;">
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <label for="item-price" style="display: block; font-weight: 600; margin-bottom: 5px; color: black;">Price:</label>
+                    <input type="number" id="item-price" step="0.01" required style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; color: black;">
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <label for="item-category" style="display: block; font-weight: 600; margin-bottom: 5px; color: black;">Category:</label>
+                    <select id="item-category" required style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; color: black;">
+                        <option value="">Select Category</option>
+                        <option value="Coffee">Coffee</option>
+                        <option value="Non-Coffee">Non-Coffee</option>
+                        <option value="Tea">Tea</option>
+                        <option value="Signature Drinks">Signature Drinks</option>
+                        <option value="Appetizers">Appetizers</option>
+                        <option value="Burger & Sandwich">Burger & Sandwich</option>
+                        <option value="Pasta">Pasta</option>
+                        <option value="Desserts">Desserts</option>
+                        <option value="Fruity Options">Fruity Options</option>
+                        <option value="Signature Milkshakes">Signature Milkshakes</option>
+                        <option value="Coffee Gear">Coffee Gear</option>
+                        <option value="Espresso Machines">Espresso Machines</option>
+                    </select>
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <label for="item-imageUrl" style="display: block; font-weight: 600; margin-bottom: 5px; color: black;">Image URL:</label>
+                    <input type="text" id="item-imageUrl" required style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; color: black;">
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <label for="item-stock" style="display: block; font-weight: 600; margin-bottom: 5px; color: black;">Stock:</label>
+                    <input type="number" id="item-stock" min="0" value="0" required style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; color: black;">
+                </div>
+                <button type="submit" id="submit-button" style="background-color: #af904b; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">Add Item</button>
+                <button type="button" id="cancel-button" style="display:none; margin-left: 10px; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Cancel</button>
+            </form>
+
+            <table class="data-table" style="margin-top: 1rem; color: #8B4513; font-weight: bold;">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Price</th>
+                        <th>Category</th>
+                        <th>Stock</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="items-table-body"></tbody>
+            </table>
+        </div>
+
+        <!-- Product Image Gallery -->
+        <div class="dashboard-card" style="margin-top: 2rem;">
+            <h2>Product Image Gallery</h2>
+            <div id="image-gallery" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;">
+                <!-- Product cards will be dynamically inserted here -->
+            </div>
+        </div>
+
+    </main> <!-- The main section now ends here, correctly -->
+
+    <script src="data-manager.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Your JavaScript code remains exactly the same
+            const orders = getOrders();
+            const menu = getMenu();
+            const users = JSON.parse(localStorage.getItem('bistroUsers')) || [];
+
+            // POPULATE STAT CARDS
+            const totalSales = orders.reduce((sum, order) => sum + order.totalPrice, 0);
+            document.getElementById('total-sales').textContent = `₱${totalSales.toFixed(2)}`;
+            const today = new Date().toISOString().slice(0, 10);
+            const ordersToday = orders.filter(order => order.timestamp.startsWith(today)).length;
+            document.getElementById('orders-today').textContent = ordersToday;
+            const customerCount = users.filter(user => user.role === 'customer').length;
+            document.getElementById('total-customers').textContent = customerCount;
+
+            // POPULATE RECENT ORDERS TABLE
+            const recentOrdersBody = document.getElementById('recent-orders-body');
+            recentOrdersBody.innerHTML = '';
+            const recentOrders = orders.slice(0, 5);
+            if (recentOrders.length === 0) {
+                recentOrdersBody.innerHTML = '<tr><td colspan="5">No orders have been placed yet.</td></tr>';
+            } else {
+                recentOrders.forEach(order => {
+                    const row = document.createElement('tr');
+                    const orderDate = new Date(order.timestamp).toLocaleString();
+                    row.innerHTML = `<td>${order.id}</td><td>${order.customerName}</td><td>₱${order.totalPrice.toFixed(2)}</td><td>${order.status}</td><td>${orderDate}</td>`;
+                    recentOrdersBody.appendChild(row);
+                });
+            }
+
+            // POPULATE LOW STOCK ITEMS TABLE
+            const lowStockBody = document.getElementById('low-stock-body');
+            lowStockBody.innerHTML = '';
+            const lowStockItems = menu.filter(item => item.stock < 20).sort((a,b) => a.stock - b.stock);
+            if (lowStockItems.length === 0) {
+                lowStockBody.innerHTML = '<tr><td colspan="3">All products are well-stocked.</td></tr>';
+            } else {
+                lowStockItems.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td>${item.name}</td><td>${item.category}</td><td class="stock-low">${item.stock}</td>`;
+                    lowStockBody.appendChild(row);
+                });
+            }
+        });
+
+        // Manage Items Section JavaScript
+        const itemForm = document.getElementById('item-form');
+        const itemsTableBody = document.getElementById('items-table-body');
+        const submitButton = document.getElementById('submit-button');
+        const cancelButton = document.getElementById('cancel-button');
+
+        // New code: disable/fade price and stock inputs for Espresso Machines category
+        const categorySelect = document.getElementById('item-category');
+        const priceInput = document.getElementById('item-price');
+        const stockInput = document.getElementById('item-stock');
+
+        function updatePriceStockState() {
+            if (categorySelect.value === 'Espresso Machines' || categorySelect.value === 'Coffee Gear') {
+                priceInput.disabled = true;
+                stockInput.disabled = true;
+                priceInput.style.opacity = '0.5';
+                stockInput.style.opacity = '0.5';
+            } else {
+                priceInput.disabled = false;
+                stockInput.disabled = false;
+                priceInput.style.opacity = '1';
+                stockInput.style.opacity = '1';
+            }
+        }
+
+        categorySelect.addEventListener('change', updatePriceStockState);
+
+        // Call once on page load to set initial state
+        updatePriceStockState();
+
+        function clearForm() {
+            itemForm.reset();
+            document.getElementById('item-id').value = '';
+            submitButton.textContent = 'Add Item';
+            cancelButton.style.display = 'none';
+            updatePriceStockState(); // Update state after reset
+        }
+
+        function renderItemsTable() {
+            const menu = getMenu();
+            itemsTableBody.innerHTML = '';
+            menu.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.name}</td>
+                    <td>${item.description}</td>
+                    <td>₱${item.price.toFixed(2)}</td>
+                    <td>${item.category}</td>
+                    <td>${item.stock || 0}</td>
+                    <td>
+                        <button class="edit-btn" data-id="${item.id}">Edit</button>
+                        <button class="delete-btn" data-id="${item.id}">Delete</button>
+                    </td>
+                `;
+                itemsTableBody.appendChild(row);
+            });
+
+            // Attach event listeners for edit and delete buttons
+            document.querySelectorAll('.edit-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const id = parseInt(button.getAttribute('data-id'));
+                    const menu = getMenu();
+                    const item = menu.find(i => i.id === id);
+                    if (item) {
+                        document.getElementById('item-id').value = item.id;
+                        document.getElementById('item-name').value = item.name;
+                        document.getElementById('item-description').value = item.description;
+                        document.getElementById('item-price').value = item.price;
+                        document.getElementById('item-category').value = item.category;
+                        document.getElementById('item-imageUrl').value = item.imageUrl;
+                        document.getElementById('item-stock').value = item.stock || 0;
+                        submitButton.textContent = 'Update Item';
+                        cancelButton.style.display = 'inline';
+                        updatePriceStockState(); // Update state when editing
+                    }
+                });
+            });
+
+            document.querySelectorAll('.delete-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const id = parseInt(button.getAttribute('data-id'));
+                    if (confirm('Are you sure you want to delete this item?')) {
+                        if (deleteItem(id)) {
+                            renderItemsTable();
+                            alert('Item deleted successfully.');
+                        } else {
+                            alert('Failed to delete item.');
+                        }
+                    }
+                });
+            });
+        }
+
+        itemForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const id = document.getElementById('item-id').value;
+            const name = document.getElementById('item-name').value.trim();
+            const description = document.getElementById('item-description').value.trim();
+            let price = parseFloat(document.getElementById('item-price').value);
+            const category = document.getElementById('item-category').value;
+            const imageUrl = document.getElementById('item-imageUrl').value.trim();
+            let stock = parseInt(document.getElementById('item-stock').value);
+
+            // If category is Espresso Machines, override price and stock with default values
+            if (category === 'Espresso Machines' || category === 'Coffee Gear') {
+                price = 0;
+                stock = 0;
+            }
+
+            if (!name || !description || isNaN(price) || !category || !imageUrl || isNaN(stock)) {
+                alert('Please fill in all fields correctly.');
+                return;
+            }
+
+            const itemData = {
+                name,
+                description,
+                price,
+                category,
+                imageUrl,
+                stock
+            };
+
+            if (id) {
+                // Update existing item
+                itemData.id = parseInt(id);
+                if (updateItem(itemData)) {
+                    alert('Item updated successfully.');
+                } else {
+                    alert('Failed to update item.');
+                }
+            } else {
+                // Add new item
+                const addedItem = addItem(itemData);
+                if (addedItem) {
+                    alert('Item added successfully.');
+                } else {
+                    alert('Failed to add item.');
+                }
+            }
+            clearForm();
+            renderItemsTable();
+        });
+
+        cancelButton.addEventListener('click', () => {
+            clearForm();
+        });
+
+        // Initial render of items table
+        renderItemsTable();
+    </script>
+</body>
+</html>

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Delivery Dashboard - The Coffee Affair Bistro</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        :root {
+            --bg-color: #faf6f0;
+            --header-bg: #6f4e37;
+            --text-light: #f0e6dc;
+            --text-dark: #3d2c21;
+            --card-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            --status-new: #3498db;
+            --status-preparing: #f1c40f;
+            --status-ready: #2ecc71;
+            --type-delivery: #8e44ad;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+        }
+
+        header {
+            background: var(--header-bg);
+            color: var(--text-light);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 { margin: 0; font-size: 1.5rem; }
+        header nav a { color: var(--text-light); text-decoration: none; font-weight: 600; }
+        
+        main {
+            padding: 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .order-section {
+            background: white;
+            border-radius: 8px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .order-section summary {
+            padding: 1.25rem 1.5rem;
+            font-size: 1.3rem;
+            font-weight: 600;
+            cursor: pointer;
+            list-style: none;
+            position: relative;
+        }
+
+        .order-section summary::-webkit-details-marker { display: none; }
+        .order-section summary::after {
+            content: '▼';
+            position: absolute;
+            right: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.8rem;
+            transition: transform 0.2s;
+        }
+        .order-section[open] summary::after { transform: translateY(-50%) rotate(180deg); }
+
+        .order-list {
+            padding: 0 1.5rem 1.5rem 1.5rem;
+            border-top: 1px solid #eee;
+        }
+
+        .order-card {
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .order-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px dashed #ccc;
+            padding-bottom: 0.5rem;
+            margin-bottom: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .order-card-header strong { font-size: 1.1rem; }
+        
+        .order-type-tag {
+            font-weight: 600;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin-left: 0.75rem;
+            color: white;
+            background-color: var(--type-delivery);
+        }
+
+        .order-card ul { list-style: none; padding: 0; margin: 0.5rem 0; }
+        .order-card li { padding: 0.25rem 0; }
+        
+        .order-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+        }
+        
+        .order-card-footer .total { font-weight: 600; font-size: 1.1rem; }
+        
+        .btn-update-status {
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: opacity 0.2s;
+        }
+        .btn-update-status:hover { opacity: 0.8; }
+        
+        .status-new { background-color: var(--status-new); }
+        .status-preparing { background-color: var(--status-preparing); }
+        .status-ready { background-color: var(--status-ready); }
+        
+    </style>
+</head>
+<body>
+    <header>
+        <h1>The Coffee Affair Bistro - Delivery</h1>
+        <nav>
+            <a href="#" id="logoutBtn">Logout</a>
+        </nav>
+    </header>
+
+    <main>
+        <details class="order-section" id="new-orders-section" open>
+            <summary>New Delivery Orders</summary>
+            <div class="order-list" id="new-orders-list"></div>
+        </details>
+        
+        <details class="order-section" id="preparing-section" open>
+            <summary>Preparing for Delivery</summary>
+            <div class="order-list" id="preparing-orders-list"></div>
+        </details>
+
+        <details class="order-section" id="ready-section" open>
+            <summary>Ready for Delivery</summary>
+            <div class="order-list" id="ready-orders-list"></div>
+        </details>
+    </main>
+
+<script>
+    function formatPrice(price) { return `₱${price.toFixed(2)}`; }
+
+    function getOrders() { return JSON.parse(localStorage.getItem('bistroOrders')) || []; }
+
+    function updateOrderStatus(orderId, newStatus) {
+        let orders = getOrders();
+        const orderIndex = orders.findIndex(o => o.id === orderId);
+        if (orderIndex > -1) {
+            orders[orderIndex].status = newStatus;
+            localStorage.setItem('bistroOrders', JSON.stringify(orders));
+            renderDeliveryOrders();
+        }
+    }
+
+    function renderDeliveryOrders() {
+        const allOrders = getOrders();
+        
+        // --- THIS IS THE KEY: Filter for delivery orders ONLY ---
+        const deliveryOrders = allOrders.filter(order => order.orderType === 'Delivery');
+
+        const containers = {
+            New: document.getElementById('new-orders-list'),
+            Preparing: document.getElementById('preparing-orders-list'),
+            Ready: document.getElementById('ready-orders-list'),
+        };
+        
+        Object.values(containers).forEach(c => c.innerHTML = '<p>No orders in this category.</p>');
+
+        deliveryOrders.forEach(order => {
+            // Only process orders that aren't completed yet
+            if (order.status === 'Completed') return;
+
+            const itemsHtml = order.items.map(item => `<li>${item.name} x ${item.qty}</li>`).join('');
+            const orderTypeTag = `<span class="order-type-tag">Delivery</span>`;
+            
+            let actionButton = '';
+            let targetContainer = null;
+
+            switch (order.status) {
+                case 'New':
+                    actionButton = `<button class="btn-update-status status-new" data-id="${order.id}" data-status="Preparing">Start Preparing</button>`;
+                    targetContainer = containers.New;
+                    break;
+                case 'Preparing':
+                    actionButton = `<button class="btn-update-status status-preparing" data-id="${order.id}" data-status="Ready">Mark as Ready</button>`;
+                    targetContainer = containers.Preparing;
+                    break;
+                case 'Ready':
+                    actionButton = `<button class="btn-update-status status-ready" data-id="${order.id}" data-status="Completed">Complete Order</button>`;
+                    targetContainer = containers.Ready;
+                    break;
+            }
+
+            if (targetContainer) {
+                const orderCard = `
+                    <div class="order-card">
+                        <div class="order-card-header">
+                            <div>
+                                <strong>Order #${order.id}</strong>
+                                ${orderTypeTag}
+                            </div>
+                            <span>${order.customerName}</span>
+                        </div>
+                        <ul>${itemsHtml}</ul>
+                        <div class="order-card-footer">
+                            <span class="total">${formatPrice(order.totalPrice)}</span>
+                            ${actionButton}
+                        </div>
+                    </div>`;
+                if(targetContainer.querySelector('p')) {
+                    targetContainer.innerHTML = '';
+                }
+                targetContainer.innerHTML += orderCard;
+            }
+        });
+    }
+
+    // --- EVENT LISTENERS ---
+    document.addEventListener('DOMContentLoaded', renderDeliveryOrders);
+
+    window.addEventListener('storage', (e) => {
+        if (e.key === 'bistroOrders') {
+            renderDeliveryOrders();
+        }
+    });
+
+    document.addEventListener('click', (e) => {
+        if (e.target.classList.contains('btn-update-status')) {
+            const orderId = parseInt(e.target.dataset.id);
+            const newStatus = e.target.dataset.status;
+            updateOrderStatus(orderId, newStatus);
+        }
+    });
+    
+    document.getElementById('logoutBtn').addEventListener('click', (e) => {
+        e.preventDefault();
+        alert('You have been logged out.');
+        window.location.href = 'login.html';
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>The Coffee Affair Bistro</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        :root {
+            --bg-color: #faf6f0;
+            --header-bg: #6f4e37;
+            --text-light: #f0e6dc;
+            --text-dark: #3d2c21;
+            --accent-color: #a5836a;
+            --card-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+        }
+
+        header {
+            background: var(--header-bg);
+            color: var(--text-light);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        
+        header nav a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+        
+        .menu-container {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            gap: 2rem;
+            padding: 2rem;
+        }
+
+        .category-sidebar {
+            position: sticky;
+            top: 80px; /* Adjust based on header height */
+            align-self: start;
+            background: #fff;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: var(--card-shadow);
+        }
+        
+        .category-sidebar h3 { margin-top: 0; }
+        
+        .category-sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .category-sidebar li a {
+            display: block;
+            padding: 0.75rem 1rem;
+            text-decoration: none;
+            color: var(--text-dark);
+            border-radius: 5px;
+            transition: background-color 0.2s;
+        }
+
+        .category-sidebar li a:hover, .category-sidebar li a.active {
+            background-color: var(--accent-color);
+            color: white;
+            font-weight: 600;
+        }
+        
+        #products {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .product-card {
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        
+        .product-card .card-content {
+            padding: 1rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .product-card h4 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.2rem;
+        }
+        
+        .product-card .description {
+            font-size: 0.9rem;
+            color: #666;
+            flex-grow: 1;
+            margin-bottom: 1rem;
+        }
+        
+        .product-card .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .product-card .price {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--header-bg);
+        }
+
+        .btn-add-cart {
+            background-color: var(--header-bg);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+
+        .btn-add-cart:hover {
+            background-color: var(--accent-color);
+        }
+
+        .btn-remove-cart {
+            background-color: #f0f0f0;
+            color: var(--text-dark);
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 0.3rem 0.8rem;
+            font-size: 0.85rem;
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+            flex-shrink: 0; /* Prevents button from shrinking */
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+        .btn-remove-cart:hover {
+            background-color: #e0e0e0;
+            border-color: #999;
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-minus, .btn-plus {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-minus:hover, .btn-plus:hover {
+            background-color: var(--header-bg);
+        }
+
+        .qty {
+            font-weight: 600;
+            min-width: 20px;
+            text-align: center;
+        }
+
+        #cartSidebar {
+            position: fixed;
+            top: 0;
+            right: -400px; /* Start off-screen */
+            width: 350px;
+            height: 100%;
+            background: white;
+            box-shadow: -4px 0 15px rgba(0,0,0,0.2);
+            z-index: 1001;
+            transition: right 0.3s ease-in-out;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        #cartSidebar.open {
+            right: 0; /* Slide in */
+        }
+        
+        #cartSidebar h3 {
+            padding: 1.5rem;
+            margin: 0;
+            background: var(--header-bg);
+            color: white;
+        }
+
+        #closeCartBtn {
+            position: absolute;
+            top: 1.2rem;
+            right: 1.5rem;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.8rem;
+            cursor: pointer;
+        }
+        
+        #cartItems {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+        
+        .cart-item {
+            display: flex;
+            flex-direction: column;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .item-top {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            padding: 0.5rem 0;
+        }
+
+        .item-name {
+            margin-right: auto;
+        }
+
+        .item-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .cart-footer {
+            padding: 1.5rem;
+            border-top: 2px solid #eee;
+        }
+        
+        #cartTotal {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            text-align: right;
+        }
+        
+        #placeOrderBtn {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.1rem;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+
+        @media (max-width: 768px) {
+            .menu-container {
+                grid-template-columns: 1fr;
+            }
+            .category-sidebar {
+                position: static;
+                width: auto;
+            }
+            header {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1 id="welcome-header">The Coffee Affair Bistro</h1> 
+        <nav>
+            <a href="index.html" id="HomeBtn" style="margin-left: 1rem; font-size: 1rem; vertical-align: middle;">Home</a>
+            <a href="#" id="logoutBtn" style="margin-left: 1rem; font-size: 1rem; vertical-align: middle;">Logout</a>
+            <a href="#" id="openCartBtn" title="Open Cart" style="margin-left: 1.5rem;">
+                🛒<span id="cartCount" style="font-size: 0.8em; vertical-align: top; background: red; color: white; border-radius: 50%; padding: 2px 5px;">0</span>
+            </a>
+        </nav>
+    </header>
+
+    <div class="menu-container">
+        <aside class="category-sidebar">
+            <h3>Menu Categories</h3>
+            <ul id="category-list">
+                <!-- Categories will be dynamically inserted here -->
+            </ul>
+        </aside>
+        <main id="products">
+            <!-- Products will be dynamically inserted here -->
+        </main>
+    </div>
+
+    <div id="cartSidebar">
+        <button id="closeCartBtn">×</button>
+        <h3>Your Cart</h3>
+        <div id="cartItems"></div>
+        <div class="cart-footer">
+            <div id="cartTotal">Total: ₱0.00</div>
+            <button id="placeOrderBtn">Place Order</button>
+        </div>
+    </div>
+
+<script>
+    // ==========================================================
+    //  SECTION 1: DATA MANAGER LOGIC (self-contained)
+    // ==========================================================
+    function initializeData() {
+        if (!localStorage.getItem('bistroMenu')) {
+            const defaultMenu = [
+                // --- PASTE YOUR FULL MENU ARRAY HERE ---
+                { id: 1, name: 'Americano', description: 'Rich, full-bodied espresso with hot water.', price: 110.00, imageUrl: 'https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&w=600', category: 'Coffee', stock: 100, sold: 0 },
+                { id: 2, name: 'Cafe Latte', description: 'Espresso with steamed milk and a light layer of foam.', price: 125.00, imageUrl: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=600', category: 'Coffee', stock: 100, sold: 0 },
+                { id: 3, name: 'Cappuccino', description: 'Espresso with a thick layer of frothed milk foam.', price: 125.00, imageUrl: 'https://images.unsplash.com/photo-1557006021-b1da32a58235?auto=format&fit=crop&w=600', category: 'Coffee', stock: 80, sold: 0 },
+                { id: 4, name: 'Iced Caramel Macchiato', description: 'Espresso, vanilla syrup, milk, and caramel sauce over ice.', price: 140.00, imageUrl: 'https://images.unsplash.com/photo-1572491410294-f24e3a8b4331?auto=format&fit=crop&w=600', category: 'Coffee', stock: 90, sold: 0 },
+                { id: 5, name: 'Croissant', description: 'A classic buttery and flaky French pastry.', price: 85.00, imageUrl: 'https://images.unsplash.com/photo-1589114442236-a36375f41443?auto=format&fit=crop&w=600', category: 'Pastries', stock: 50, sold: 0 },
+                { id: 6, name: 'Blueberry Muffin', description: 'A soft and moist muffin bursting with blueberries.', price: 95.00, imageUrl: 'https://images.unsplash.com/photo-1616012028987-a25624731c9a?auto=format&fit=crop&w=600', category: 'Pastries', stock: 60, sold: 0 },
+                { id: 7, name: 'Cheesecake Slice', description: 'Creamy New York style cheesecake with a graham cracker crust.', price: 150.00, imageUrl: 'https://images.unsplash.com/photo-1588195538326-c5b1e9f80a1b?auto=format&fit=crop&w=600', category: 'Desserts', stock: 40, sold: 0 },
+                { id: 8, name: 'Clubhouse Sandwich', description: 'Triple-decker with turkey, bacon, lettuce, tomato, and mayo.', price: 220.00, imageUrl: 'https://images.unsplash.com/photo-1592415486698-3f41fac54287?auto=format&fit=crop&w=600', category: 'Sandwiches', stock: 30, sold: 0 },
+                { id: 9, name: 'Green Tea', description: 'A healthy and refreshing classic green tea.', price: 90.00, imageUrl: 'https://images.unsplash.com/photo-1627435601361-ec25f24aa2e1?auto=format&fit=crop&w=600', category: 'Tea', stock: 70, sold: 0 },
+                { id: 10, name: 'Caramel Macchiato', description: 'Steamed milk, vanilla, espresso, and a caramel drizzle.', price: 89.00, imageUrl: 'https://images.unsplash.com/photo-1598714376241-5586414771a3?auto=format&fit=crop&w=600', category: 'Coffee' },
+            { id: 11, name: 'Hazelnut Macchiato', description: 'A nutty twist on our classic caramel macchiato.', price: 89.00, imageUrl: 'https://images.unsplash.com/photo-1579982433051-175a13a5252a?auto=format&fit=crop&w=600', category: 'Coffee' },
+            { id: 12, name: 'Nutella Latte', description: 'A decadent latte made with real Nutella spread.', price: 90.00, imageUrl: 'https://images.unsplash.com/photo-1622359539498-5407d1591494?auto=format&fit=crop&w=600', category: 'Coffee' },
+            { id: 13, name: 'Biscoff Latte', description: 'Creamy latte infused with the flavor of Biscoff cookies.', price: 90.00, imageUrl: 'https://images.unsplash.com/photo-1621292881263-6a5e1e0e8838?auto=format&fit=crop&w=600', category: 'Coffee' },
+            
+            // --- NON-COFFEE ---
+            { id: 14, name: 'Milk', description: 'Fresh and creamy milk, served hot or cold.', price: 75.00, imageUrl: 'https://images.unsplash.com/photo-1559598467-f8b76c8155d0?auto=format&fit=crop&w=600', category: 'Non-Coffee' },
+            { id: 15, name: 'Dark Chocolate', description: 'Rich, decadent dark chocolate drink.', price: 80.00, imageUrl: 'https://images.unsplash.com/photo-1542355928-b4c4a4294697?auto=format&fit=crop&w=600', category: 'Non-Coffee' },
+            { id: 16, name: 'Strawberry Cream', description: 'A creamy and fruity strawberry beverage.', price: 95.00, imageUrl: 'https://images.unsplash.com/photo-1610412891223-5e9343642cf4?auto=format&fit=crop&w=600', category: 'Non-Coffee' },
+            { id: 17, name: 'Choco Milo Smores', description: 'A campfire classic in a cup with Milo and marshmallows.', price: 95.00, imageUrl: 'https://images.unsplash.com/photo-1579753444085-f125a65c9a09?auto=format&fit=crop&w=600', category: 'Non-Coffee' },
+            
+            // --- TEA ---
+            { id: 18, name: 'Chamomile Tea', description: 'A calming and aromatic herbal tea.', price: 65.00, imageUrl: 'https://images.unsplash.com/photo-1578899842423-e22f0f49370b?auto=format&fit=crop&w=600', category: 'Tea' },
+            { id: 19, name: 'Peppermint Tea', description: 'A refreshing and invigorating mint tea.', price: 65.00, imageUrl: 'https://images.unsplash.com/photo-1556740738-48f5a6a6a1d8?auto=format&fit=crop&w=600', category: 'Tea' },
+            { id: 20, name: 'Green Tea', description: 'A classic, healthy green tea with a delicate flavor.', price: 65.00, imageUrl: 'https://images.unsplash.com/photo-1627435601361-ec25f24744d9?auto=format&fit=crop&w=600', category: 'Tea' },
+            { id: 21, name: 'Matcha Latte', description: 'Earthy matcha green tea with steamed milk.', price: 90.00, imageUrl: 'https://images.unsplash.com/photo-1576426863848-c21f68b20b20?auto=format&fit=crop&w=600', category: 'Tea' },
+            { id: 22, name: 'Dalgona Matcha', description: 'Whipped matcha cream over iced milk.', price: 90.00, imageUrl: 'https://images.unsplash.com/photo-1589923188900-85dae523342d?auto=format&fit=crop&w=600', category: 'Tea' },
+            { id: 23, name: 'Spanish Matcha', description: 'A sweeter, creamier take on the classic matcha latte.', price: 95.00, imageUrl: 'https://images.unsplash.com/photo-1576426863848-c21f68b20b20?auto=format&fit=crop&w=600', category: 'Tea' },
+            
+            // --- SIGNATURE DRINKS ---
+            { id: 24, name: 'Brown Sugar Milk Tea', description: 'Classic milk tea with brown sugar syrup and pearls.', price: 115.00, imageUrl: 'https://images.unsplash.com/photo-1585882415755-c25783c37340?auto=format&fit=crop&w=600', category: 'Signature Drinks' },
+            { id: 25, name: 'Thai Milk Tea', description: 'Sweet and creamy, authentically brewed Thai tea.', price: 115.00, imageUrl: 'https://images.unsplash.com/photo-1599159518115-433b5a935475?auto=format&fit=crop&w=600', category: 'Signature Drinks' },
+            { id: 26, name: 'Cucumber Lime Tea', description: 'A uniquely refreshing iced tea.', price: 129.00, imageUrl: 'https://images.unsplash.com/photo-1556740738-48f5a6a6a1d8?auto=format&fit=crop&w=600', category: 'Signature Drinks' },
+            { id: 27, name: 'Honey Lemon Tea', description: 'Soothing hot tea with natural honey and lemon.', price: 129.00, imageUrl: 'https://images.unsplash.com/photo-1578899842423-e22f0f49370b?auto=format&fit=crop&w=600', category: 'Signature Drinks' },
+            { id: 28, name: 'Orange Americano', description: 'Iced americano with a twist of fresh orange.', price: 135.00, imageUrl: 'https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&w=600', category: 'Signature Drinks' },
+            { id: 29, name: 'Choco Matcha', description: 'A perfect blend of earthy matcha and rich chocolate.', price: 145.00, imageUrl: 'https://images.unsplash.com/photo-1576426863848-c21f68b20b20?auto=format&fit=crop&w=600', category: 'Signature Drinks' },
+            { id: 30, name: 'Dirty Matcha', description: 'A matcha latte with a shot of espresso.', price: 145.00, imageUrl: 'https://images.unsplash.com/photo-1576426863848-c21f68b20b20?auto=format&fit=crop&w=600', category: 'Signature Drinks' },
+            
+            // --- APPETIZERS ---
+            { id: 31, name: 'Cheese Fries', description: 'Crispy fries smothered in warm cheese sauce.', price: 99.00, imageUrl: 'https://images.unsplash.com/photo-1598679253544-2c9741991adf?auto=format&fit=crop&w=600', category: 'Appetizers' },
+            { id: 32, name: 'BBQ Fries', description: 'Fries tossed in a smoky BBQ seasoning.', price: 99.00, imageUrl: 'https://images.unsplash.com/photo-1598679253544-2c9741991adf?auto=format&fit=crop&w=600', category: 'Appetizers' },
+            { id: 33, name: 'Sour Cream Fries', description: 'Crispy fries served with a side of sour cream and chives.', price: 109.00, imageUrl: 'https://images.unsplash.com/photo-1598679253544-2c9741991adf?auto=format&fit=crop&w=600', category: 'Appetizers' },
+            { id: 34, name: 'Truffle Parmesan Fries', description: 'Fries drizzled with truffle oil and topped with Parmesan.', price: 119.00, imageUrl: 'https://images.unsplash.com/photo-1598679253544-2c9741991adf?auto=format&fit=crop&w=600', category: 'Appetizers' },
+            { id: 35, name: 'Creamy Mushroom Soup', description: 'A warm and hearty soup made with fresh mushrooms.', price: 119.00, imageUrl: 'https://images.unsplash.com/photo-1559525283-a4e9b5f92f6a?auto=format&fit=crop&w=600', category: 'Appetizers' },
+            { id: 36, name: 'Chicken Caesar Salad', description: 'Classic Caesar salad with grilled chicken strips.', price: 129.00, imageUrl: 'https://images.unsplash.com/photo-1550304943-4f24f54ddde9?auto=format&fit=crop&w=600', category: 'Appetizers' },
+            { id: 37, name: 'Chicken Goujons', description: 'Crispy chicken tenders served with a dip.', price: 149.00, imageUrl: 'https://images.unsplash.com/photo-1626082910747-3d1d7a3c4f8c?auto=format&fit=crop&w=600', category: 'Appetizers' },
+            { id: 38, name: 'Chick n\' Chips', description: 'Classic fish and chips, but with chicken.', price: 175.00, imageUrl: 'https://images.unsplash.com/photo-1626082910747-3d1d7a3c4f8c?auto=format&fit=crop&w=600', category: 'Appetizers' },
+            { id: 39, name: 'Nacho Supreme', description: 'Tortilla chips loaded with cheese, salsa, and sour cream.', price: 175.00, imageUrl: 'https://images.unsplash.com/photo-1570417933497-282f186cec62?auto=format&fit=crop&w=600', category: 'Appetizers' },
+
+            // --- BURGER & SANDWICH ---
+            { id: 40, name: 'Chicken Sandwich', description: 'A simple yet delicious grilled chicken sandwich.', price: 145.00, imageUrl: 'https://images.unsplash.com/photo-1592415486689-125c994e073c?auto=format&fit=crop&w=600', category: 'Burger & Sandwich' },
+            { id: 41, name: 'Ham & Egg Sandwich', description: 'A breakfast classic, perfect any time of day.', price: 135.00, imageUrl: 'https://images.unsplash.com/photo-1553909489-cd47e0907910?auto=format&fit=crop&w=600', category: 'Burger & Sandwich' },
+            { id: 42, name: 'Clubhouse Sandwich', description: 'A triple-decker sandwich with chicken, bacon, lettuce, and tomato.', price: 189.00, imageUrl: 'https://images.unsplash.com/photo-1592415486689-125c994e073c?auto=format&fit=crop&w=600', category: 'Burger & Sandwich' },
+            { id: 43, name: 'Kimchi Burger', description: 'A juicy beef patty topped with spicy kimchi.', price: 175.00, imageUrl: 'https://images.unsplash.com/photo-1571091718767-18b5b1457add?auto=format&fit=crop&w=600', category: 'Burger & Sandwich' },
+            { id: 44, name: 'Texas BBQ Burger', description: 'Beef patty with bacon, cheese, and smoky BBQ sauce.', price: 185.00, imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600', category: 'Burger & Sandwich' },
+            { id: 45, name: 'Ultimate Double Cheese', description: 'Two beef patties, double the cheese.', price: 215.00, imageUrl: 'https://images.unsplash.com/photo-1607013251379-e6eecfffe234?auto=format&fit=crop&w=600', category: 'Burger & Sandwich' },
+
+            // --- PASTA ---
+            { id: 46, name: 'Aglio Olio', description: 'Spaghetti in sauteed garlic and olive oil.', price: 159.00, imageUrl: 'https://images.unsplash.com/photo-1621996346565-e326b20f5444?auto=format&fit=crop&w=600', category: 'Pasta' },
+            { id: 47, name: 'Spaghetti ala Carbonara', description: 'Spaghetti in a creamy sauce with bacon.', price: 175.00, imageUrl: 'https://images.unsplash.com/photo-1588013273468-4113a4ea1323?auto=format&fit=crop&w=600', category: 'Pasta' },
+            { id: 48, name: 'Black Calamari Pasta', description: 'Squid ink pasta with tender calamari rings.', price: 190.00, imageUrl: 'https://images.unsplash.com/photo-1621996346565-e326b20f5444?auto=format&fit=crop&w=600', category: 'Pasta' },
+            { id: 49, name: 'Seafood Fettuccine', description: 'Flat pasta with sauteed mixed seafood in tomato sauce.', price: 190.00, imageUrl: 'https://images.unsplash.com/photo-1563379926898-059e56e5df85?auto=format&fit=crop&w=600', category: 'Pasta' },
+            { id: 50, name: 'Chicken Pesto Pasta', description: 'Home-made Pesto sauce with pan-grilled chicken.', price: 190.00, imageUrl: 'https://images.unsplash.com/photo-1608889980039-b14973417533?auto=format&fit=crop&w=600', category: 'Pasta' },
+            { id: 51, name: 'Chicken Mushroom Alfredo', description: 'Signature creamy alfredo sauce with chicken and mushroom.', price: 190.00, imageUrl: 'https://images.unsplash.com/photo-1611270629569-b5741634a4a3?auto=format&fit=crop&w=600', category: 'Pasta' },
+            { id: 52, name: 'Beef Bolognese', description: 'Pasta with classic beef and tomato sauce.', price: 199.00, imageUrl: 'https://images.unsplash.com/photo-1598866594240-a626a459dfa5?auto=format&fit=crop&w=600', category: 'Pasta' },
+            { id: 53, name: 'Seafood Olio', description: 'Pasta sauteed with mixed seafood in garlic, chili, and olive oil.', price: 199.00, imageUrl: 'https://images.unsplash.com/photo-1563379926898-059e56e5df85?auto=format&fit=crop&w=600', category: 'Pasta' },
+            
+            // --- DESSERTS ---
+            { id: 54, name: 'Affogato', description: 'A scoop of vanilla ice cream drowned in hot espresso.', price: 99.00, imageUrl: 'https://images.unsplash.com/photo-1579954115564-d6b9a8e3a2d5?auto=format&fit=crop&w=600', category: 'Desserts' },
+            { id: 55, name: 'Banana Sundae', description: 'Classic banana split sundae.', price: 99.00, imageUrl: 'https://images.unsplash.com/photo-1579954115564-d6b9a8e3a2d5?auto=format&fit=crop&w=600', category: 'Desserts' },
+            { id: 56, name: 'Belgian Waffles', description: 'Crispy waffles served with your choice of syrup.', price: 135.00, imageUrl: 'https://images.unsplash.com/photo-1562376552-0d160a2f86d7?auto=format&fit=crop&w=600', category: 'Desserts' },
+            { id: 57, name: 'Biscoff Caramel Waffles', description: 'Waffles topped with Biscoff spread and caramel.', price: 145.00, imageUrl: 'https://images.unsplash.com/photo-1562376552-0d160a2f86d7?auto=format&fit=crop&w=600', category: 'Desserts' },
+            { id: 58, name: 'Waffles & Ice Cream', description: 'Warm waffles served with a scoop of vanilla ice cream.', price: 145.00, imageUrl: 'https://images.unsplash.com/photo-1562376552-0d160a2f86d7?auto=format&fit=crop&w=600', category: 'Desserts' },
+            { id: 59, name: 'Nutella Waffles', description: 'Waffles smothered in delicious Nutella.', price: 145.00, imageUrl: 'https://images.unsplash.com/photo-1562376552-0d160a2f86d7?auto=format&fit=crop&w=600', category: 'Desserts' },
+            { id: 60, name: 'Hot Fudge Brownie', description: 'A warm brownie topped with ice cream and hot fudge.', price: 159.00, imageUrl: 'https://images.unsplash.com/photo-1567602339513-d1a2386412e4?auto=format&fit=crop&w=600', category: 'Desserts' },
+
+             // --- FRUITY OPTIONS ---
+            { id: 61, name: 'Green Apple Lemon Soda', description: 'Tart and refreshing sparkling soda.', price: 115.00, imageUrl: 'https://images.unsplash.com/photo-1543364195-bfe6e4932397?auto=format&fit=crop&w=600', category: 'Fruity Options' },
+            { id: 62, name: 'Blueberry Lemon Soda', description: 'Sweet blueberry meets zesty lemon.', price: 115.00, imageUrl: 'https://images.unsplash.com/photo-1543364195-bfe6e4932397?auto=format&fit=crop&w=600', category: 'Fruity Options' },
+            { id: 63, name: 'Orange Lemon Soda', description: 'A citrus blast of orange and lemon.', price: 125.00, imageUrl: 'https://images.unsplash.com/photo-1543364195-bfe6e4932397?auto=format&fit=crop&w=600', category: 'Fruity Options' },
+            { id: 64, name: 'Mango Fizz', description: 'A tropical sparkling mango drink.', price: 125.00, imageUrl: 'https://images.unsplash.com/photo-1543364195-bfe6e4932397?auto=format&fit=crop&w=600', category: 'Fruity Options' },
+            { id: 65, name: 'Strawberry Fizz', description: 'Bubbly and sweet strawberry soda.', price: 145.00, imageUrl: 'https://images.unsplash.com/photo-1543364195-bfe6e4932397?auto=format&fit=crop&w=600', category: 'Fruity Options' },
+            { id: 66, name: 'Banoffee Smoothie', description: 'A delicious blend of banana and toffee.', price: 145.00, imageUrl: 'https://images.unsplash.com/photo-1610970878459-a0e259d0a0e5?auto=format&fit=crop&w=600', category: 'Fruity Options' },
+            { id: 67, name: 'Strawberry Smoothie', description: 'A classic smoothie made with real strawberries.', price: 145.00, imageUrl: 'https://images.unsplash.com/photo-1610970878459-a0e259d0a0e5?auto=format&fit=crop&w=600', category: 'Fruity Options' },
+            { id: 68, name: 'Mango Smoothie', description: 'A creamy and tropical mango smoothie.', price: 145.00, imageUrl: 'https://images.unsplash.com/photo-1610970878459-a0e259d0a0e5?auto=format&fit=crop&w=600', category: 'Fruity Options' },
+            { id: 69, name: 'Mix Berry Smoothie', description: 'A blend of assorted berries for a healthy treat.', price: 155.00, imageUrl: 'https://images.unsplash.com/photo-1610970878459-a0e259d0a0e5?auto=format&fit=crop&w=600', category: 'Fruity Options' },
+            { id: 70, name: 'Banana Mango Smoothie', description: 'A perfect tropical mix of banana and mango.', price: 155.00, imageUrl: 'https://images.unsplash.com/photo-1610970878459-a0e259d0a0e5?auto=format&fit=crop&w=600', category: 'Fruity Options' },
+
+            // --- SIGNATURE MILKSHAKES ---
+            { id: 71, name: 'Vanilla Classic', description: 'A timeless, creamy vanilla milkshake.', price: 145.00, imageUrl: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&w=600', category: 'Signature Milkshakes' },
+            { id: 72, name: 'Chocolate Classic', description: 'A rich and classic chocolate milkshake.', price: 145.00, imageUrl: 'https://images.unsplash.com/photo-1623428187969-5da2dcea5ebf?auto=format&fit=crop&w=600', category: 'Signature Milkshakes' },
+            { id: 73, name: 'Coffee Classic', description: 'For the coffee lover, a coffee-flavored milkshake.', price: 155.00, imageUrl: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&w=600', category: 'Signature Milkshakes' },
+            { id: 74, name: 'Dalgona Crunch', description: 'A milkshake with crunchy Dalgona candy pieces.', price: 159.00, imageUrl: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&w=600', category: 'Signature Milkshakes' },
+            { id: 75, name: 'Oreo Blast', description: 'A thick milkshake blended with real Oreo cookies.', price: 159.00, imageUrl: 'https://images.unsplash.com/photo-1623428187969-5da2dcea5ebf?auto=format&fit=crop&w=600', category: 'Signature Milkshakes' },
+            { id: 76, name: 'Choco Brownie', description: 'A chocolate milkshake with chunks of brownie.', price: 159.00, imageUrl: 'https://images.unsplash.com/photo-1623428187969-5da2dcea5ebf?auto=format&fit=crop&w=600', category: 'Signature Milkshakes' },
+            { id: 77, name: 'Nut-tella', description: 'A creamy milkshake made with real Nutella.', price: 159.00, imageUrl: 'https://images.unsplash.com/photo-1623428187969-5da2dcea5ebf?auto=format&fit=crop&w=600', category: 'Signature Milkshakes' },
+            { id: 78, name: 'Matcha Blast', description: 'A refreshing milkshake with the earthy taste of matcha.', price: 159.00, imageUrl: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&w=600', category: 'Signature Milkshakes' },
+            ];
+            localStorage.setItem('bistroMenu', JSON.stringify(defaultMenu));
+        }
+    }
+    
+    function getMenu() { return JSON.parse(localStorage.getItem('bistroMenu')) || []; }
+    
+    function placeOrder(order) {
+        // Update stock
+        const currentMenu = getMenu();
+        order.items.forEach(orderItem => {
+            const menuProduct = currentMenu.find(p => p.name === orderItem.name);
+            if (menuProduct) {
+                menuProduct.stock -= orderItem.qty;
+                menuProduct.sold += orderItem.qty;
+            }
+        });
+        localStorage.setItem('bistroMenu', JSON.stringify(currentMenu));
+        
+        // Save the order
+        const orders = JSON.parse(localStorage.getItem('bistroOrders')) || [];
+        order.id = new Date().getTime();
+        order.timestamp = new Date().toISOString();
+        order.status = 'New';
+        orders.unshift(order);
+        localStorage.setItem('bistroOrders', JSON.stringify(orders));
+    }
+    
+    // ==========================================================
+    //  SECTION 2: PAGE LOGIC
+    // ==========================================================
+    let cart = [];
+
+    function formatPrice(price) { return `₱${price.toFixed(2)}`; }
+
+    function renderProducts(category = 'All') {
+        const productsContainer = document.getElementById('products');
+        productsContainer.innerHTML = '';
+        const menu = getMenu();
+
+        const filteredProducts = category === 'All' 
+            ? menu 
+            : menu.filter(p => p.category === category);
+
+        if (filteredProducts.length === 0) {
+            productsContainer.innerHTML = '<p>No products found in this category.</p>';
+            return;
+        }
+
+        filteredProducts.forEach(product => {
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            card.innerHTML = `
+                <img src="${product.imageUrl}" alt="${product.name}">
+                <div class="card-content">
+                    <h4>${product.name}</h4>
+                    <p class="description">${product.description}</p>
+                    <div class="card-footer">
+                        <span class="price">${formatPrice(product.price)}</span>
+                        <button class="btn-add-cart" data-id="${product.id}">Add to Cart</button>
+                    </div>
+                </div>
+            `;
+            productsContainer.appendChild(card);
+        });
+    }
+
+    function renderCategories() {
+        const categoryList = document.getElementById('category-list');
+        categoryList.innerHTML = '';
+        const menu = getMenu();
+        const categories = ['All', ...new Set(menu.map(p => p.category))];
+        
+        categories.forEach(category => {
+            const li = document.createElement('li');
+            const a = document.createElement('a');
+            a.href = '#';
+            a.textContent = category;
+            a.dataset.category = category;
+            if (category === 'All') {
+                a.classList.add('active');
+            }
+            li.appendChild(a);
+            categoryList.appendChild(li);
+        });
+    }
+
+    function updateCartUI() {
+    const cartItemsContainer = document.getElementById('cartItems');
+    const cartTotalEl = document.getElementById('cartTotal');
+    const cartCountEl = document.getElementById('cartCount');
+    const menu = getMenu();
+
+    cartItemsContainer.innerHTML = '';
+    let total = 0;
+    let itemCount = 0;
+
+    cart.forEach(cartItem => {
+        const product = menu.find(p => p.id === cartItem.id);
+        if (product) {
+            const itemEl = document.createElement('div');
+            itemEl.className = 'cart-item';
+            itemEl.innerHTML = `
+                <div class="item-top">
+                    <span class="item-name">${product.name}</span>
+                    <span>${formatPrice(product.price * cartItem.qty)}</span>
+                </div>
+                <div class="item-bottom">
+                    <div class="quantity-controls">
+                        <button class="btn-minus" data-id="${product.id}">-</button>
+                        <span class="qty">${cartItem.qty}</span>
+                        <button class="btn-plus" data-id="${product.id}">+</button>
+                    </div>
+                    <button class="btn-remove-cart" data-id="${product.id}">Remove</button>
+                </div>
+            `;
+            cartItemsContainer.appendChild(itemEl);
+            total += product.price * cartItem.qty;
+            itemCount += cartItem.qty;
+        }
+    });
+
+    cartTotalEl.textContent = `Total: ${formatPrice(total)}`;
+    cartCountEl.textContent = itemCount;
+    cartCountEl.style.display = itemCount > 0 ? 'inline' : 'none';
+}
+function decreaseQty(productId) {
+    const itemIndex = cart.findIndex(item => item.id === productId);
+    if (itemIndex > -1) {
+        cart[itemIndex].qty--;
+        if (cart[itemIndex].qty <= 0) {
+            cart.splice(itemIndex, 1); // Remove item if quantity is 0
+        }
+        updateCartUI();
+    }
+}
+
+function increaseQty(productId) {
+    const itemIndex = cart.findIndex(item => item.id === productId);
+    if (itemIndex > -1) {
+        cart[itemIndex].qty++;
+        updateCartUI();
+    }
+}
+
+function removeItem(productId) {
+    const itemIndex = cart.findIndex(item => item.id === productId);
+    if (itemIndex > -1) {
+        cart.splice(itemIndex, 1);
+        updateCartUI();
+    }
+}
+
+    function addToCart(productId) {
+        const existingItem = cart.find(item => item.id === productId);
+        if (existingItem) {
+            existingItem.qty++;
+        } else {
+            cart.push({ id: productId, qty: 1 });
+        }
+        updateCartUI();
+        openCart(); // Open cart when item is added
+    }
+
+    function openCart() { document.getElementById('cartSidebar').classList.add('open'); }
+    function closeCart() { document.getElementById('cartSidebar').classList.remove('open'); }
+
+    function handlePlaceOrder() {
+        if (cart.length === 0) {
+            alert("Your cart is empty!");
+            return;
+        }
+        
+        let customerName = 'Guest Customer';
+        const currentUserJSON = localStorage.getItem('currentBistroUser');
+
+        if (currentUserJSON) {
+            const currentUser = JSON.parse(currentUserJSON);
+            customerName = currentUser.name;
+        }
+
+        const menu = getMenu();
+        let total = 0;
+        const orderItems = cart.map(item => {
+            const prod = menu.find(p => p.id === item.id);
+            total += prod.price * item.qty;
+            // Check stock
+            if (prod.stock < item.qty) {
+                alert(`Sorry, we only have ${prod.stock} of ${prod.name} in stock.`);
+                return null; // indicates an error
+            }
+            return { name: prod.name, qty: item.qty, price: prod.price };
+        });
+        
+        // If any item was out of stock, stop the order
+        if (orderItems.includes(null)) return;
+
+        const newOrder = {
+            customerName: customerName,
+            items: orderItems,
+            totalPrice: total,
+            orderType: Math.random() > 0.5 ? 'delivery' : 'pickup' // Random for example
+        };
+
+        placeOrder(newOrder); // This will update stock and save the order
+        alert('Order placed successfully! It is now visible to the cashier.');
+        
+        cart = []; // Clear the cart
+        updateCartUI();
+        closeCart();
+        renderProducts(document.querySelector('.category-sidebar a.active').dataset.category); // Re-render to show updated stock if needed
+    }
+    
+    // --- EVENT LISTENERS ---
+    document.addEventListener('DOMContentLoaded', function() {
+        const welcomeHeader = document.getElementById('welcome-header');
+        const currentUserJSON = localStorage.getItem('currentBistroUser');
+        if (currentUserJSON) {
+            const currentUser = JSON.parse(currentUserJSON);
+            welcomeHeader.textContent = `Welcome, ${currentUser.name}!`;
+        }
+
+        initializeData();
+        renderCategories();
+        renderProducts(); // Render all products initially
+        updateCartUI();
+    });
+
+    document.addEventListener('click', (e) => {
+        // Add to cart button
+        if (e.target.classList.contains('btn-add-cart')) {
+            addToCart(parseInt(e.target.dataset.id));
+        }
+
+        // Decrease quantity button
+        if (e.target.classList.contains('btn-minus')) {
+            decreaseQty(parseInt(e.target.dataset.id));
+        }
+
+        // Increase quantity button
+        if (e.target.classList.contains('btn-plus')) {
+            increaseQty(parseInt(e.target.dataset.id));
+        }
+
+        // Remove item button
+        if (e.target.classList.contains('btn-remove-cart')) {
+            removeItem(parseInt(e.target.dataset.id));
+        }
+
+        // Category link click
+        if (e.target.matches('.category-sidebar a')) {
+            e.preventDefault();
+            const category = e.target.dataset.category;
+            document.querySelectorAll('.category-sidebar a').forEach(a => a.classList.remove('active'));
+            e.target.classList.add('active');
+            renderProducts(category);
+        }
+    });
+
+    document.getElementById('openCartBtn').addEventListener('click', openCart);
+    document.getElementById('closeCartBtn').addEventListener('click', closeCart);
+    document.getElementById('placeOrderBtn').addEventListener('click', handlePlaceOrder);
+    
+    document.getElementById('logoutBtn').addEventListener('click', function(e) {
+        e.preventDefault();
+        localStorage.removeItem('currentBistroUser');
+        alert('You have been logged out.');
+        window.location.href = 'login.html'; // Assuming you have a login.html
+    });
+
+</script>
+</body>
+</html>
