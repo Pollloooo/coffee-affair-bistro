@@ -3,339 +3,2489 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Coffee Affair Bistro</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Coffee Affair Bistro - Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #8B4513;
+            --primary-light: #A0522D;
+            --secondary: #D2691E;
+            --accent: #CD853F;
+            --light: #F5F5DC;
+            --dark: #3E2723;
+            --success: #4CAF50;
+            --warning: #FF9800;
+            --danger: #F44336;
+            --info: #2196F3;
+            --gray: #9E9E9E;
+            --gray-light: #F5F5F5;
+            --white: #FFFFFF;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --radius: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--gray-light);
+            color: var(--dark);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(to bottom, var(--primary), var(--primary-light));
+            color: var(--white);
+            padding: 20px 0;
+            transition: all 0.3s;
+            box-shadow: var(--shadow);
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .logo i {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+
+        .logo h1 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .nav-links {
+            list-style: none;
+        }
+
+        .nav-links li {
+            padding: 12px 20px;
+            transition: all 0.3s;
+        }
+
+        .nav-links li:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-links a {
+            color: var(--white);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .nav-links i {
+            margin-right: 10px;
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .nav-links .active {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-left: 4px solid var(--accent);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            background-color: var(--white);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            z-index: 99;
+        }
+
+        .header h2 {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-info img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+
+        .user-info .btn-logout {
+            background-color: var(--danger);
+            color: var(--white);
+            border: none;
+            padding: 8px 15px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            margin-left: 15px;
+            transition: all 0.3s;
+        }
+
+        .user-info .btn-logout:hover {
+            background-color: #d32f2f;
+        }
+
+        /* Content Area */
+        .content {
+            padding: 30px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .dashboard-section {
+            background-color: var(--white);
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+        }
+
+        .dashboard-section.full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* NEW: Adjusted Financial Overview to be smaller */
+        .dashboard-section.compact {
+            grid-column: span 1;
+            min-height: 300px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .section-header h3 {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .btn-view-all {
+            background-color: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 6px 12px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn-view-all:hover {
+            background-color: var(--primary);
+            color: var(--white);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background-color: var(--white);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            transition: transform 0.3s;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card.editing {
+            background-color: rgba(139, 69, 19, 0.05);
+            border: 2px dashed var(--primary);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 24px;
+        }
+
+        .sales .stat-icon {
+            background-color: rgba(139, 69, 19, 0.1);
+            color: var(--primary);
+        }
+
+        .orders .stat-icon {
+            background-color: rgba(76, 175, 80, 0.1);
+            color: var(--success);
+        }
+
+        .customers .stat-icon {
+            background-color: rgba(33, 150, 243, 0.1);
+            color: var(--info);
+        }
+
+        .profit .stat-icon {
+            background-color: rgba(76, 175, 80, 0.1);
+            color: var(--success);
+        }
+
+        .expenses .stat-icon {
+            background-color: rgba(255, 152, 0, 0.1);
+            color: var(--warning);
+        }
+
+        .labor .stat-icon {
+            background-color: rgba(244, 67, 54, 0.1);
+            color: var(--danger);
+        }
+
+        .stock .stat-icon {
+            background-color: rgba(255, 152, 0, 0.1);
+            color: var(--warning);
+        }
+
+        .stat-info h3 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            min-height: 32px;
+        }
+
+        .stat-info p {
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        .edit-indicator {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            color: var(--primary);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .stat-card:hover .edit-indicator {
+            opacity: 1;
+        }
+
+        .stat-input {
+            width: 100%;
+            border: 1px solid var(--primary);
+            border-radius: 4px;
+            padding: 5px 8px;
+            font-size: 20px;
+            font-weight: bold;
+            background: var(--white);
+        }
+
+        /* Charts */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        /* NEW: Smaller chart container for compact sections */
+        .chart-container.compact {
+            height: 200px;
+        }
+
+        .chart-placeholder {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--gray-light);
+            border-radius: var(--radius);
+            color: var(--gray);
+            font-style: italic;
+        }
+
+        /* Tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            text-align: left;
+            padding: 12px 15px;
+            background-color: var(--gray-light);
+            color: var(--dark);
+            font-weight: 600;
+        }
+
+        .data-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .data-table tr:hover {
+            background-color: rgba(139, 69, 19, 0.05);
+        }
+
+        .status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status.completed {
+            background-color: rgba(76, 175, 80, 0.1);
+            color: var(--success);
+        }
+
+        .status.pending {
+            background-color: rgba(255, 152, 0, 0.1);
+            color: var(--warning);
+        }
+
+        .status.cancelled {
+            background-color: rgba(244, 67, 54, 0.1);
+            color: var(--danger);
+        }
+
+        .stock-low {
+            color: var(--warning);
+            font-weight: 600;
+        }
+
+        .stock-out {
+            color: var(--danger);
+            font-weight: 600;
+        }
+
+        .btn-edit {
+            background-color: var(--info);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-right: 5px;
+        }
+
+        .btn-edit:hover {
+            background-color: #1976d2;
+        }
+
+        .btn-save {
+            background-color: var(--success);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-right: 5px;
+        }
+
+        .btn-save:hover {
+            background-color: #388e3c;
+        }
+
+        .btn-cancel {
+            background-color: var(--gray);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .btn-cancel:hover {
+            background-color: #757575;
+        }
+
+        .editable {
+            cursor: pointer;
+            transition: background-color 0.2s;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+
+        .editable:hover {
+            background-color: rgba(139, 69, 19, 0.1);
+        }
+
+        .edit-input {
+            width: 100%;
+            padding: 4px 8px;
+            border: 1px solid var(--primary);
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        /* Modern Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+            padding: 20px;
+        }
+
+        .modal-content {
+            background-color: var(--white);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            transform: scale(0.9);
+            opacity: 0;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal.show .modal-content {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 25px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .modal-header h3 {
+            color: white;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
+        }
+
+        .close-modal:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-body {
+            padding: 25px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: var(--radius);
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(139, 69, 19, 0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(139, 69, 19, 0.3);
+        }
+
+        .btn-secondary {
+            background-color: var(--gray-light);
+            color: var(--dark);
+            border: none;
+            padding: 12px 24px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin-right: 10px;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e0e0e0;
+        }
+
+        .modal-footer {
+            padding: 20px 25px;
+            border-top: 1px solid var(--gray-light);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        /* Improved Data Grid for Financial Modal */
+        .financial-data-grid {
+            display: grid;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .financial-data-row {
+            display: grid;
+            grid-template-columns: 80px 1fr 1fr;
+            gap: 12px;
+            align-items: center;
+            padding: 12px;
+            border-radius: var(--radius);
+            background-color: var(--gray-light);
+            transition: background-color 0.2s;
+        }
+
+        .financial-data-row:hover {
+            background-color: #e8e8e8;
+        }
+
+        .financial-data-row.header {
+            background-color: var(--primary);
+            color: white;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .financial-data-input {
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.2s;
+            width: 100%;
+        }
+
+        .financial-data-input:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(139, 69, 19, 0.2);
+        }
+
+        .financial-summary {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-top: 20px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .summary-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--primary);
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--success);
+            color: white;
+            padding: 15px 25px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            z-index: 1001;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.error {
+            background-color: var(--danger);
+        }
+
+        .toast i {
+            font-size: 18px;
+        }
+
+        /* Quick Action Buttons */
+        .quick-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .quick-action-btn {
+            background-color: var(--white);
+            border: 1px solid var(--gray-light);
+            padding: 10px 15px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .quick-action-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        /* NEW: Operations Management Styles */
+        .operations-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 15px;
+        }
+        
+        .operations-section {
+            background-color: var(--white);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+        
+        .operations-section h4 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+        
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--gray-light);
+        }
+        
+        .task-item:last-child {
+            border-bottom: none;
+        }
+        
+        .task-checkbox {
+            margin-right: 10px;
+            color: var(--success);
+        }
+        
+        .task-checkbox.incomplete {
+            color: var(--gray);
+        }
+        
+        .equipment-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--gray-light);
+        }
+        
+        .equipment-item:last-child {
+            border-bottom: none;
+        }
+        
+        .equipment-status {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 12px;
+        }
+        
+        .equipment-status.operational {
+            background-color: rgba(76, 175, 80, 0.1);
+            color: var(--success);
+        }
+        
+        .equipment-status.needs-attention {
+            background-color: rgba(255, 152, 0, 0.1);
+            color: var(--warning);
+        }
+        
+        .operations-alert {
+            background-color: rgba(255, 152, 0, 0.1);
+            border-left: 4px solid var(--warning);
+            padding: 12px 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .operations-alert i {
+            margin-right: 10px;
+            color: var(--warning);
+        }
+        
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .operations-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 80px;
+            }
+            
+            .logo h1, .nav-links span {
+                display: none;
+            }
+            
+            .nav-links i {
+                margin-right: 0;
+                font-size: 20px;
+            }
+            
+            .nav-links li {
+                text-align: center;
+                padding: 15px 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .header {
+                padding: 15px;
+            }
+            
+            .content {
+                padding: 15px;
+            }
+            
+            .financial-data-row {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            
+            .modal-content {
+                width: 95%;
+                margin: 10px;
+            }
+            
+            .financial-data-input {
+                font-size: 16px; /* Better for mobile */
+            }
+        }
+
+        @media (max-width: 576px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-footer {
+                flex-direction: column;
+            }
+            
+            .modal-footer button {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            
+            .quick-actions {
+                flex-direction: column;
+            }
+            
+            .quick-action-btn {
+                justify-content: center;
+            }
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>The Coffee Affair Bistro <span class="user-role">- Admin Dashboard</span></h1>
-        <nav><a href="login.html" class="btn btn-brown" style="padding: 6px 12px; border-radius: 4px; text-decoration: none;">Logout</a></nav>
-    </header>
-    <main>
-        <!-- Navigation Buttons -->
-        <div class="admin-nav-buttons">
-            <a href="admin_inventory.html" class="btn">Manage Inventory</a>
-            <a href="admin_logins.html" class="btn">View Login History</a>
-            <a href="cashier.html" class="btn">Go to Cashier View</a>
-            <a href="menu.html" class="btn btn-brown" style="margin-left: 10px;">Edit Menu</a>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fas fa-coffee"></i>
+            <h1>Coffee Affair Bistro</h1>
         </div>
+        <ul class="nav-links">
+            <li class="active">
+                <a href="#">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Analytics Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="admin_inventory.html">
+                    <i class="fas fa-boxes"></i>
+                    <span>Inventory Management</span>
+                </a>
+            </li>
+            <li>
+                <a href="admin_logins.html">
+                    <i class="fas fa-history"></i>
+                    <span>Login History</span>
+                </a>
+            </li>
+            <li>
+                <a href="menu.html">
+                    <i class="fas fa-utensils"></i>
+                    <span>Menu Management</span>
+                </a>
+            </li>
+            <li>
+                <a href="employee.html">
+                    <i class="fas fa-users"></i>
+                    <span>Employee Management</span>
+                </a>
+            </li>
+        </ul>
+    </div>
 
-        <!-- Stat Card Grid -->
-        <div class="admin-grid">
-            <div class="stat-card">
-                <div id="total-sales" class="stat-value">₱0.00</div>
-                <div class="stat-label">Total Sales</div>
-            </div>
-            <div class="stat-card">
-                <div id="orders-today" class="stat-value">0</div>
-                <div class="stat-label">Orders Today</div>
-            </div>
-            <div class="stat-card">
-                <div id="total-customers" class="stat-value">0</div>
-                <div class="stat-label">Total Customers</div>
-            </div>
-        </div> 
-
-        <!-- Data Tables (Now separate from the grid) -->
-        <div class="dashboard-card" style="margin-top: 2rem;">
-            <h2>Recent Orders</h2>
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Order ID</th>
-                        <th>Customer</th>
-                        <th>Total Price</th>
-                        <th>Status</th>
-                        <th>Timestamp</th>
-                    </tr>
-                </thead>
-                <tbody id="recent-orders-body"></tbody>
-            </table>
-        </div>
-
-        <div class="dashboard-card" style="margin-top: 2rem;">
-            <h2>Items Low on Stock (Under 20)</h2>
-            <table class="data-table">
-                 <thead>
-                    <tr>
-                        <th>Product Name</th>
-                        <th>Category</th>
-                        <th>Stock Remaining</th>
-                    </tr>
-                </thead>
-                <tbody id="low-stock-body"></tbody>
-            </table>
-        </div>
-
-        <!-- Manage Items Section -->
-        <div class="dashboard-card" style="margin-top: 2rem;">
-            <h2>Manage Menu Items</h2>
-            <form id="item-form" style="background-color: #f9f9f9; padding: 15px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); max-width: 600px; color: black;">
-                <input type="hidden" id="item-id" value="">
-                <div style="margin-bottom: 10px;">
-                    <label for="item-name" style="display: block; font-weight: 600; margin-bottom: 5px; color: black;">Name:</label>
-                    <input type="text" id="item-name" required style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; color: black;">
-                </div>
-                <div style="margin-bottom: 10px;">
-                    <label for="item-description" style="display: block; font-weight: 600; margin-bottom: 5px; color: black;">Description:</label>
-                    <input type="text" id="item-description" required style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; color: black;">
-                </div>
-                <div style="margin-bottom: 10px;">
-                    <label for="item-price" style="display: block; font-weight: 600; margin-bottom: 5px; color: black;">Price:</label>
-                    <input type="number" id="item-price" step="0.01" required style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; color: black;">
-                </div>
-                <div style="margin-bottom: 10px;">
-                    <label for="item-category" style="display: block; font-weight: 600; margin-bottom: 5px; color: black;">Category:</label>
-                    <select id="item-category" required style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; color: black;">
-                        <option value="">Select Category</option>
-                        <option value="Coffee">Coffee</option>
-                        <option value="Non-Coffee">Non-Coffee</option>
-                        <option value="Tea">Tea</option>
-                        <option value="Signature Drinks">Signature Drinks</option>
-                        <option value="Appetizers">Appetizers</option>
-                        <option value="Burger & Sandwich">Burger & Sandwich</option>
-                        <option value="Pasta">Pasta</option>
-                        <option value="Desserts">Desserts</option>
-                        <option value="Fruity Options">Fruity Options</option>
-                        <option value="Signature Milkshakes">Signature Milkshakes</option>
-                        <option value="Coffee Gear">Coffee Gear</option>
-                        <option value="Espresso Machines">Espresso Machines</option>
-                    </select>
-                </div>
-                <div style="margin-bottom: 10px;">
-                    <label for="item-imageUrl" style="display: block; font-weight: 600; margin-bottom: 5px; color: black;">Image URL:</label>
-                    <input type="text" id="item-imageUrl" required style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; color: black;">
-                </div>
-                <div style="margin-bottom: 10px;">
-                    <label for="item-stock" style="display: block; font-weight: 600; margin-bottom: 5px; color: black;">Stock:</label>
-                    <input type="number" id="item-stock" min="0" value="0" required style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; color: black;">
-                </div>
-                <button type="submit" id="submit-button" style="background-color: #af904b; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">Add Item</button>
-                <button type="button" id="cancel-button" style="display:none; margin-left: 10px; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Cancel</button>
-            </form>
-
-            <table class="data-table" style="margin-top: 1rem; color: #8B4513; font-weight: bold;">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Description</th>
-                        <th>Price</th>
-                        <th>Category</th>
-                        <th>Stock</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="items-table-body"></tbody>
-            </table>
-        </div>
-
-        <!-- Product Image Gallery -->
-        <div class="dashboard-card" style="margin-top: 2rem;">
-            <h2>Product Image Gallery</h2>
-            <div id="image-gallery" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;">
-                <!-- Product cards will be dynamically inserted here -->
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header">
+            <h2>Analytics Dashboard</h2>
+            <div class="user-info">
+                <img src="https://ui-avatars.com/api/?name=Admin+User&background=8B4513&color=fff" alt="Admin">
+                <span>Admin User</span>
+                <button class="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
             </div>
         </div>
 
-    </main> <!-- The main section now ends here, correctly -->
+        <!-- Content -->
+        <div class="content">
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <button class="quick-action-btn" id="quick-edit-sales">
+                    <i class="fas fa-edit"></i> Edit Sales Data
+                </button>
+                <button class="quick-action-btn" id="quick-edit-financial">
+                    <i class="fas fa-chart-bar"></i> Edit Financial Data
+                </button>
+                <button class="quick-action-btn" id="quick-add-employee">
+                    <i class="fas fa-user-plus"></i> Add Employee
+                </button>
+                <button class="quick-action-btn" id="quick-manage-inventory">
+                    <i class="fas fa-boxes"></i> Manage Inventory
+                </button>
+            </div>
 
-    <script src="data-manager.js"></script>
+            <!-- Stats Overview -->
+            <div class="stats-grid">
+                <div class="stat-card sales" data-stat="total-sales">
+                    <div class="stat-icon">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="total-sales">₱0.00</h3>
+                        <p>Total Sales (Today)</p>
+                    </div>
+                    <div class="edit-indicator">
+                        <i class="fas fa-edit"></i>
+                    </div>
+                </div>
+                <div class="stat-card orders" data-stat="orders-today">
+                    <div class="stat-icon">
+                        <i class="fas fa-shopping-bag"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="orders-today">0</h3>
+                        <p>Transactions Today</p>
+                    </div>
+                    <div class="edit-indicator">
+                        <i class="fas fa-edit"></i>
+                    </div>
+                </div>
+                <div class="stat-card customers" data-stat="total-customers">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="total-customers">0</h3>
+                        <p>Active Customers</p>
+                    </div>
+                    <div class="edit-indicator">
+                        <i class="fas fa-edit"></i>
+                    </div>
+                </div>
+                <div class="stat-card profit" data-stat="profit-margin">
+                    <div class="stat-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="profit-margin">0%</h3>
+                        <p>Profit Margin</p>
+                    </div>
+                    <div class="edit-indicator">
+                        <i class="fas fa-edit"></i>
+                    </div>
+                </div>
+                <div class="stat-card expenses" data-stat="expenses-today">
+                    <div class="stat-icon">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="expenses-today">₱0.00</h3>
+                        <p>Today's Expenses</p>
+                    </div>
+                    <div class="edit-indicator">
+                        <i class="fas fa-edit"></i>
+                    </div>
+                </div>
+                <div class="stat-card labor" data-stat="labor-cost">
+                    <div class="stat-icon">
+                        <i class="fas fa-user-clock"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="labor-cost">₱0.00</h3>
+                        <p>Labor Cost</p>
+                    </div>
+                    <div class="edit-indicator">
+                        <i class="fas fa-edit"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Grid -->
+            <div class="dashboard-grid">
+                <!-- Sales Analytics -->
+                <div class="dashboard-section">
+                    <div class="section-header">
+                        <h3>Sales Analytics</h3>
+                        <div>
+                            <button class="btn-edit" id="edit-sales-chart-btn">
+                                <i class="fas fa-edit"></i> Edit Data
+                            </button>
+                            <button class="btn-view-all" id="sales-report-btn">
+                                <i class="fas fa-chart-line"></i> View Report
+                            </button>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="salesChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Inventory Status -->
+                <div class="dashboard-section">
+                    <div class="section-header">
+                        <h3>Inventory Status</h3>
+                        <button class="btn-view-all" id="manage-inventory-btn">
+                            <i class="fas fa-cog"></i> Manage Inventory
+                        </button>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Category</th>
+                                <th>Current Stock</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventory-body">
+                            <!-- Dynamic content will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Employee Performance -->
+                <div class="dashboard-section">
+                    <div class="section-header">
+                        <h3>Employee Performance</h3>
+                        <div>
+                            <button class="btn-edit" id="add-employee-btn">
+                                <i class="fas fa-user-plus"></i> Add Employee
+                            </button>
+                            <button class="btn-view-all" id="view-all-employee-btn">
+                                <i class="fas fa-users"></i> View All
+                            </button>
+                        </div>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Employee</th>
+                                <th>Role</th>
+                                <th>Hours (Today)</th>
+                                <th>Performance</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="employee-body">
+                            <!-- Dynamic content will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- NEW: Operations Management Section -->
+                <div class="dashboard-section">
+                    <div class="section-header">
+                        <h3>Operations Management</h3>
+                        <span style="font-size: 12px; color: var(--gray);">View Only</span>
+                    </div>
+                    
+                    <div class="operations-alert">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div id="operations-alert-text">Loading operations data...</div>
+                    </div>
+                    
+                    <div class="operations-grid">
+                        <div class="operations-section">
+                            <h4>Daily Checklist</h4>
+                            <div id="daily-checklist">
+                                <!-- Default content that will be replaced by JavaScript -->
+                                <div class="task-item">
+                                    <i class="fas fa-check-circle task-checkbox"></i>
+                                    <span>Opening procedures completed</span>
+                                </div>
+                                <div class="task-item">
+                                    <i class="far fa-circle task-checkbox incomplete"></i>
+                                    <span>Quality control check</span>
+                                </div>
+                                <div class="task-item">
+                                    <i class="far fa-circle task-checkbox incomplete"></i>
+                                    <span>Equipment maintenance review</span>
+                                </div>
+                                <div class="task-item">
+                                    <i class="far fa-circle task-checkbox incomplete"></i>
+                                    <span>Inventory count</span>
+                                </div>
+                                <div class="task-item">
+                                    <i class="far fa-circle task-checkbox incomplete"></i>
+                                    <span>Closing procedures</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="operations-section">
+                            <h4>Equipment Status</h4>
+                            <div id="equipment-status">
+                                <!-- Default content that will be replaced by JavaScript -->
+                                <div class="equipment-item">
+                                    <span>Espresso Machine</span>
+                                    <span class="equipment-status operational">Operational</span>
+                                </div>
+                                <div class="equipment-item">
+                                    <span>Coffee Grinder</span>
+                                    <span class="equipment-status needs-attention">Needs Attention</span>
+                                </div>
+                                <div class="equipment-item">
+                                    <span>Refrigerator</span>
+                                    <span class="equipment-status operational">Operational</span>
+                                </div>
+                                <div class="equipment-item">
+                                    <span>POS System</span>
+                                    <span class="equipment-status operational">Operational</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Financial Overview - NOW COMPACT -->
+                <div class="dashboard-section compact">
+                    <div class="section-header">
+                        <h3>Financial Overview</h3>
+                        <div>
+                            <button class="btn-edit" id="edit-financial-chart-btn">
+                                <i class="fas fa-edit"></i> Edit Data
+                            </button>
+                        </div>
+                    </div>
+                    <div class="chart-container compact">
+                        <canvas id="financialChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modern Modal -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Edit Data</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- Dynamic content will be inserted here -->
+            </div>
+            <div class="modal-footer" id="modal-footer">
+                <!-- Dynamic buttons will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toast-message">Success!</span>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Your JavaScript code remains exactly the same
-            const orders = getOrders();
-            const menu = getMenu();
-            const users = JSON.parse(localStorage.getItem('bistroUsers')) || [];
-
-            // POPULATE STAT CARDS
-            const totalSales = orders.reduce((sum, order) => sum + order.totalPrice, 0);
-            document.getElementById('total-sales').textContent = `₱${totalSales.toFixed(2)}`;
-            const today = new Date().toISOString().slice(0, 10);
-            const ordersToday = orders.filter(order => order.timestamp.startsWith(today)).length;
-            document.getElementById('orders-today').textContent = ordersToday;
-            const customerCount = users.filter(user => user.role === 'customer').length;
-            document.getElementById('total-customers').textContent = customerCount;
-
-            // POPULATE RECENT ORDERS TABLE
-            const recentOrdersBody = document.getElementById('recent-orders-body');
-            recentOrdersBody.innerHTML = '';
-            const recentOrders = orders.slice(0, 5);
-            if (recentOrders.length === 0) {
-                recentOrdersBody.innerHTML = '<tr><td colspan="5">No orders have been placed yet.</td></tr>';
-            } else {
-                recentOrders.forEach(order => {
-                    const row = document.createElement('tr');
-                    const orderDate = new Date(order.timestamp).toLocaleString();
-                    row.innerHTML = `<td>${order.id}</td><td>${order.customerName}</td><td>₱${order.totalPrice.toFixed(2)}</td><td>${order.status}</td><td>${orderDate}</td>`;
-                    recentOrdersBody.appendChild(row);
-                });
-            }
-
-            // POPULATE LOW STOCK ITEMS TABLE
-            const lowStockBody = document.getElementById('low-stock-body');
-            lowStockBody.innerHTML = '';
-            const lowStockItems = menu.filter(item => item.stock < 20).sort((a,b) => a.stock - b.stock);
-            if (lowStockItems.length === 0) {
-                lowStockBody.innerHTML = '<tr><td colspan="3">All products are well-stocked.</td></tr>';
-            } else {
-                lowStockItems.forEach(item => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `<td>${item.name}</td><td>${item.category}</td><td class="stock-low">${item.stock}</td>`;
-                    lowStockBody.appendChild(row);
-                });
-            }
-        });
-
-        // Manage Items Section JavaScript
-        const itemForm = document.getElementById('item-form');
-        const itemsTableBody = document.getElementById('items-table-body');
-        const submitButton = document.getElementById('submit-button');
-        const cancelButton = document.getElementById('cancel-button');
-
-        // New code: disable/fade price and stock inputs for Espresso Machines category
-        const categorySelect = document.getElementById('item-category');
-        const priceInput = document.getElementById('item-price');
-        const stockInput = document.getElementById('item-stock');
-
-        function updatePriceStockState() {
-            if (categorySelect.value === 'Espresso Machines' || categorySelect.value === 'Coffee Gear') {
-                priceInput.disabled = true;
-                stockInput.disabled = true;
-                priceInput.style.opacity = '0.5';
-                stockInput.style.opacity = '0.5';
-            } else {
-                priceInput.disabled = false;
-                stockInput.disabled = false;
-                priceInput.style.opacity = '1';
-                stockInput.style.opacity = '1';
-            }
-        }
-
-        categorySelect.addEventListener('change', updatePriceStockState);
-
-        // Call once on page load to set initial state
-        updatePriceStockState();
-
-        function clearForm() {
-            itemForm.reset();
-            document.getElementById('item-id').value = '';
-            submitButton.textContent = 'Add Item';
-            cancelButton.style.display = 'none';
-            updatePriceStockState(); // Update state after reset
-        }
-
-        function renderItemsTable() {
-            const menu = getMenu();
-            itemsTableBody.innerHTML = '';
-            menu.forEach(item => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${item.name}</td>
-                    <td>${item.description}</td>
-                    <td>₱${item.price.toFixed(2)}</td>
-                    <td>${item.category}</td>
-                    <td>${item.stock || 0}</td>
-                    <td>
-                        <button class="edit-btn" data-id="${item.id}">Edit</button>
-                        <button class="delete-btn" data-id="${item.id}">Delete</button>
-                    </td>
-                `;
-                itemsTableBody.appendChild(row);
+            // Initialize operations data first
+            initializeOperationsData();
+            
+            // Initialize charts
+            initializeCharts();
+            
+            // Update dashboard data
+            updateDashboard();
+            
+            // Set up auto-refresh every 10 seconds
+            setInterval(updateDashboard, 10000);
+            
+            // Logout button
+            document.querySelector('.btn-logout').addEventListener('click', function() {
+                if (confirm('Are you sure you want to logout?')) {
+                    window.location.href = 'login.html';
+                }
             });
-
-            // Attach event listeners for edit and delete buttons
-            document.querySelectorAll('.edit-btn').forEach(button => {
-                button.addEventListener('click', () => {
-                    const id = parseInt(button.getAttribute('data-id'));
-                    const menu = getMenu();
-                    const item = menu.find(i => i.id === id);
-                    if (item) {
-                        document.getElementById('item-id').value = item.id;
-                        document.getElementById('item-name').value = item.name;
-                        document.getElementById('item-description').value = item.description;
-                        document.getElementById('item-price').value = item.price;
-                        document.getElementById('item-category').value = item.category;
-                        document.getElementById('item-imageUrl').value = item.imageUrl;
-                        document.getElementById('item-stock').value = item.stock || 0;
-                        submitButton.textContent = 'Update Item';
-                        cancelButton.style.display = 'inline';
-                        updatePriceStockState(); // Update state when editing
+            
+            // Button event listeners
+            document.getElementById('sales-report-btn').addEventListener('click', function() {
+                alert('Sales report feature would open here');
+            });
+            
+            document.getElementById('manage-inventory-btn').addEventListener('click', function() {
+                window.location.href = 'admin_inventory.html';
+            });
+            
+            document.getElementById('view-all-employee-btn').addEventListener('click', function() {
+                window.location.href = 'employee.html';
+            });
+            
+            // New button event listeners
+            document.getElementById('edit-sales-chart-btn').addEventListener('click', function() {
+                openEditSalesChartModal();
+            });
+            
+            document.getElementById('edit-financial-chart-btn').addEventListener('click', function() {
+                openEditFinancialChartModal();
+            });
+            
+            document.getElementById('add-employee-btn').addEventListener('click', function() {
+                openAddEmployeeModal();
+            });
+            
+            // Quick action buttons
+            document.getElementById('quick-edit-sales').addEventListener('click', function() {
+                openEditSalesChartModal();
+            });
+            
+            document.getElementById('quick-edit-financial').addEventListener('click', function() {
+                openEditFinancialChartModal();
+            });
+            
+            document.getElementById('quick-add-employee').addEventListener('click', function() {
+                openAddEmployeeModal();
+            });
+            
+            document.getElementById('quick-manage-inventory').addEventListener('click', function() {
+                window.location.href = 'admin_inventory.html';
+            });
+            
+            // Modal close event
+            document.querySelector('.close-modal').addEventListener('click', function() {
+                closeModal();
+            });
+            
+            // Click outside modal to close
+            document.getElementById('editModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeModal();
+                }
+            });
+            
+            // Make stat cards editable
+            document.querySelectorAll('.stat-card').forEach(card => {
+                card.addEventListener('click', function(e) {
+                    if (!e.target.classList.contains('btn-edit') && 
+                        !e.target.classList.contains('btn-save') && 
+                        !e.target.classList.contains('btn-cancel')) {
+                        editStatCard(this);
                     }
                 });
             });
-
-            document.querySelectorAll('.delete-btn').forEach(button => {
-                button.addEventListener('click', () => {
-                    const id = parseInt(button.getAttribute('data-id'));
-                    if (confirm('Are you sure you want to delete this item?')) {
-                        if (deleteItem(id)) {
-                            renderItemsTable();
-                            alert('Item deleted successfully.');
-                        } else {
-                            alert('Failed to delete item.');
+            
+            // Initialize operations data
+            function initializeOperationsData() {
+                const operationsData = JSON.parse(localStorage.getItem('coffeeShopOperationsData'));
+                
+                if (!operationsData) {
+                    // Create default operations data
+                    const defaultOperationsData = {
+                        checklist: [
+                            { name: "Opening procedures completed", completed: true },
+                            { name: "Quality control check", completed: false },
+                            { name: "Equipment maintenance review", completed: false },
+                            { name: "Inventory count", completed: false },
+                            { name: "Closing procedures", completed: false }
+                        ],
+                        equipment: [
+                            { name: "Espresso Machine", status: "Operational" },
+                            { name: "Coffee Grinder", status: "Needs Attention" },
+                            { name: "Refrigerator", status: "Operational" },
+                            { name: "POS System", status: "Operational" }
+                        ]
+                    };
+                    
+                    localStorage.setItem('coffeeShopOperationsData', JSON.stringify(defaultOperationsData));
+                    console.log('Initialized default operations data');
+                }
+            }
+            
+            // Initialize charts
+            function initializeCharts() {
+                // Sales Chart
+                const salesCtx = document.getElementById('salesChart').getContext('2d');
+                window.salesChart = new Chart(salesCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['9 AM', '10 AM', '11 AM', '12 PM', '1 PM', '2 PM', '3 PM', '4 PM', '5 PM'],
+                        datasets: [{
+                            label: 'Sales (₱)',
+                            data: [1200, 1900, 3000, 5000, 2000, 3000, 4500, 3000, 2000],
+                            borderColor: '#8B4513',
+                            backgroundColor: 'rgba(139, 69, 19, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `Sales: ₱${context.parsed.y}`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return '₱' + value;
+                                    }
+                                }
+                            }
                         }
                     }
                 });
-            });
+
+                // Listen for storage changes from supervisor system
+                window.addEventListener('storage', function(e) {
+                    console.log('Storage event detected:', e.key);
+                    
+                    if (e.key === 'coffeeShopOperationsData') {
+                        // Supervisor system updated operations data
+                        updateOperationsData();
+                    }
+                    if (e.key === 'bistroPayrollTotal') {
+                        updateStats();
+                    }
+                });
+
+                // Also check for changes periodically
+                setInterval(() => {
+                    updateOperationsData();
+                }, 5000); // Check every 5 seconds
+                
+                // Financial Overview Chart - Adjusted for compact size
+                const financialCtx = document.getElementById('financialChart').getContext('2d');
+                window.financialChart = new Chart(financialCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        datasets: [
+                            {
+                                label: 'Revenue',
+                                data: [12000, 19000, 15000, 18000, 22000, 28000, 20000],
+                                backgroundColor: 'rgba(76, 175, 80, 0.7)'
+                            },
+                            {
+                                label: 'Expenses',
+                                data: [8000, 12000, 10000, 11000, 15000, 18000, 13000],
+                                backgroundColor: 'rgba(244, 67, 54, 0.7)'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: {
+                                    boxWidth: 12,
+                                    font: {
+                                        size: 11
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `${context.dataset.label}: ₱${context.parsed.y}`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return '₱' + (value/1000) + 'k';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Update dashboard data
+            function updateDashboard() {
+                updateStats();
+                updateInventoryTable();
+                updateEmployeeTable();
+                updateOperationsData(); // NEW: Update operations data
+            }
+            
+            // NEW: Update operations data from supervisor system
+            function updateOperationsData() {
+                console.log('Updating operations data...');
+                
+                try {
+                    // Get supervisor operations data from localStorage
+                    const operationsData = JSON.parse(localStorage.getItem('coffeeShopOperationsData'));
+                    
+                    const alertTextElement = document.getElementById('operations-alert-text');
+                    const checklistContainer = document.getElementById('daily-checklist');
+                    const equipmentContainer = document.getElementById('equipment-status');
+                    
+                    // Check if elements exist
+                    if (!alertTextElement || !checklistContainer || !equipmentContainer) {
+                        console.error('Missing operations elements:', {
+                            alertText: !!alertTextElement,
+                            checklist: !!checklistContainer,
+                            equipment: !!equipmentContainer
+                        });
+                        return;
+                    }
+                    
+                    if (operationsData && operationsData.checklist && operationsData.equipment) {
+                        console.log('Found operations data:', operationsData);
+                        
+                        // Update alert text based on checklist completion
+                        const completedTasks = operationsData.checklist.filter(task => task.completed).length;
+                        const totalTasks = operationsData.checklist.length;
+                        
+                        if (completedTasks === totalTasks) {
+                            alertTextElement.textContent = 'All daily tasks completed! Great job team!';
+                        } else {
+                            alertTextElement.textContent = `Daily tasks: ${completedTasks}/${totalTasks} completed`;
+                        }
+                        
+                        // Update daily checklist
+                        checklistContainer.innerHTML = '';
+                        
+                        operationsData.checklist.forEach(task => {
+                            const taskItem = document.createElement('div');
+                            taskItem.className = 'task-item';
+                            
+                            const checkbox = document.createElement('i');
+                            checkbox.className = task.completed ? 
+                                'fas fa-check-circle task-checkbox' : 
+                                'far fa-circle task-checkbox incomplete';
+                            
+                            const taskText = document.createElement('span');
+                            taskText.textContent = task.name;
+                            
+                            taskItem.appendChild(checkbox);
+                            taskItem.appendChild(taskText);
+                            checklistContainer.appendChild(taskItem);
+                        });
+                        
+                        // Update equipment status
+                        equipmentContainer.innerHTML = '';
+                        
+                        operationsData.equipment.forEach(equipment => {
+                            const equipmentItem = document.createElement('div');
+                            equipmentItem.className = 'equipment-item';
+                            
+                            const equipmentName = document.createElement('span');
+                            equipmentName.textContent = equipment.name;
+                            
+                            const equipmentStatus = document.createElement('span');
+                            equipmentStatus.className = `equipment-status ${equipment.status === 'Operational' ? 'operational' : 'needs-attention'}`;
+                            equipmentStatus.textContent = equipment.status;
+                            
+                            equipmentItem.appendChild(equipmentName);
+                            equipmentItem.appendChild(equipmentStatus);
+                            equipmentContainer.appendChild(equipmentItem);
+                        });
+                        
+                        console.log('Operations data updated successfully');
+                    } else {
+                        console.log('No operations data found in localStorage, using default display');
+                        // The default HTML content will remain visible
+                        alertTextElement.textContent = 'Daily tasks: 1/5 completed';
+                    }
+                } catch (error) {
+                    console.error('Error updating operations data:', error);
+                }
+            }
+            
+            // Update statistics
+            function updateStats() {
+                const orders = getOrders();
+                const users = getUsers();
+                
+                // Calculate TODAY'S sales only (not all-time)
+                const today = new Date().toISOString().slice(0, 10);
+                const todaySales = orders
+                    .filter(order => order.timestamp && order.timestamp.startsWith(today))
+                    .reduce((sum, order) => sum + order.totalPrice, 0);
+                document.getElementById('total-sales').textContent = `₱${todaySales.toFixed(2)}`;
+                
+                // Calculate orders today
+                const ordersToday = orders.filter(order => order.timestamp && order.timestamp.startsWith(today)).length;
+                document.getElementById('orders-today').textContent = ordersToday;
+                
+                // Calculate total customers (active in last 30 days)
+                const thirtyDaysAgo = new Date();
+                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                const activeCustomers = users.filter(user => 
+                    user.role === 'customer' && 
+                    user.lastLogin && 
+                    new Date(user.lastLogin) > thirtyDaysAgo
+                ).length;
+                document.getElementById('total-customers').textContent = activeCustomers;
+                
+                // Calculate profit margin (simplified)
+                const revenue = todaySales;
+                const costOfGoods = revenue * 0.35; // Assuming 35% COGS
+                const profit = revenue - costOfGoods;
+                const profitMargin = revenue > 0 ? (profit / revenue) * 100 : 0;
+                document.getElementById('profit-margin').textContent = `${profitMargin.toFixed(1)}%`;
+                
+                // Calculate expenses (simplified)
+                const expenses = costOfGoods + (revenue * 0.15); // COGS + 15% for other expenses
+                document.getElementById('expenses-today').textContent = `₱${expenses.toFixed(2)}`;
+                
+                // Calculate labor cost (simplified)
+                const storedPayrollTotalRaw = localStorage.getItem('bistroPayrollTotal');
+                const storedPayrollTotal = storedPayrollTotalRaw ? parseFloat(storedPayrollTotalRaw) : NaN;
+                const laborCost = isNaN(storedPayrollTotal) ? (revenue * 0.25) : storedPayrollTotal;
+                document.getElementById('labor-cost').textContent = `₱${laborCost.toFixed(2)}`;
+            }
+            
+            // Update inventory table
+            function updateInventoryTable() {
+                const inventory = getInventory();
+                const inventoryBody = document.getElementById('inventory-body');
+                inventoryBody.innerHTML = '';
+                
+                // Sort by stock level (lowest first) and take top 5
+                const lowStockItems = inventory
+                    .filter(item => item.stock <= item.minLevel)
+                    .sort((a, b) => a.stock - b.stock)
+                    .slice(0, 5);
+                
+                if (lowStockItems.length === 0) {
+                    inventoryBody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 20px;">All inventory items are well stocked</td></tr>';
+                } else {
+                    lowStockItems.forEach(item => {
+                        const row = document.createElement('tr');
+                        const status = item.stock === 0 ? 'Out of Stock' : 'Low Stock';
+                        const statusClass = item.stock === 0 ? 'cancelled' : 'pending';
+                        
+                        row.innerHTML = `
+                            <td>${item.name}</td>
+                            <td>${getCategoryName(item.category)}</td>
+                            <td class="editable" data-id="${item.id}" data-field="stock">${item.stock} ${item.unit}</td>
+                            <td><span class="status ${statusClass}">${status}</span></td>
+                            <td>
+                                <button class="btn-edit" onclick="editInventoryItem(${item.id})">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                            </td>
+                        `;
+                        inventoryBody.appendChild(row);
+                    });
+                }
+                
+                // Make inventory cells editable
+                document.querySelectorAll('#inventory-body .editable').forEach(cell => {
+                    cell.addEventListener('click', function() {
+                        editTableCell(this);
+                    });
+                });
+            }
+
+            // Helper function for category names
+            function getCategoryName(category) {
+                const categories = {
+                    'coffee': 'Coffee Beans',
+                    'dairy': 'Dairy',
+                    'syrups': 'Syrups & Flavors',
+                    'pastry': 'Pastry & Bakery',
+                    'packaging': 'Packaging',
+                    'cleaning': 'Cleaning Supplies'
+                };
+                return categories[category] || category;
+            }
+
+            // Get inventory data
+            function getInventory() {
+                let inventory = JSON.parse(localStorage.getItem('bistroInventory'));
+                
+                // If no inventory exists, create sample data
+                if (!inventory || inventory.length === 0) {
+                    inventory = [
+                        { 
+                            id: 1, 
+                            name: 'Arabica Coffee Beans', 
+                            category: 'coffee', 
+                            stock: 8, 
+                            unit: 'kg', 
+                            minLevel: 10, 
+                            maxLevel: 50
+                        },
+                        { 
+                            id: 2, 
+                            name: 'Whole Milk', 
+                            category: 'dairy', 
+                            stock: 12, 
+                            unit: 'l', 
+                            minLevel: 5, 
+                            maxLevel: 30
+                        },
+                        { 
+                            id: 3, 
+                            name: 'Vanilla Syrup', 
+                            category: 'syrups', 
+                            stock: 2, 
+                            unit: 'bottles', 
+                            minLevel: 5, 
+                            maxLevel: 20
+                        },
+                        { 
+                            id: 4, 
+                            name: 'Croissants', 
+                            category: 'pastry', 
+                            stock: 0, 
+                            unit: 'units', 
+                            minLevel: 10, 
+                            maxLevel: 50
+                        },
+                        { 
+                            id: 5, 
+                            name: 'Paper Cups', 
+                            category: 'packaging', 
+                            stock: 200, 
+                            unit: 'units', 
+                            minLevel: 100, 
+                            maxLevel: 500
+                        }
+                    ];
+                    localStorage.setItem('bistroInventory', JSON.stringify(inventory));
+                }
+                
+                return inventory;
+            }
+            
+            // Update employee table with automated performance calculation
+            function updateEmployeeTable() {
+                const employees = getEmployees();
+                const employeeBody = document.getElementById('employee-body');
+                employeeBody.innerHTML = '';
+
+                if (employees.length === 0) {
+                    employeeBody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 20px;">No employees found</td></tr>';
+                } else {
+                    employees.forEach(employee => {
+                        // Calculate today's hours from time clock
+                        const todayHours = calculateTodaysHours(employee.id);
+                        
+                        // Calculate automated performance
+                        const performance = calculateEmployeePerformance(employee.id);
+                        
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${employee.name}</td>
+                            <td>${employee.position}</td>
+                            <td class="editable" data-id="${employee.id}" data-field="hours">${todayHours.toFixed(2)}</td>
+                            <td>
+                                <span class="status ${getPerformanceClass(performance)}">${performance}</span>
+                            </td>
+                            <td>
+                                <button class="btn-edit" onclick="editEmployee(${employee.id})">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                                <button class="btn-cancel" onclick="deleteEmployee(${employee.id})">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </td>
+                        `;
+                        employeeBody.appendChild(row);
+                    });
+                }
+                
+                // Make employee cells editable
+                document.querySelectorAll('#employee-body .editable').forEach(cell => {
+                    cell.addEventListener('click', function() {
+                        editTableCell(this);
+                    });
+                });
+            }
+            
+            // Calculate today's hours from time clock entries
+            function calculateTodaysHours(employeeId) {
+                const coffeeShopStaffData = JSON.parse(localStorage.getItem('coffeeShopStaffData'));
+                if (!coffeeShopStaffData || !coffeeShopStaffData.timeClock) return 0;
+
+                const employeeEntries = coffeeShopStaffData.timeClock.filter(
+                    entry => entry.employeeId === employeeId
+                );
+
+                let totalHours = 0;
+                employeeEntries.forEach(entry => {
+                    if (entry.clockIn && entry.clockOut) {
+                        const hours = calculateTimeDifference(entry.clockIn, entry.clockOut);
+                        totalHours += hours;
+                    }
+                });
+
+                return totalHours;
+            }
+            
+            // Calculate time difference in hours
+            function calculateTimeDifference(clockIn, clockOut) {
+                const parseTime = (timeStr) => {
+                    const [time, modifier] = timeStr.split(' ');
+                    let [hours, minutes] = time.split(':').map(Number);
+                    
+                    if (modifier === 'PM' && hours !== 12) {
+                        hours += 12;
+                    } else if (modifier === 'AM' && hours === 12) {
+                        hours = 0;
+                    }
+                    
+                    return hours + minutes / 60;
+                };
+                
+                const startTime = parseTime(clockIn);
+                const endTime = parseTime(clockOut);
+                
+                let diff = endTime - startTime;
+                if (diff < 0) {
+                    diff += 24; // Overnight shift
+                }
+                
+                return diff;
+            }
+            
+            // Calculate employee performance based on attendance
+            function calculateEmployeePerformance(employeeId) {
+                const coffeeShopStaffData = JSON.parse(localStorage.getItem('coffeeShopStaffData'));
+                if (!coffeeShopStaffData || !coffeeShopStaffData.timeClock) return 'Unknown';
+
+                // Get employee schedule
+                const employeeSchedule = coffeeShopStaffData.schedules?.filter(
+                    schedule => schedule.employeeId === employeeId
+                ) || [];
+                
+                // Get employee time clock entries
+                const employeeEntries = coffeeShopStaffData.timeClock.filter(
+                    entry => entry.employeeId === employeeId
+                );
+
+                // Count scheduled days and actual attendance
+                const scheduledDays = employeeSchedule.length;
+                let attendedDays = 0;
+                let absentDays = 0;
+
+                // For demo purposes, we'll simulate attendance based on time clock entries
+                if (employeeEntries.length > 0) {
+                    // If employee has time clock entries, consider them as attended
+                    attendedDays = Math.min(employeeEntries.length, scheduledDays);
+                    absentDays = Math.max(0, scheduledDays - attendedDays);
+                } else {
+                    // If no time clock data, use a default based on employee status
+                    const employees = getEmployees();
+                    const employee = employees.find(emp => emp.id === employeeId);
+                    if (employee && employee.status === 'active') {
+                        attendedDays = scheduledDays - 1; // Assume 1 absence for active employees
+                        absentDays = 1;
+                    } else {
+                        attendedDays = 0;
+                        absentDays = scheduledDays;
+                    }
+                }
+
+                // Calculate performance based on absences
+                if (absentDays === 0) {
+                    return 'Excellent';
+                } else if (absentDays === 1) {
+                    return 'Good';
+                } else if (absentDays >= 2 && absentDays <= 3) {
+                    return 'Bad';
+                } else {
+                    return 'Poor';
+                }
+            }
+            
+            // Sync employee data with supervisor system
+            function syncEmployeeDataWithSupervisor() {
+                const coffeeShopStaffData = JSON.parse(localStorage.getItem('coffeeShopStaffData'));
+                
+                if (coffeeShopStaffData && coffeeShopStaffData.employees) {
+                    const bistroEmployees = JSON.parse(localStorage.getItem('bistroEmployees')) || [];
+                    
+                    // Update positions and data from supervisor system
+                    coffeeShopStaffData.employees.forEach(supEmp => {
+                        const existingEmpIndex = bistroEmployees.findIndex(emp => emp.id === supEmp.id);
+                        
+                        if (existingEmpIndex !== -1) {
+                            // Update existing employee with supervisor data
+                            bistroEmployees[existingEmpIndex].position = supEmp.role || supEmp.position;
+                        }
+                    });
+                    
+                    localStorage.setItem('bistroEmployees', JSON.stringify(bistroEmployees));
+                }
+            }
+            
+            // Get employees data with updated positions
+            function getEmployees() {
+                let employees = JSON.parse(localStorage.getItem('bistroEmployees'));
+                
+                if (!employees || employees.length === 0) {
+                    employees = [
+                        { 
+                            id: 1, 
+                            name: 'Maria Santos', 
+                            position: 'Head Barista', 
+                            hours: 38, 
+                            performance: 'Excellent',
+                            email: 'maria@coffeeaffair.com',
+                            phone: '+63 912 345 6789',
+                            salary: 180,
+                            status: 'active',
+                            joinDate: '2023-01-15'
+                        },
+                        { 
+                            id: 2, 
+                            name: 'Juan Dela Cruz', 
+                            position: 'Cashier', 
+                            hours: 40, 
+                            performance: 'Good',
+                            email: 'juan@coffeeaffair.com',
+                            phone: '+63 917 654 3210',
+                            salary: 140,
+                            status: 'active',
+                            joinDate: '2023-02-10'
+                        },
+                        { 
+                            id: 3, 
+                            name: 'Ana Reyes', 
+                            position: 'Supervisor', 
+                            hours: 42, 
+                            performance: 'Excellent',
+                            email: 'ana@coffeeaffair.com',
+                            phone: '+63 918 777 8888',
+                            salary: 200,
+                            status: 'active',
+                            joinDate: '2022-11-05'
+                        },
+                        { 
+                            id: 4, 
+                            name: 'Carlos Lopez', 
+                            position: 'Barista', 
+                            hours: 36, 
+                            performance: 'Bad',
+                            email: 'carlos@coffeeaffair.com',
+                            phone: '+63 919 555 4444',
+                            salary: 150,
+                            status: 'active',
+                            joinDate: '2023-03-20'
+                        },
+                        { 
+                            id: 5, 
+                            name: 'Elena Torres', 
+                            position: 'Cashier', 
+                            hours: 32, 
+                            performance: 'Good',
+                            email: 'elena@coffeeaffair.com',
+                            phone: '+63 920 333 2222',
+                            salary: 140,
+                            status: 'active',
+                            joinDate: '2023-04-12'
+                        }
+                    ];
+                    localStorage.setItem('bistroEmployees', JSON.stringify(employees));
+                }
+                
+                return employees;
+            }
+            
+            // Update getPerformanceClass to handle new performance levels
+            function getPerformanceClass(performance) {
+                switch(performance) {
+                    case 'Excellent': return 'completed';
+                    case 'Good': return 'pending';
+                    case 'Bad': return 'cancelled';
+                    case 'Poor': return 'cancelled';
+                    default: return 'pending';
+                }
+            }
+            
+            // Edit stat card
+            function editStatCard(card) {
+                const statElement = card.querySelector('h3');
+                const currentValue = statElement.textContent;
+                const statId = card.getAttribute('data-stat');
+                
+                // Create input field
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'stat-input';
+                input.value = currentValue;
+                
+                // Replace h3 with input
+                statElement.parentNode.replaceChild(input, statElement);
+                
+                // Add editing class to card
+                card.classList.add('editing');
+                
+                // Focus and select all text
+                input.focus();
+                input.select();
+                
+                // Save on Enter or blur
+                input.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        saveStatEdit(input, statId, card);
+                    }
+                });
+                
+                input.addEventListener('blur', function() {
+                    saveStatEdit(input, statId, card);
+                });
+            }
+            
+            // Save stat edit
+            function saveStatEdit(input, statId, card) {
+                const newValue = input.value;
+                
+                // Create new h3 element
+                const h3 = document.createElement('h3');
+                h3.id = statId;
+                h3.textContent = newValue;
+                
+                // Replace input with h3
+                input.parentNode.replaceChild(h3, input);
+                
+                // Remove editing class
+                card.classList.remove('editing');
+                
+                // Save to localStorage
+                saveStatOverride(statId, newValue);
+                
+                showToast('Statistic updated successfully', 'success');
+            }
+            
+            // Save stat override to localStorage
+            function saveStatOverride(statId, value) {
+                let overrides = JSON.parse(localStorage.getItem('statOverrides')) || {};
+                overrides[statId] = value;
+                localStorage.setItem('statOverrides', JSON.stringify(overrides));
+            }
+
+            // Debug function to check operations data
+            function debugOperations() {
+                console.log('=== DEBUG OPERATIONS DATA ===');
+                
+                // Check if elements exist
+                const alertText = document.getElementById('operations-alert-text');
+                const checklist = document.getElementById('daily-checklist');
+                const equipment = document.getElementById('equipment-status');
+                
+                console.log('Alert text element:', alertText);
+                console.log('Checklist element:', checklist);
+                console.log('Equipment element:', equipment);
+                
+                // Check localStorage data
+                const operationsData = JSON.parse(localStorage.getItem('coffeeShopOperationsData'));
+                console.log('Operations data from localStorage:', operationsData);
+                
+                // Check if elements have content
+                if (checklist) {
+                    console.log('Checklist children:', checklist.children.length);
+                    console.log('Checklist HTML:', checklist.innerHTML);
+                }
+                
+                if (equipment) {
+                    console.log('Equipment children:', equipment.children.length);
+                    console.log('Equipment HTML:', equipment.innerHTML);
+                }
+                
+                console.log('=== END DEBUG ===');
+            }
+
+            // Call it in your DOMContentLoaded after updateDashboard()
+            debugOperations();
+            
+            // Edit table cell
+            function editTableCell(cell) {
+                const currentValue = cell.textContent.split(' ')[0]; // Remove unit if present
+                const id = cell.getAttribute('data-id');
+                const field = cell.getAttribute('data-field');
+                
+                // Create input field
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'edit-input';
+                input.value = currentValue;
+                
+                // Replace cell content with input
+                cell.textContent = '';
+                cell.appendChild(input);
+                
+                // Focus and select all text
+                input.focus();
+                input.select();
+                
+                // Save on Enter or blur
+                input.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        saveTableEdit(input, id, field, cell);
+                    }
+                });
+                
+                input.addEventListener('blur', function() {
+                    saveTableEdit(input, id, field, cell);
+                });
+            }
+            
+            // Save table edit
+            function saveTableEdit(input, id, field, cell) {
+                const newValue = input.value;
+                
+                // Update the data based on field type
+                if (field === 'stock') {
+                    updateInventoryItem(id, parseInt(newValue));
+                    cell.textContent = `${newValue} ${getInventoryUnit(id)}`;
+                } else if (field === 'hours') {
+                    updateEmployeeHours(id, parseInt(newValue));
+                    cell.textContent = newValue;
+                }
+                
+                showToast('Data updated successfully', 'success');
+            }
+            
+            // Get inventory unit
+            function getInventoryUnit(id) {
+                const inventory = getInventory();
+                const item = inventory.find(item => item.id == id);
+                return item ? item.unit : '';
+            }
+            
+            // Update inventory item
+            function updateInventoryItem(id, newStock) {
+                let inventory = getInventory();
+                const index = inventory.findIndex(item => item.id == id);
+                
+                if (index !== -1) {
+                    inventory[index].stock = newStock;
+                    localStorage.setItem('bistroInventory', JSON.stringify(inventory));
+                }
+            }
+            
+            // Update employee hours
+            function updateEmployeeHours(id, newHours) {
+                let employees = getEmployees();
+                const index = employees.findIndex(emp => emp.id == id);
+                
+                if (index !== -1) {
+                    employees[index].hours = newHours;
+                    localStorage.setItem('bistroEmployees', JSON.stringify(employees));
+                }
+            }
+            
+            // Modal functions
+            function openModal() {
+                const modal = document.getElementById('editModal');
+                modal.style.display = 'flex';
+                setTimeout(() => {
+                    modal.classList.add('show');
+                }, 10);
+            }
+            
+            function closeModal() {
+                const modal = document.getElementById('editModal');
+                modal.classList.remove('show');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 300);
+            }
+            
+            function openEditSalesChartModal() {
+                document.getElementById('modal-title').textContent = 'Edit Sales Data';
+                
+                const salesData = window.salesChart.data.datasets[0].data;
+                let html = `
+                    <p>Edit hourly sales data for today:</p>
+                    <div class="financial-data-grid">
+                        <div class="financial-data-row header">
+                            <div>Time</div>
+                            <div>Sales Amount (₱)</div>
+                        </div>
+                `;
+                
+                salesData.forEach((value, index) => {
+                    const label = window.salesChart.data.labels[index];
+                    html += `
+                        <div class="financial-data-row">
+                            <div>${label}</div>
+                            <div>
+                                <input type="number" class="financial-data-input" id="sales-${index}" value="${value}" min="0">
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += `</div>`;
+                
+                document.getElementById('modal-body').innerHTML = html;
+                document.getElementById('modal-footer').innerHTML = `
+                    <button class="btn-secondary" id="cancel-sales-chart">Cancel</button>
+                    <button class="btn-primary" id="save-sales-chart">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                `;
+                
+                document.getElementById('cancel-sales-chart').addEventListener('click', function() {
+                    closeModal();
+                });
+                
+                document.getElementById('save-sales-chart').addEventListener('click', function() {
+                    saveSalesChartData();
+                });
+                
+                openModal();
+            }
+            
+            function saveSalesChartData() {
+                const salesData = [];
+                
+                for (let i = 0; i < 9; i++) {
+                    const value = parseInt(document.getElementById(`sales-${i}`).value) || 0;
+                    salesData.push(value);
+                }
+                
+                window.salesChart.data.datasets[0].data = salesData;
+                window.salesChart.update();
+                
+                // Save to localStorage
+                let chartData = JSON.parse(localStorage.getItem('chartData')) || {};
+                chartData.sales = salesData;
+                localStorage.setItem('chartData', JSON.stringify(chartData));
+                
+                closeModal();
+                showToast('Sales data updated successfully', 'success');
+            }
+            
+            function openEditFinancialChartModal() {
+                document.getElementById('modal-title').textContent = 'Edit Financial Data';
+                
+                const revenueData = window.financialChart.data.datasets[0].data;
+                const expensesData = window.financialChart.data.datasets[1].data;
+                
+                let html = `
+                    <p>Edit weekly financial data:</p>
+                    <div class="financial-data-grid">
+                        <div class="financial-data-row header">
+                            <div>Day</div>
+                            <div>Revenue (₱)</div>
+                            <div>Expenses (₱)</div>
+                        </div>
+                `;
+                
+                revenueData.forEach((value, index) => {
+                    const label = window.financialChart.data.labels[index];
+                    html += `
+                        <div class="financial-data-row">
+                            <div>${label}</div>
+                            <div>
+                                <input type="number" class="financial-data-input" id="revenue-${index}" value="${value}" min="0">
+                            </div>
+                            <div>
+                                <input type="number" class="financial-data-input" id="expenses-${index}" value="${expensesData[index]}" min="0">
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                // Add summary section
+                const totalRevenue = revenueData.reduce((a, b) => a + b, 0);
+                const totalExpenses = expensesData.reduce((a, b) => a + b, 0);
+                const netProfit = totalRevenue - totalExpenses;
+                
+                html += `
+                    </div>
+                    <div class="financial-summary">
+                        <h4>Weekly Summary</h4>
+                        <div class="summary-row">
+                            <span>Total Revenue:</span>
+                            <span>₱${totalRevenue.toLocaleString()}</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Total Expenses:</span>
+                            <span>₱${totalExpenses.toLocaleString()}</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Net Profit:</span>
+                            <span>₱${netProfit.toLocaleString()}</span>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('modal-body').innerHTML = html;
+                document.getElementById('modal-footer').innerHTML = `
+                    <button class="btn-secondary" id="cancel-financial-chart">Cancel</button>
+                    <button class="btn-primary" id="save-financial-chart">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                `;
+                
+                document.getElementById('cancel-financial-chart').addEventListener('click', function() {
+                    closeModal();
+                });
+                
+                document.getElementById('save-financial-chart').addEventListener('click', function() {
+                    saveFinancialChartData();
+                });
+                
+                openModal();
+            }
+            
+            function saveFinancialChartData() {
+                const revenueData = [];
+                const expensesData = [];
+                
+                for (let i = 0; i < 7; i++) {
+                    const revenue = parseInt(document.getElementById(`revenue-${i}`).value) || 0;
+                    const expenses = parseInt(document.getElementById(`expenses-${i}`).value) || 0;
+                    
+                    revenueData.push(revenue);
+                    expensesData.push(expenses);
+                }
+                
+                window.financialChart.data.datasets[0].data = revenueData;
+                window.financialChart.data.datasets[1].data = expensesData;
+                window.financialChart.update();
+                
+                // Save to localStorage
+                let chartData = JSON.parse(localStorage.getItem('chartData')) || {};
+                chartData.revenue = revenueData;
+                chartData.expenses = expensesData;
+                localStorage.setItem('chartData', JSON.stringify(chartData));
+                
+                closeModal();
+                showToast('Financial data updated successfully', 'success');
+            }
+            
+            function openAddEmployeeModal() {
+                document.getElementById('modal-title').textContent = 'Add New Employee';
+                
+                const html = `
+                    <div class="form-group">
+                        <label>Employee Name</label>
+                        <input type="text" class="form-control" id="employee-name" placeholder="Enter employee name">
+                    </div>
+                    <div class="form-group">
+                        <label>Role</label>
+                        <select class="form-control" id="employee-role">
+                            <option value="Barista">Barista</option>
+                            <option value="Head Barista">Head Barista</option>
+                            <option value="Cashier">Cashier</option>
+                            <option value="Supervisor">Supervisor</option>
+                            <option value="Manager">Manager</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Hours per Week</label>
+                        <input type="number" class="form-control" id="employee-hours" value="40" min="0" max="60">
+                    </div>
+                    <div class="form-group">
+                        <label>Performance</label>
+                        <select class="form-control" id="employee-performance">
+                            <option value="Excellent">Excellent</option>
+                            <option value="Good" selected>Good</option>
+                            <option value="Bad">Bad</option>
+                            <option value="Poor">Poor</option>
+                        </select>
+                    </div>
+                `;
+                
+                document.getElementById('modal-body').innerHTML = html;
+                document.getElementById('modal-footer').innerHTML = `
+                    <button class="btn-secondary" id="cancel-employee">Cancel</button>
+                    <button class="btn-primary" id="save-employee">
+                        <i class="fas fa-user-plus"></i> Add Employee
+                    </button>
+                `;
+                
+                document.getElementById('cancel-employee').addEventListener('click', function() {
+                    closeModal();
+                });
+                
+                document.getElementById('save-employee').addEventListener('click', function() {
+                    saveNewEmployee();
+                });
+                
+                openModal();
+            }
+            
+            function saveNewEmployee() {
+                const name = document.getElementById('employee-name').value;
+                const role = document.getElementById('employee-role').value;
+                const hours = parseInt(document.getElementById('employee-hours').value) || 0;
+                const performance = document.getElementById('employee-performance').value;
+                
+                if (!name) {
+                    showToast('Please enter employee name', 'error');
+                    return;
+                }
+                
+                let employees = getEmployees();
+                const newId = employees.length > 0 ? Math.max(...employees.map(e => e.id)) + 1 : 1;
+                
+                employees.push({
+                    id: newId,
+                    name: name,
+                    position: role,
+                    hours: hours,
+                    performance: performance,
+                    email: `${name.toLowerCase().replace(' ', '.')}@coffeeaffair.com`,
+                    phone: '+63 912 345 6789',
+                    salary: role === 'Manager' || role === 'Supervisor' ? 200 : role === 'Head Barista' ? 180 : 150,
+                    status: 'active',
+                    joinDate: new Date().toISOString().slice(0, 10)
+                });
+                
+                localStorage.setItem('bistroEmployees', JSON.stringify(employees));
+                
+                closeModal();
+                updateEmployeeTable();
+                showToast('Employee added successfully', 'success');
+            }
+            
+            // Show toast notification
+            function showToast(message, type = 'success') {
+                const toast = document.getElementById('toast');
+                const toastMessage = document.getElementById('toast-message');
+                
+                toastMessage.textContent = message;
+                toast.className = 'toast';
+                
+                if (type === 'error') {
+                    toast.classList.add('error');
+                    toast.innerHTML = `<i class="fas fa-exclamation-circle"></i> <span id="toast-message">${message}</span>`;
+                } else {
+                    toast.innerHTML = `<i class="fas fa-check-circle"></i> <span id="toast-message">${message}</span>`;
+                }
+                
+                toast.classList.add('show');
+                
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            }
+            
+            // Data management functions
+            function getOrders() {
+                return JSON.parse(localStorage.getItem('bistroOrders')) || [];
+            }
+            
+            function getMenu() {
+                return JSON.parse(localStorage.getItem('bistroMenu')) || [];
+            }
+            
+            function getUsers() {
+                return JSON.parse(localStorage.getItem('bistroUsers')) || [];
+            }
+        });
+        
+        // Global functions for inline event handlers
+        function editInventoryItem(id) {
+            const inventory = JSON.parse(localStorage.getItem('bistroInventory')) || [];
+            const item = inventory.find(item => item.id === id);
+            
+            if (item) {
+                const newStock = prompt(`Enter new stock for ${item.name}:`, item.stock);
+                if (newStock !== null && !isNaN(newStock)) {
+                    item.stock = parseInt(newStock);
+                    localStorage.setItem('bistroInventory', JSON.stringify(inventory));
+                    location.reload();
+                }
+            }
         }
-
-        itemForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const id = document.getElementById('item-id').value;
-            const name = document.getElementById('item-name').value.trim();
-            const description = document.getElementById('item-description').value.trim();
-            let price = parseFloat(document.getElementById('item-price').value);
-            const category = document.getElementById('item-category').value;
-            const imageUrl = document.getElementById('item-imageUrl').value.trim();
-            let stock = parseInt(document.getElementById('item-stock').value);
-
-            // If category is Espresso Machines, override price and stock with default values
-            if (category === 'Espresso Machines' || category === 'Coffee Gear') {
-                price = 0;
-                stock = 0;
-            }
-
-            if (!name || !description || isNaN(price) || !category || !imageUrl || isNaN(stock)) {
-                alert('Please fill in all fields correctly.');
-                return;
-            }
-
-            const itemData = {
-                name,
-                description,
-                price,
-                category,
-                imageUrl,
-                stock
-            };
-
-            if (id) {
-                // Update existing item
-                itemData.id = parseInt(id);
-                if (updateItem(itemData)) {
-                    alert('Item updated successfully.');
-                } else {
-                    alert('Failed to update item.');
-                }
-            } else {
-                // Add new item
-                const addedItem = addItem(itemData);
-                if (addedItem) {
-                    alert('Item added successfully.');
-                } else {
-                    alert('Failed to add item.');
+        
+        function editEmployee(id) {
+            const employees = JSON.parse(localStorage.getItem('bistroEmployees')) || [];
+            const employee = employees.find(emp => emp.id === id);
+            
+            if (employee) {
+                const newHours = prompt(`Enter new hours for ${employee.name}:`, employee.hours);
+                if (newHours !== null && !isNaN(newHours)) {
+                    employee.hours = parseInt(newHours);
+                    localStorage.setItem('bistroEmployees', JSON.stringify(employees));
+                    location.reload();
                 }
             }
-            clearForm();
-            renderItemsTable();
-        });
-
-        cancelButton.addEventListener('click', () => {
-            clearForm();
-        });
-
-        // Initial render of items table
-        renderItemsTable();
+        }
+        
+        function deleteEmployee(id) {
+            if (confirm('Are you sure you want to delete this employee?')) {
+                let employees = JSON.parse(localStorage.getItem('bistroEmployees')) || [];
+                employees = employees.filter(emp => emp.id !== id);
+                localStorage.setItem('bistroEmployees', JSON.stringify(employees));
+                location.reload();
+            }
+        }
     </script>
 </body>
 </html>

@@ -1,0 +1,2373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coffee Affair Bistro - Employee Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #8B4513;
+            --primary-light: #A0522D;
+            --secondary: #D2691E;
+            --accent: #CD853F;
+            --light: #F5F5DC;
+            --dark: #3E2723;
+            --success: #4CAF50;
+            --warning: #FF9800;
+            --danger: #F44336;
+            --info: #2196F3;
+            --gray: #9E9E9E;
+            --gray-light: #F5F5F5;
+            --white: #FFFFFF;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --radius: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--gray-light);
+            color: var(--dark);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(to bottom, var(--primary), var(--primary-light));
+            color: var(--white);
+            padding: 20px 0;
+            transition: all 0.3s;
+            box-shadow: var(--shadow);
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .logo i {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+
+        .logo h1 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .nav-links {
+            list-style: none;
+        }
+
+        .nav-links li {
+            padding: 12px 20px;
+            transition: all 0.3s;
+        }
+
+        .nav-links li:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-links a {
+            color: var(--white);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .nav-links i {
+            margin-right: 10px;
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .nav-links .active {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-left: 4px solid var(--accent);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            background-color: var(--white);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            z-index: 99;
+        }
+
+        .header h2 {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-info img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+
+        .user-info .btn-logout {
+            background-color: var(--danger);
+            color: var(--white);
+            border: none;
+            padding: 8px 15px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            margin-left: 15px;
+            transition: all 0.3s;
+        }
+
+        .user-info .btn-logout:hover {
+            background-color: #d32f2f;
+        }
+
+        /* Content Area */
+        .content {
+            padding: 30px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .dashboard-section {
+            background-color: var(--white);
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+        }
+
+        .dashboard-section.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .section-header h3 {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .btn-view-all {
+            background-color: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 6px 12px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn-view-all:hover {
+            background-color: var(--primary);
+            color: var(--white);
+        }
+
+        /* Employee Management Specific Styles */
+        .employee-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .employee-card {
+            background-color: var(--white);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            transition: transform 0.3s;
+        }
+
+        .employee-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .employee-avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            margin-right: 15px;
+            object-fit: cover;
+        }
+
+        .employee-info h4 {
+            margin-bottom: 5px;
+            font-size: 18px;
+        }
+
+        .employee-info p {
+            color: var(--gray);
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .employee-status {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 5px;
+        }
+
+        .status-active {
+            background-color: rgba(76, 175, 80, 0.1);
+            color: var(--success);
+        }
+
+        .status-inactive {
+            background-color: rgba(244, 67, 54, 0.1);
+            color: var(--danger);
+        }
+
+        .status-on-leave {
+            background-color: rgba(255, 152, 0, 0.1);
+            color: var(--warning);
+        }
+
+        /* Tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            text-align: left;
+            padding: 12px 15px;
+            background-color: var(--gray-light);
+            color: var(--dark);
+            font-weight: 600;
+        }
+
+        .data-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .data-table tr:hover {
+            background-color: rgba(139, 69, 19, 0.05);
+        }
+
+        .status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status.completed {
+            background-color: rgba(76, 175, 80, 0.1);
+            color: var(--success);
+        }
+
+        .status.pending {
+            background-color: rgba(255, 152, 0, 0.1);
+            color: var(--warning);
+        }
+
+        .status.cancelled {
+            background-color: rgba(244, 67, 54, 0.1);
+            color: var(--danger);
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid var(--gray);
+            border-radius: var(--radius);
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(139, 69, 19, 0.2);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-light);
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            color: var(--white);
+        }
+
+        .btn-success:hover {
+            background-color: #388E3C;
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: var(--white);
+        }
+
+        .btn-danger:hover {
+            background-color: #d32f2f;
+        }
+
+        .btn-info {
+            background-color: var(--info);
+            color: var(--white);
+        }
+
+        .btn-info:hover {
+            background-color: #1976D2;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--gray-light);
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 12px 20px;
+            cursor: pointer;
+            font-weight: 600;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            color: var(--primary);
+            border-bottom: 3px solid var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Calendar */
+        .calendar {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .calendar th, .calendar td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid var(--gray-light);
+        }
+
+        .calendar th {
+            background-color: var(--gray-light);
+            font-weight: 600;
+        }
+
+        .calendar .today {
+            background-color: rgba(139, 69, 19, 0.1);
+        }
+
+        .calendar .shift {
+            background-color: rgba(76, 175, 80, 0.2);
+            border-radius: 4px;
+            padding: 2px 5px;
+            font-size: 12px;
+            margin-top: 2px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.open {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: var(--white);
+            border-radius: var(--radius);
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: var(--primary);
+            color: var(--white);
+            border-radius: var(--radius) var(--radius) 0 0;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: var(--white);
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        /* Task Sync Styles */
+        .task-sync-info {
+            background-color: rgba(33, 150, 243, 0.1);
+            border-left: 4px solid var(--info);
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+
+        .task-sync-info p {
+            margin: 0;
+            font-size: 14px;
+            color: var(--dark);
+        }
+
+        /* Payroll Controls */
+        .payroll-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        /* Attendance Stats */
+        .attendance-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: var(--white);
+            padding: 15px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .stat-card h4 {
+            color: var(--gray);
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .stat-card .number {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .stat-card.present .number { color: var(--success); }
+        .stat-card.absent .number { color: var(--danger); }
+        .stat-card.late .number { color: var(--warning); }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 80px;
+            }
+            
+            .logo h1, .nav-links span {
+                display: none;
+            }
+            
+            .nav-links i {
+                margin-right: 0;
+                font-size: 20px;
+            }
+            
+            .nav-links li {
+                text-align: center;
+                padding: 15px 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .employee-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                padding: 15px;
+            }
+            
+            .content {
+                padding: 15px;
+            }
+            
+            .tabs {
+                flex-wrap: wrap;
+            }
+            
+            .tab {
+                flex: 1 0 50%;
+            }
+
+            .payroll-controls {
+                flex-direction: column;
+            }
+            
+            .attendance-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .tab {
+                flex: 1 0 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fas fa-coffee"></i>
+            <h1>Coffee Affair Bistro</h1>
+        </div>
+        <ul class="nav-links">
+            <li>
+                <a href="admin.html">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Analytics Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="admin_inventory.html">
+                    <i class="fas fa-boxes"></i>
+                    <span>Inventory Management</span>
+                </a>
+            </li>
+            <li>
+                <a href="admin_logins.html">
+                    <i class="fas fa-history"></i>
+                    <span>Login History</span>
+                </a>
+            </li>
+            <li>
+                <a href="menu.html">
+                    <i class="fas fa-utensils"></i>
+                    <span>Menu Management</span>
+                </a>
+            </li>
+            <li class="active">
+                <a href="#">
+                    <i class="fas fa-users"></i>
+                    <span>Employee Management</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header">
+            <h2>Employee Management</h2>
+            <div class="user-info">
+                <img src="https://ui-avatars.com/api/?name=Admin+User&background=8B4513&color=fff" alt="Admin">
+                <span>Admin User</span>
+                <button class="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Tabs Navigation -->
+            <div class="tabs">
+                <div class="tab active" data-tab="employees">Employee Records</div>
+                <div class="tab" data-tab="attendance">Time & Attendance</div>
+                <div class="tab" data-tab="scheduling">Scheduling</div>
+                <div class="tab" data-tab="payroll">Payroll</div>
+            </div>
+
+            <!-- Employee Records Tab -->
+            <div class="tab-content active" id="employees-tab">
+                <div class="dashboard-section">
+                    <div class="section-header">
+                        <h3>Employee Records</h3>
+                        <button class="btn btn-primary" id="add-employee-btn">
+                            <i class="fas fa-plus"></i> Add Employee
+                        </button>
+                    </div>
+                    
+                    <div class="employee-grid" id="employee-grid">
+                        <!-- Employee cards will be dynamically inserted here -->
+                    </div>
+                </div>
+
+                <div class="dashboard-section">
+                    <div class="section-header">
+                        <h3>Employee Details</h3>
+                        <button class="btn btn-info" id="sync-supervisor-btn">
+                            <i class="fas fa-sync"></i> Sync with Supervisor
+                        </button>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Position</th>
+                                <th>Contact</th>
+                                <th>Joined Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="employee-table-body">
+                            <!-- Employee table rows will be dynamically inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Time & Attendance Tab -->
+            <div class="tab-content" id="attendance-tab">
+                <div class="dashboard-grid">
+                    <div class="dashboard-section">
+                        <div class="section-header">
+                            <h3>Today's Attendance</h3>
+                            <button class="btn btn-primary" id="refresh-attendance-btn">
+                                <i class="fas fa-sync"></i> Refresh
+                            </button>
+                        </div>
+                        
+                        <!-- Attendance Statistics -->
+                        <div class="attendance-stats" id="attendance-stats">
+                            <!-- Stats will be populated by JavaScript -->
+                        </div>
+                        
+                        <div style="overflow-x: auto;">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Employee</th>
+                                        <th>Position</th>
+                                        <th>Clock In</th>
+                                        <th>Clock Out</th>
+                                        <th>Status</th>
+                                        <th>Hours</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="attendance-body">
+                                    <!-- Attendance records will be dynamically inserted here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Add another section for weekly summary -->
+                    <div class="dashboard-section">
+                        <div class="section-header">
+                            <h3>This Week's Summary</h3>
+                        </div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Employee</th>
+                                    <th>Total Hours</th>
+                                    <th>Present Days</th>
+                                    <th>Absent Days</th>
+                                </tr>
+                            </thead>
+                            <tbody id="weekly-summary-body">
+                                <!-- Weekly summary will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scheduling Tab -->
+            <div class="tab-content" id="scheduling-tab">
+                <div class="dashboard-section full-width">
+                    <div class="section-header">
+                        <h3>Weekly Schedule</h3>
+                        <div>
+                            <button class="btn btn-primary" id="generate-schedule-btn">
+                                <i class="fas fa-calendar-plus"></i> Generate Schedule
+                            </button>
+                            <button class="btn btn-success" id="publish-schedule-btn">
+                                <i class="fas fa-share"></i> Publish Schedule
+                            </button>
+                        </div>
+                    </div>
+                    <div class="calendar-container">
+                        <table class="calendar" id="weekly-schedule">
+                            <thead>
+                                <tr>
+                                    <th>Mon</th>
+                                    <th>Tue</th>
+                                    <th>Wed</th>
+                                    <th>Thu</th>
+                                    <th>Fri</th>
+                                    <th>Sat</th>
+                                    <th>Sun</th>
+                                </tr>
+                            </thead>
+                            <tbody id="calendar-body">
+                                <!-- Calendar will be dynamically generated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="dashboard-section">
+                    <div class="section-header">
+                        <h3>Task Assignment</h3>
+                        <button class="btn btn-info" id="sync-tasks-btn">
+                            <i class="fas fa-sync"></i> Sync Tasks
+                        </button>
+                    </div>
+                    <div class="task-sync-info">
+                        <p><i class="fas fa-info-circle"></i> Tasks are synchronized with the Supervisor Dashboard. Changes made in either system will update both.</p>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Task</th>
+                                <th>Assigned To</th>
+                                <th>Due Date</th>
+                                <th>Status</th>
+                                <th>Source</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tasks-body">
+                            <!-- Task assignments will be dynamically inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Payroll Tab -->
+            <div class="tab-content" id="payroll-tab">
+                <div class="dashboard-section full-width">
+                    <div class="section-header">
+                        <h3>Payroll Summary</h3>
+                        <div>
+                            <button class="btn btn-primary" id="refresh-payroll-btn">
+                                <i class="fas fa-sync"></i> Refresh
+                            </button>
+                            <button class="btn btn-danger" id="reset-payroll-btn">
+                                <i class="fas fa-undo"></i> Reset
+                            </button>
+                            <button class="btn-view-all" id="process-payroll-btn">
+                                <i class="fas fa-calculator"></i> Process Payroll
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Payroll Controls -->
+                    <div class="payroll-controls">
+                        <div>
+                            <label for="payroll-period">Pay Period:</label>
+                            <select id="payroll-period" class="form-control" style="width: 200px; display: inline-block; margin-left: 10px;">
+                                <option value="current">Current Week</option>
+                                <option value="last">Last Week</option>
+                                <option value="month">This Month</option>
+                                <option value="custom">Custom Range</option>
+                            </select>
+                        </div>
+                        <div id="custom-date-range" style="display: none;">
+                            <label for="start-date">From:</label>
+                            <input type="date" id="start-date" class="form-control" style="width: 150px; display: inline-block; margin-left: 10px;">
+                            <label for="end-date" style="margin-left: 10px;">To:</label>
+                            <input type="date" id="end-date" class="form-control" style="width: 150px; display: inline-block; margin-left: 10px;">
+                        </div>
+                    </div>
+                    
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Employee</th>
+                                <th>Hours</th>
+                                <th>Rate</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="payroll-body">
+                            <!-- Payroll data will be dynamically inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Employee Modal -->
+    <div class="modal" id="add-employee-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="employee-modal-title">Add New Employee</h3>
+                <button class="close-modal" id="close-employee-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="employee-form">
+                    <div class="form-group">
+                        <label for="employee-name">Full Name</label>
+                        <input type="text" id="employee-name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="employee-email">Email</label>
+                        <input type="email" id="employee-email" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="employee-phone">Phone</label>
+                        <input type="tel" id="employee-phone" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="employee-position">Position</label>
+                        <select id="employee-position" class="form-control" required>
+                            <option value="">Select Position</option>
+                            <option value="manager">Manager</option>
+                            <option value="barista">Barista</option>
+                            <option value="cashier">Cashier</option>
+                            <option value="server">Server</option>
+                            <option value="kitchen">Kitchen Staff</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="employee-salary">Hourly Rate (₱)</label>
+                        <input type="number" id="employee-salary" class="form-control" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="employee-status">Status</label>
+                        <select id="employee-status" class="form-control" required>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                            <option value="on leave">On Leave</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="employee-pin">PIN (for clock in/out)</label>
+                        <input type="password" id="employee-pin" class="form-control" maxlength="4" required>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary" id="employee-form-submit">Add Employee</button>
+                        <button type="button" class="btn btn-danger" id="cancel-employee-btn">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize employee management system
+            initializeEmployeeManagement();
+            
+            // Set up event listeners
+            setupEventListeners();
+            
+            // Load initial data
+            loadEmployeeData();
+            loadAttendanceData(); // Make sure this is called
+            loadTasks();
+            loadPayrollData();
+            
+            // Load weekly schedule
+            updateWeeklySchedule();
+            
+            // Set up real-time synchronization
+            setupTaskSynchronization();
+            setupScheduleSynchronization();
+            setupTimeClockSynchronization(); // Make sure this is called
+            
+            // Initialize supervisor data and sync
+            initializeSupervisorData();
+            syncWithSupervisorSystem(); // Auto-sync on load
+            
+            console.log('Time clock synchronization ready');
+        });
+        
+        function initializeEmployeeManagement() {
+            // Set up tab functionality
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remove active class from all tabs
+                    tabs.forEach(t => t.classList.remove('active'));
+                    
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+                    
+                    // Hide all tab content
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    
+                    // Show corresponding tab content
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(`${tabId}-tab`).classList.add('active');
+                    
+                    // If scheduling tab is activated, update the schedule
+                    if (tabId === 'scheduling') {
+                        updateWeeklySchedule();
+                    }
+                    
+                    // If payroll tab is activated, refresh payroll data
+                    if (tabId === 'payroll') {
+                        loadPayrollData();
+                    }
+                    
+                    // If attendance tab is activated, refresh attendance data
+                    if (tabId === 'attendance') {
+                        loadAttendanceData();
+                    }
+                });
+            });
+            
+            // Sync with supervisor system on load
+            syncWithSupervisorSystem();
+        }
+            
+        function setupEventListeners() {
+            // Add Employee Modal
+            document.getElementById('add-employee-btn').addEventListener('click', function() {
+                document.getElementById('add-employee-modal').classList.add('open');
+                document.getElementById('employee-modal-title').textContent = 'Add New Employee';
+                document.getElementById('employee-form-submit').textContent = 'Add Employee';
+                document.getElementById('employee-form').reset();
+                
+                // Set form submission for adding
+                const form = document.getElementById('employee-form');
+                form.onsubmit = function(e) {
+                    e.preventDefault();
+                    addEmployee();
+                };
+            });
+            
+            document.getElementById('close-employee-modal').addEventListener('click', function() {
+                document.getElementById('add-employee-modal').classList.remove('open');
+            });
+            
+            document.getElementById('cancel-employee-btn').addEventListener('click', function() {
+                document.getElementById('add-employee-modal').classList.remove('open');
+            });
+            
+            // Sync with Supervisor button
+            document.getElementById('sync-supervisor-btn').addEventListener('click', function() {
+                syncWithSupervisorSystem();
+                showNotification('Synchronized with Supervisor Dashboard!', 'success');
+            });
+            
+            // Sync Tasks button
+            document.getElementById('sync-tasks-btn').addEventListener('click', function() {
+                syncTasksFromSupervisor();
+                showNotification('Tasks synchronized with Supervisor Dashboard!', 'success');
+            });
+            
+            // Close modal when clicking outside
+            document.getElementById('add-employee-modal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('open');
+                }
+            });
+            
+            // Schedule Buttons
+            document.getElementById('generate-schedule-btn').addEventListener('click', function() {
+                generateSchedule();
+            });
+            
+            document.getElementById('publish-schedule-btn').addEventListener('click', function() {
+                publishSchedule();
+            });
+            
+            // Payroll Buttons
+            document.getElementById('refresh-payroll-btn').addEventListener('click', function() {
+                loadPayrollData();
+                showNotification('Payroll data refreshed!', 'success');
+            });
+            
+            document.getElementById('reset-payroll-btn').addEventListener('click', function() {
+                resetPayrollData();
+            });
+            
+            document.getElementById('process-payroll-btn').addEventListener('click', function() {
+                processPayroll();
+            });
+            
+            // Payroll period selector
+            document.getElementById('payroll-period').addEventListener('change', function() {
+                if (this.value === 'custom') {
+                    document.getElementById('custom-date-range').style.display = 'block';
+                } else {
+                    document.getElementById('custom-date-range').style.display = 'none';
+                }
+                loadPayrollData();
+            });
+            
+            // Custom date range inputs
+            document.getElementById('start-date').addEventListener('change', loadPayrollData);
+            document.getElementById('end-date').addEventListener('change', loadPayrollData);
+            
+            // Attendance refresh button
+            document.getElementById('refresh-attendance-btn').addEventListener('click', function() {
+                loadAttendanceData();
+                showNotification('Attendance data refreshed!', 'success');
+            });
+            
+            // Logout button
+            document.querySelector('.btn-logout').addEventListener('click', function() {
+                if (confirm('Are you sure you want to logout?')) {
+                    // In a real app, this would redirect to login
+                    alert('Logout functionality would redirect to login page');
+                }
+            });
+        }
+
+        // Set up task synchronization
+        function setupTaskSynchronization() {
+            // Listen for storage events to detect changes in supervisor tasks
+            window.addEventListener('storage', function(e) {
+                if (e.key === 'coffeeShopStaffData') {
+                    // Supervisor data changed, update tasks
+                    syncTasksFromSupervisor();
+                }
+                if (e.key === 'bistroSupervisorTasks') {
+                    // Tasks specifically updated, reload tasks
+                    loadTasks();
+                }
+            });
+            
+            // Also check for changes periodically
+            setInterval(function() {
+                syncTasksFromSupervisor();
+            }, 5000);
+        }
+
+        // Set up schedule synchronization
+        function setupScheduleSynchronization() {
+            // Listen for storage events to detect changes in supervisor schedules
+            window.addEventListener('storage', function(e) {
+                if (e.key === 'coffeeShopStaffData') {
+                    // Supervisor data changed, update schedule
+                    updateWeeklySchedule();
+                    // Also update employee data to reflect schedule changes
+                    loadEmployeeData();
+                }
+                if (e.key === 'bistroSupervisorSchedules') {
+                    // Schedules specifically updated
+                    updateWeeklySchedule();
+                    loadEmployeeData();
+                }
+            });
+            
+            // Also check for changes periodically
+            setInterval(function() {
+                updateWeeklySchedule();
+            }, 5000);
+        }
+
+        // Set up time clock synchronization
+        function setupTimeClockSynchronization() {
+            // Listen for storage events to detect changes in supervisor time clock
+            window.addEventListener('storage', function(e) {
+                if (e.key === 'coffeeShopStaffData') {
+                    // Supervisor data changed, update attendance
+                    console.log('Supervisor data updated, refreshing attendance...');
+                    loadAttendanceData();
+                }
+                if (e.key === 'bistroSupervisorTimeClock') {
+                    // Time clock specifically updated
+                    console.log('Time clock data updated, refreshing attendance...');
+                    loadAttendanceData();
+                    // Also update payroll as hours may have changed
+                    loadPayrollData();
+                }
+            });
+            
+            // Also check for changes periodically
+            setInterval(function() {
+                loadAttendanceData();
+            }, 5000);
+        }
+
+        // Function to sync tasks from supervisor system
+        function syncTasksFromSupervisor() {
+            const coffeeShopStaffData = JSON.parse(localStorage.getItem('coffeeShopStaffData'));
+            
+            if (coffeeShopStaffData && coffeeShopStaffData.tasks) {
+                // Save supervisor tasks to our local storage
+                localStorage.setItem('bistroSupervisorTasks', JSON.stringify(coffeeShopStaffData.tasks));
+                
+                // Update the task display
+                loadTasks();
+            }
+        }
+
+        // Function to get schedule data from supervisor system
+        function getEmployeeSchedule(employeeId) {
+            const coffeeShopStaffData = JSON.parse(localStorage.getItem('coffeeShopStaffData'));
+            
+            if (coffeeShopStaffData && coffeeShopStaffData.schedules) {
+                return coffeeShopStaffData.schedules.filter(schedule => schedule.employeeId === employeeId);
+            }
+            
+            return [];
+        }
+
+        // Function to update the weekly schedule display
+        function updateWeeklySchedule() {
+            const coffeeShopStaffData = JSON.parse(localStorage.getItem('coffeeShopStaffData'));
+            const calendarBody = document.getElementById('calendar-body');
+            
+            if (!calendarBody) return;
+            
+            // Clear existing calendar
+            calendarBody.innerHTML = '';
+            
+            // Get current week dates
+            const weekDates = getCurrentWeekDates();
+            
+            // Create calendar row
+            const row = document.createElement('tr');
+            
+            // For each day in the week
+            weekDates.forEach(dateInfo => {
+                const cell = document.createElement('td');
+                if (dateInfo.isToday) {
+                    cell.classList.add('today');
+                }
+                
+                // Add date
+                const dateDiv = document.createElement('div');
+                dateDiv.textContent = dateInfo.date.getDate();
+                cell.appendChild(dateDiv);
+                
+                // Get schedules for this day
+                if (coffeeShopStaffData && coffeeShopStaffData.schedules) {
+                    const daySchedules = coffeeShopStaffData.schedules.filter(
+                        schedule => schedule.day === dateInfo.dayAbbr
+                    );
+                    
+                    // Add each schedule for this day
+                    daySchedules.forEach(schedule => {
+                        const employee = coffeeShopStaffData.employees.find(
+                            emp => emp.id === schedule.employeeId
+                        );
+                        
+                        if (employee) {
+                            const shiftDiv = document.createElement('div');
+                            shiftDiv.className = 'shift';
+                            shiftDiv.textContent = `${employee.name} (${schedule.start}-${schedule.end})`;
+                            cell.appendChild(shiftDiv);
+                        }
+                    });
+                }
+                
+                row.appendChild(cell);
+            });
+            
+            calendarBody.appendChild(row);
+        }
+
+        // Function to get current week dates with day abbreviations
+        function getCurrentWeekDates() {
+            const today = new Date();
+            today.setFullYear(2025);
+            const dayOfWeek = today.getDay();
+            
+            // Adjust to start from Monday (if today is Sunday, go back 6 days)
+            const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+            const monday = new Date(today);
+            monday.setDate(today.getDate() + mondayOffset);
+            
+            const weekDates = [];
+            const dayAbbreviations = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+            
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(monday);
+                date.setDate(monday.getDate() + i);
+                
+                weekDates.push({
+                    date: date,
+                    dayAbbr: dayAbbreviations[i],
+                    isToday: date.toDateString() === today.toDateString()
+                });
+            }
+            
+            return weekDates;
+        }
+        
+        // Update the employee card to show schedule information
+        function loadEmployeeData() {
+            const employees = getEmployees();
+            const employeeGrid = document.getElementById('employee-grid');
+            const employeeTableBody = document.getElementById('employee-table-body');
+            
+            employeeGrid.innerHTML = '';
+            employeeTableBody.innerHTML = '';
+            
+            if (employees.length === 0) {
+                employeeGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; padding: 20px;">No employees found. Add your first employee!</p>';
+                employeeTableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px;">No employee records available</td></tr>';
+                return;
+            }
+            
+            employees.forEach(employee => {
+                // Get schedule for this employee
+                const schedule = getEmployeeSchedule(employee.id);
+                
+                // Create employee card
+                const card = document.createElement('div');
+                card.className = 'employee-card';
+                
+                // Ensure avatar URL is properly formatted
+                let avatarUrl = employee.avatar;
+                if (!avatarUrl || !avatarUrl.startsWith('http')) {
+                    avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(employee.name)}&background=8B4513&color=fff`;
+                }
+                
+                card.innerHTML = `
+                    <img src="${avatarUrl}" 
+                        alt="${employee.name}" class="employee-avatar">
+                    <div class="employee-info">
+                        <h4>${employee.name}</h4>
+                        <p>${employee.position}</p>
+                        <p>${employee.email}</p>
+                        ${schedule.length > 0 ? 
+                        `<p><small>Next shift: ${getNextShift(schedule)}</small></p>` : 
+                        '<p><small>No schedule assigned</small></p>'
+                        }
+                        <span class="employee-status ${getStatusClass(employee.status)}">${employee.status}</span>
+                    </div>
+                `;
+                employeeGrid.appendChild(card);
+                
+                // Create table row
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${employee.name}</td>
+                    <td>${employee.position}</td>
+                    <td>${employee.phone}</td>
+                    <td>${employee.joinDate}</td>
+                    <td><span class="status ${getStatusClass(employee.status)}">${employee.status}</span></td>
+                    <td>
+                        <button class="btn btn-primary edit-employee-btn" data-id="${employee.id}">Edit</button>
+                        <button class="btn btn-danger delete-employee-btn" data-id="${employee.id}">Delete</button>
+                        ${schedule.length > 0 ? 
+                        `<button class="btn btn-info view-schedule-btn" data-id="${employee.id}">View Schedule</button>` : 
+                        ''}
+                    </td>
+                `;
+                employeeTableBody.appendChild(row);
+            });
+            
+            // Add event listeners to the dynamically created buttons
+            document.querySelectorAll('.edit-employee-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = parseInt(this.getAttribute('data-id'));
+                    editEmployee(id);
+                });
+            });
+            
+            document.querySelectorAll('.delete-employee-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = parseInt(this.getAttribute('data-id'));
+                    console.log('Attempting to delete employee with ID:', id);
+                    deleteEmployee(id);
+                    // Call debug function to verify deletion
+                    setTimeout(debugEmployeeData, 100);
+                });
+            });
+            
+            document.querySelectorAll('.view-schedule-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = parseInt(this.getAttribute('data-id'));
+                    viewSchedule(id);
+                });
+            });
+        }
+
+        // Helper function to get next shift
+        function getNextShift(schedule) {
+            const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+            const today = new Date();
+            today.setFullYear(2025);
+            const todayDay = today.getDay();
+            const todayStr = days[todayDay];
+            
+            // Find today's schedule or next schedule
+            const todaySchedule = schedule.find(s => s.day === todayStr);
+            if (todaySchedule) {
+                return `Today ${todaySchedule.start}-${todaySchedule.end}`;
+            }
+            
+            // Find next schedule
+            for (let i = 1; i <= 7; i++) {
+                const nextDay = (todayDay + i) % 7;
+                const nextDayStr = days[nextDay];
+                const nextSchedule = schedule.find(s => s.day === nextDayStr);
+                if (nextSchedule) {
+                    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                    return `${dayNames[nextDay]} ${nextSchedule.start}-${nextSchedule.end}`;
+                }
+            }
+            
+            return 'No upcoming shifts';
+        }
+
+        // Function to view employee schedule
+        function viewSchedule(employeeId) {
+            const employee = getEmployees().find(emp => emp.id === employeeId);
+            const schedule = getEmployeeSchedule(employeeId);
+            
+            if (schedule.length === 0) {
+                alert(`${employee.name} has no assigned schedule.`);
+                return;
+            }
+            
+            let scheduleHTML = `<h3>Schedule for ${employee.name}</h3><ul>`;
+            const dayNames = {
+                'MON': 'Monday',
+                'TUE': 'Tuesday', 
+                'WED': 'Wednesday',
+                'THU': 'Thursday',
+                'FRI': 'Friday',
+                'SAT': 'Saturday',
+                'SUN': 'Sunday'
+            };
+            
+            schedule.forEach(s => {
+                scheduleHTML += `<li>${dayNames[s.day]}: ${s.start} - ${s.end}</li>`;
+            });
+            
+            scheduleHTML += '</ul>';
+            scheduleHTML += '<p><small>Note: Schedules are managed in the Supervisor Dashboard</small></p>';
+            
+            alert(scheduleHTML);
+        }
+
+        function syncWithSupervisorSystem() {
+            const coffeeShopStaffData = JSON.parse(localStorage.getItem('coffeeShopStaffData')) || {};
+            const bistroEmployees = JSON.parse(localStorage.getItem('bistroEmployees')) || [];
+            
+            // Initialize supervisor data if it doesn't exist
+            if (!coffeeShopStaffData.employees) {
+                coffeeShopStaffData.employees = [];
+            }
+            if (!coffeeShopStaffData.schedules) {
+                coffeeShopStaffData.schedules = [];
+            }
+            if (!coffeeShopStaffData.timeClock) {
+                coffeeShopStaffData.timeClock = [];
+            }
+            if (!coffeeShopStaffData.tasks) {
+                coffeeShopStaffData.tasks = [];
+            }
+            
+            // Update supervisor employees with admin employees
+            bistroEmployees.forEach(adminEmp => {
+                const existingEmpIndex = coffeeShopStaffData.employees.findIndex(emp => emp.id === adminEmp.id);
+                
+                if (existingEmpIndex !== -1) {
+                    // Update existing employee
+                    coffeeShopStaffData.employees[existingEmpIndex].name = adminEmp.name;
+                    coffeeShopStaffData.employees[existingEmpIndex].role = adminEmp.position;
+                } else {
+                    // Add new employee to supervisor system
+                    coffeeShopStaffData.employees.push({
+                        id: adminEmp.id,
+                        name: adminEmp.name,
+                        role: adminEmp.position,
+                        avatar: adminEmp.avatar || getInitials(adminEmp.name)
+                    });
+                    
+                    console.log(`Added new employee to supervisor system: ${adminEmp.name}`);
+                }
+            });
+            
+            // Remove employees from supervisor system that are not in admin system
+            coffeeShopStaffData.employees = coffeeShopStaffData.employees.filter(supEmp => 
+                bistroEmployees.some(adminEmp => adminEmp.id === supEmp.id)
+            );
+            
+            // Also remove their schedules and time clock entries
+            const adminEmployeeIds = bistroEmployees.map(emp => emp.id);
+            coffeeShopStaffData.schedules = coffeeShopStaffData.schedules.filter(schedule => 
+                adminEmployeeIds.includes(schedule.employeeId)
+            );
+            coffeeShopStaffData.timeClock = coffeeShopStaffData.timeClock.filter(entry => 
+                adminEmployeeIds.includes(entry.employeeId)
+            );
+            
+            // Update tasks to unassign deleted employees
+            coffeeShopStaffData.tasks = coffeeShopStaffData.tasks.map(task => {
+                if (task.assigneeId && !adminEmployeeIds.includes(task.assigneeId)) {
+                    return {...task, assigneeId: null};
+                }
+                return task;
+            });
+            
+            // Save updated supervisor data
+            localStorage.setItem('coffeeShopStaffData', JSON.stringify(coffeeShopStaffData));
+            
+            // Update the UI
+            loadEmployeeData();
+            updateWeeklySchedule();
+            loadAttendanceData(); // Refresh attendance data after sync
+            
+            // Also sync tasks
+            syncTasksFromSupervisor();
+            
+            console.log('Synchronized with supervisor system - Employees:', coffeeShopStaffData.employees.length, 'Time Clock Entries:', coffeeShopStaffData.timeClock.length);
+            showNotification('Successfully synchronized with Supervisor Dashboard!', 'success');
+        }
+
+        function getInitials(name) {
+            return name.split(' ').map(part => part[0]).join('').toUpperCase();
+        }
+
+        
+        // Updated function to load tasks from supervisor system
+        function loadTasks() {
+            const tasksBody = document.getElementById('tasks-body');
+            
+            tasksBody.innerHTML = '';
+            
+            // Get tasks from supervisor system
+            const supervisorTasks = JSON.parse(localStorage.getItem('bistroSupervisorTasks')) || [];
+            
+            // If no tasks from supervisor, check if we have any in the coffeeShopStaffData
+            if (supervisorTasks.length === 0) {
+                const coffeeShopStaffData = JSON.parse(localStorage.getItem('coffeeShopStaffData'));
+                if (coffeeShopStaffData && coffeeShopStaffData.tasks) {
+                    supervisorTasks.push(...coffeeShopStaffData.tasks);
+                    localStorage.setItem('bistroSupervisorTasks', JSON.stringify(supervisorTasks));
+                }
+            }
+            
+            if (supervisorTasks.length === 0) {
+                tasksBody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 20px;">No tasks assigned from Supervisor Dashboard</td></tr>';
+                return;
+            }
+            
+            // Get employees for name mapping
+            const employees = getEmployees();
+            const supervisorEmployees = JSON.parse(localStorage.getItem('coffeeShopStaffData'))?.employees || [];
+            
+            supervisorTasks.forEach(task => {
+                // Find employee name
+                let employeeName = 'Unassigned';
+                let source = 'Supervisor';
+                
+                // First check in our employee system
+                const localEmployee = employees.find(emp => emp.id === task.assigneeId);
+                if (localEmployee) {
+                    employeeName = localEmployee.name;
+                } 
+                // Then check in supervisor system
+                else if (supervisorEmployees.length > 0) {
+                    const supEmployee = supervisorEmployees.find(emp => emp.id === task.assigneeId);
+                    if (supEmployee) {
+                        employeeName = supEmployee.name;
+                    }
+                }
+                
+                // Format due date
+                let dueDate = task.dueDate;
+                if (task.dueTime) {
+                    dueDate += ` at ${task.dueTime}`;
+                }
+                
+                // Determine status
+                const status = task.completed ? 'Completed' : 'Pending';
+                const statusClass = task.completed ? 'completed' : 'pending';
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${task.title}</td>
+                    <td>${employeeName}</td>
+                    <td>${dueDate}</td>
+                    <td><span class="status ${statusClass}">${status}</span></td>
+                    <td><span class="status" style="background-color: rgba(33, 150, 243, 0.1); color: var(--info);">${source}</span></td>
+                `;
+                tasksBody.appendChild(row);
+            });
+        }
+        
+        function addEmployee() {
+            const name = document.getElementById('employee-name').value;
+            const email = document.getElementById('employee-email').value;
+            const phone = document.getElementById('employee-phone').value;
+            const position = document.getElementById('employee-position').value;
+            const salary = document.getElementById('employee-salary').value;
+            const status = document.getElementById('employee-status').value;
+            const pin = document.getElementById('employee-pin').value;
+            
+            if (!name || !email || !phone || !position || !salary || !pin) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            const employees = getEmployees();
+            const newEmployee = {
+                id: employees.length > 0 ? Math.max(...employees.map(e => e.id)) + 1 : 1,
+                name,
+                email,
+                phone,
+                position,
+                salary: parseFloat(salary),
+                pin,
+                status,
+                joinDate: new Date().toISOString().slice(0, 10),
+                avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=8B4513&color=fff`
+            };
+            
+            employees.push(newEmployee);
+            saveEmployees(employees);
+            
+            document.getElementById('employee-form').reset();
+            document.getElementById('add-employee-modal').classList.remove('open');
+            
+            // Automatically sync with supervisor system after adding employee
+            syncWithSupervisorSystem();
+            
+            showNotification('Employee added and synchronized with Supervisor Dashboard!', 'success');
+        }
+        
+        function editEmployee(id) {
+            const employees = getEmployees();
+            const employee = employees.find(emp => emp.id === id);
+            
+            if (employee) {
+                // Populate the form with employee data
+                document.getElementById('employee-name').value = employee.name;
+                document.getElementById('employee-email').value = employee.email;
+                document.getElementById('employee-phone').value = employee.phone;
+                document.getElementById('employee-position').value = employee.position;
+                document.getElementById('employee-salary').value = employee.salary;
+                document.getElementById('employee-status').value = employee.status;
+                document.getElementById('employee-pin').value = employee.pin;
+                
+                // Change form to edit mode
+                document.getElementById('add-employee-modal').classList.add('open');
+                document.getElementById('employee-modal-title').textContent = 'Edit Employee';
+                document.getElementById('employee-form-submit').textContent = 'Update Employee';
+                
+                // Update form submission to handle edit
+                const form = document.getElementById('employee-form');
+                form.onsubmit = function(e) {
+                    e.preventDefault();
+                    updateEmployee(id);
+                };
+            }
+        }
+        
+        function updateEmployee(id) {
+            const name = document.getElementById('employee-name').value;
+            const email = document.getElementById('employee-email').value;
+            const phone = document.getElementById('employee-phone').value;
+            const position = document.getElementById('employee-position').value;
+            const salary = document.getElementById('employee-salary').value;
+            const status = document.getElementById('employee-status').value;
+            const pin = document.getElementById('employee-pin').value;
+            
+            const employees = getEmployees();
+            const employeeIndex = employees.findIndex(emp => emp.id === id);
+            
+            if (employeeIndex !== -1) {
+                employees[employeeIndex] = {
+                    ...employees[employeeIndex],
+                    name,
+                    email,
+                    phone,
+                    position,
+                    salary: parseFloat(salary),
+                    status,
+                    pin,
+                    avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=8B4513&color=fff`
+                };
+                
+                saveEmployees(employees);
+                
+                document.getElementById('employee-form').reset();
+                document.getElementById('add-employee-modal').classList.remove('open');
+                loadEmployeeData();
+                
+                // Automatically sync with supervisor system after updating employee
+                syncWithSupervisorSystem();
+                
+                // Reset form to add mode
+                document.getElementById('employee-modal-title').textContent = 'Add New Employee';
+                document.getElementById('employee-form-submit').textContent = 'Add Employee';
+                document.getElementById('employee-form').onsubmit = function(e) {
+                    e.preventDefault();
+                    addEmployee();
+                };
+                
+                showNotification('Employee updated and synchronized with Supervisor Dashboard!', 'success');
+            }
+        }
+
+        function deleteEmployee(id) {
+            if (confirm('Are you sure you want to delete this employee?')) {
+                const employees = getEmployees();
+                const employeeIndex = employees.findIndex(emp => emp.id === id);
+                
+                if (employeeIndex !== -1) {
+                    // Get employee data before deletion for supervisor system removal
+                    const employeeToDelete = employees[employeeIndex];
+                    
+                    // Remove from bistro employees
+                    employees.splice(employeeIndex, 1);
+                    saveEmployees(employees);
+                    
+                    // Remove from supervisor system
+                    removeEmployeeFromSupervisorSystem(id, employeeToDelete);
+                    
+                    // Reload all data
+                    loadEmployeeData();
+                    loadAttendanceData();
+                    loadPayrollData();
+                    updateWeeklySchedule();
+                    
+                    showNotification('Employee deleted and removed from Supervisor Dashboard!', 'success');
+                } else {
+                    showNotification('Employee not found!', 'danger');
+                }
+            }
+        }
+
+        // Function to remove employee from supervisor system
+        // Function to remove employee from supervisor system
+        function removeEmployeeFromSupervisorSystem(employeeId, employeeData) {
+            const coffeeShopStaffData = JSON.parse(localStorage.getItem('coffeeShopStaffData')) || {};
+            
+            if (coffeeShopStaffData.employees) {
+                // Remove employee from employees array
+                coffeeShopStaffData.employees = coffeeShopStaffData.employees.filter(emp => emp.id !== employeeId);
+                
+                // Remove employee schedules
+                if (coffeeShopStaffData.schedules) {
+                    coffeeShopStaffData.schedules = coffeeShopStaffData.schedules.filter(schedule => schedule.employeeId !== employeeId);
+                }
+                
+                // Remove employee time clock entries
+                if (coffeeShopStaffData.timeClock) {
+                    coffeeShopStaffData.timeClock = coffeeShopStaffData.timeClock.filter(entry => entry.employeeId !== employeeId);
+                }
+                
+                // Remove employee from tasks (set to unassigned)
+                if (coffeeShopStaffData.tasks) {
+                    coffeeShopStaffData.tasks = coffeeShopStaffData.tasks.map(task => {
+                        if (task.assigneeId === employeeId) {
+                            return {...task, assigneeId: null};
+                        }
+                        return task;
+                    });
+                }
+                
+                // Save updated supervisor data
+                localStorage.setItem('coffeeShopStaffData', JSON.stringify(coffeeShopStaffData));
+                
+                console.log(`Employee ${employeeData?.name || employeeId} removed from supervisor system`);
+                
+                // Trigger storage event to notify supervisor system
+                window.dispatchEvent(new Event('storage'));
+            }
+        }
+
+        function getStatusClass(status) {
+            switch(status) {
+                case 'active': return 'status-active';
+                case 'inactive': return 'status-inactive';
+                case 'on leave': return 'status-on-leave';
+                default: return '';
+            }
+        }
+
+        // Debug function to check employee data
+        function debugEmployeeData() {
+            console.log('Current bistroEmployees:', JSON.parse(localStorage.getItem('bistroEmployees')));
+            console.log('Current coffeeShopStaffData employees:', JSON.parse(localStorage.getItem('coffeeShopStaffData'))?.employees);
+        }
+        
+        // Function to calculate hours from time clock entries
+        function calculateHoursFromTimeClock(employeeId, period = 'current') {
+            const coffeeShopStaffData = JSON.parse(localStorage.getItem('coffeeShopStaffData'));
+            if (!coffeeShopStaffData || !coffeeShopStaffData.timeClock) return 0;
+            
+            // Get date range based on period
+            const { startDate, endDate } = getDateRangeForPeriod(period);
+            
+            // Filter time clock entries for this employee and date range
+            const employeeEntries = coffeeShopStaffData.timeClock.filter(entry => {
+                if (entry.employeeId !== employeeId) return false;
+                
+                // In a real system, we'd check the actual date of the entry
+                // For this demo, we'll assume all entries are within the current period
+                return true;
+            });
+            
+            let totalHours = 0;
+            
+            employeeEntries.forEach(entry => {
+                if (entry.clockIn && entry.clockOut) {
+                    // Calculate hours between clock in and clock out
+                    const hours = calculateTimeDifference(entry.clockIn, entry.clockOut);
+                    totalHours += hours;
+                }
+            });
+            
+            return parseFloat(totalHours.toFixed(2));
+        }
+        
+        // Helper function to calculate time difference in hours
+        // Enhanced function to calculate time difference in hours
+        function calculateTimeDifference(clockIn, clockOut) {
+            if (!clockIn || !clockOut) return 0;
+            
+            // Parse time strings (format: "HH:MM AM/PM")
+            const parseTime = (timeStr) => {
+                const [time, modifier] = timeStr.split(' ');
+                let [hours, minutes] = time.split(':').map(Number);
+                
+                if (modifier === 'PM' && hours !== 12) {
+                    hours += 12;
+                } else if (modifier === 'AM' && hours === 12) {
+                    hours = 0;
+                }
+                
+                return hours + minutes / 60;
+            };
+            
+            try {
+                const startTime = parseTime(clockIn);
+                const endTime = parseTime(clockOut);
+                
+                // Calculate difference (handle overnight shifts if needed)
+                let diff = endTime - startTime;
+                if (diff < 0) {
+                    diff += 24; // Overnight shift
+                }
+                
+                return diff;
+            } catch (error) {
+                console.error('Error calculating time difference:', error);
+                return 0;
+            }
+        }
+        
+        // Function to get date range for payroll period
+        function getDateRangeForPeriod(period) {
+            const today = new Date();
+            today.setFullYear(2025);
+            let startDate, endDate;
+            
+            switch(period) {
+                case 'current':
+                    // Current week (Monday to Sunday)
+                    const dayOfWeek = today.getDay();
+                    const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+                    startDate = new Date(today);
+                    startDate.setDate(today.getDate() + mondayOffset);
+                    endDate = new Date(startDate);
+                    endDate.setDate(startDate.getDate() + 6);
+                    break;
+                    
+                case 'last':
+                    // Last week
+                    const lastWeek = new Date(today);
+                    lastWeek.setDate(today.getDate() - 7);
+                    const lastWeekDay = lastWeek.getDay();
+                    const lastMondayOffset = lastWeekDay === 0 ? -6 : 1 - lastWeekDay;
+                    startDate = new Date(lastWeek);
+                    startDate.setDate(lastWeek.getDate() + lastMondayOffset);
+                    endDate = new Date(startDate);
+                    endDate.setDate(startDate.getDate() + 6);
+                    break;
+                    
+                case 'month':
+                    // Current month
+                    startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+                    endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                    break;
+                    
+                case 'custom':
+                    // Use custom dates from inputs
+                    const startInput = document.getElementById('start-date').value;
+                    const endInput = document.getElementById('end-date').value;
+                    startDate = startInput ? new Date(startInput) : new Date();
+                    endDate = endInput ? new Date(endInput) : new Date();
+                    break;
+                    
+                default:
+                    startDate = new Date();
+                    endDate = new Date();
+            }
+            
+            return { startDate, endDate };
+        }
+        
+        // Function to load payroll data with automated hours calculation
+        function loadPayrollData() {
+            const payrollBody = document.getElementById('payroll-body');
+            const employees = getEmployees();
+            const period = document.getElementById('payroll-period').value;
+            
+            payrollBody.innerHTML = '';
+            
+            if (employees.length === 0) {
+                payrollBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px;">No payroll data available</td></tr>';
+                return;
+            }
+            
+            // Get or create payroll data in localStorage
+            let payrollData = JSON.parse(localStorage.getItem('bistroPayrollData')) || {};
+
+            let grandTotal = 0;
+            
+            employees.forEach(employee => {
+                // Calculate hours based on time clock entries
+                const hours = calculateHoursFromTimeClock(employee.id, period);
+                
+                const total = hours * employee.salary;
+                const status = employee.status === 'active' ? 'Pending' : 'Inactive';
+
+                grandTotal += total;
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${employee.name}</td>
+                    <td>${hours}</td>
+                    <td>₱${employee.salary}/hr</td>
+                    <td>₱${total.toFixed(2)}</td>
+                    <td><span class="status ${status === 'Pending' ? 'pending' : 'cancelled'}">${status}</span></td>
+                    <td>
+                        <button class="btn btn-info view-timesheet-btn" data-id="${employee.id}">View Timesheet</button>
+                    </td>
+                `;
+                payrollBody.appendChild(row);
+            });
+
+            try {
+                localStorage.setItem('bistroPayrollTotal', String(grandTotal.toFixed(2)));
+            } catch (e) {}
+            
+            // Add event listeners to view timesheet buttons
+            document.querySelectorAll('.view-timesheet-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = parseInt(this.getAttribute('data-id'));
+                    viewTimesheet(id);
+                });
+            });
+        }
+        
+        // Function to reset payroll data
+        function resetPayrollData() {
+            if (confirm('Are you sure you want to reset all payroll data? This will clear all hours calculations.')) {
+                // Clear payroll data from localStorage
+                localStorage.removeItem('bistroPayrollData');
+                
+                // Reload payroll data
+                loadPayrollData();
+                
+                showNotification('Payroll data has been reset!', 'success');
+            }
+        }
+        
+        // Function to view employee timesheet
+        function viewTimesheet(employeeId) {
+            const employee = getEmployees().find(emp => emp.id === employeeId);
+            const coffeeShopStaffData = JSON.parse(localStorage.getItem('coffeeShopStaffData'));
+            
+            if (!coffeeShopStaffData || !coffeeShopStaffData.timeClock) {
+                alert(`No time clock data available for ${employee.name}`);
+                return;
+            }
+            
+            const employeeEntries = coffeeShopStaffData.timeClock.filter(entry => entry.employeeId === employeeId);
+            
+            if (employeeEntries.length === 0) {
+                alert(`No time clock entries found for ${employee.name}`);
+                return;
+            }
+            
+            let timesheetHTML = `<h3>Timesheet for ${employee.name}</h3>`;
+            timesheetHTML += '<table style="width: 100%; border-collapse: collapse; margin-top: 10px;">';
+            timesheetHTML += '<tr><th style="padding: 8px; border: 1px solid #ddd;">Date</th><th style="padding: 8px; border: 1px solid #ddd;">Clock In</th><th style="padding: 8px; border: 1px solid #ddd;">Clock Out</th><th style="padding: 8px; border: 1px solid #ddd;">Hours</th></tr>';
+            
+            let totalHours = 0;
+            
+            employeeEntries.forEach(entry => {
+                let hours = 0;
+                if (entry.clockIn && entry.clockOut) {
+                    hours = calculateTimeDifference(entry.clockIn, entry.clockOut);
+                    totalHours += hours;
+                }
+                
+                // Use 2025 dates for all entries
+                const date = new Date();
+                date.setFullYear(2025);
+                timesheetHTML += `<tr>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${date.toLocaleDateString()}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${entry.clockIn}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${entry.clockOut}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${hours.toFixed(2)}</td>
+                </tr>`;
+            });
+            
+            timesheetHTML += `<tr><td colspan="3" style="padding: 8px; border: 1px solid #ddd; text-align: right;"><strong>Total Hours:</strong></td><td style="padding: 8px; border: 1px solid #ddd;"><strong>${totalHours.toFixed(2)}</strong></td></tr>`;
+            timesheetHTML += '</table>';
+            
+            // Create a modal to display the timesheet
+            const modal = document.createElement('div');
+            modal.className = 'modal open';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 800px;">
+                    <div class="modal-header">
+                        <h3>Timesheet Details</h3>
+                        <button class="close-modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        ${timesheetHTML}
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Add event listener to close the modal
+            modal.querySelector('.close-modal').addEventListener('click', function() {
+                document.body.removeChild(modal);
+            });
+            
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    document.body.removeChild(modal);
+                }
+            });
+        }
+        
+        // Function to load attendance data with stats
+        function loadAttendanceData() {
+            const attendanceBody = document.getElementById('attendance-body');
+            const attendanceStats = document.getElementById('attendance-stats');
+            const weeklySummaryBody = document.getElementById('weekly-summary-body');
+            const employees = getEmployees();
+            
+            attendanceBody.innerHTML = '';
+            weeklySummaryBody.innerHTML = '';
+            
+            if (employees.length === 0) {
+                attendanceBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px;">No employees found</td></tr>';
+                attendanceStats.innerHTML = '<div class="stat-card"><h4>No Data</h4><div class="number">0</div></div>';
+                return;
+            }
+            
+            let presentCount = 0;
+            let absentCount = 0;
+            let lateCount = 0;
+            const weeklyData = {};
+            
+            // Get time clock data from supervisor system
+            const coffeeShopStaffData = JSON.parse(localStorage.getItem('coffeeShopStaffData'));
+            const supervisorTimeClock = coffeeShopStaffData?.timeClock || [];
+            
+            console.log('Loading attendance data from supervisor:', supervisorTimeClock.length, 'entries');
+            
+            employees.forEach(employee => {
+                // Initialize weekly data
+                weeklyData[employee.id] = {
+                    name: employee.name,
+                    totalHours: 0,
+                    presentDays: 0,
+                    absentDays: 0
+                };
+                
+                // Get time clock data for this employee from supervisor system
+                let clockIn = '-', clockOut = '-', status = 'Absent', hours = 0;
+                
+                const employeeEntry = supervisorTimeClock.find(entry => entry.employeeId === employee.id);
+                
+                if (employeeEntry) {
+                    clockIn = employeeEntry.clockIn || '-';
+                    clockOut = employeeEntry.clockOut || '-';
+                    status = employeeEntry.status || 'Absent';
+                    
+                    // Update counts based on supervisor time clock data
+                    if (status === 'On Duty' || status === 'Completed') {
+                        presentCount++;
+                        weeklyData[employee.id].presentDays++;
+                    } else if (status === 'Late') {
+                        lateCount++;
+                        weeklyData[employee.id].presentDays++;
+                    } else {
+                        absentCount++;
+                        weeklyData[employee.id].absentDays++;
+                    }
+                    
+                    // Calculate hours if both clock in and clock out are present
+                    if (employeeEntry.clockIn && employeeEntry.clockOut) {
+                        hours = calculateTimeDifference(employeeEntry.clockIn, employeeEntry.clockOut);
+                        weeklyData[employee.id].totalHours += hours;
+                    }
+                } else {
+                    absentCount++;
+                    weeklyData[employee.id].absentDays++;
+                }
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${employee.name}</td>
+                    <td>${employee.position}</td>
+                    <td>${clockIn}</td>
+                    <td>${clockOut}</td>
+                    <td><span class="status ${getAttendanceStatusClass(status)}">${status}</span></td>
+                    <td>${hours > 0 ? hours.toFixed(2) : '-'}</td>
+                `;
+                attendanceBody.appendChild(row);
+            });
+            
+            // Update attendance stats
+            attendanceStats.innerHTML = `
+                <div class="stat-card present">
+                    <h4>Present</h4>
+                    <div class="number">${presentCount}</div>
+                </div>
+                <div class="stat-card absent">
+                    <h4>Absent</h4>
+                    <div class="number">${absentCount}</div>
+                </div>
+                <div class="stat-card late">
+                    <h4>Late</h4>
+                    <div class="number">${lateCount}</div>
+                </div>
+                <div class="stat-card">
+                    <h4>Total</h4>
+                    <div class="number">${employees.length}</div>
+                </div>
+            `;
+            
+            // Update weekly summary
+            Object.values(weeklyData).forEach(employeeData => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${employeeData.name}</td>
+                    <td>${employeeData.totalHours.toFixed(2)}</td>
+                    <td>${employeeData.presentDays}</td>
+                    <td>${employeeData.absentDays}</td>
+                `;
+                weeklySummaryBody.appendChild(row);
+            });
+        }
+        
+        // Helper function for attendance status classes
+        function getAttendanceStatusClass(status) {
+            switch(status.toLowerCase()) {
+                case 'on duty':
+                case 'completed':
+                case 'present':
+                    return 'completed';
+                case 'late':
+                    return 'pending';
+                case 'absent':
+                default:
+                    return 'cancelled';
+            }
+        }
+        
+        function generateSchedule() {
+            showNotification('Generating optimized schedule based on sales data and employee availability...', 'info');
+        }
+        
+        function publishSchedule() {
+            showNotification('Schedule published! Employees will receive notifications.', 'success');
+        }
+        
+        function processPayroll() {
+            if (confirm('Process payroll for all employees?')) {
+                // Update payroll status to "Processed"
+                const payrollBody = document.getElementById('payroll-body');
+                const statusCells = payrollBody.querySelectorAll('td:nth-child(5)');
+                
+                statusCells.forEach(cell => {
+                    const statusSpan = cell.querySelector('.status');
+                    if (statusSpan && statusSpan.textContent === 'Pending') {
+                        statusSpan.textContent = 'Processed';
+                        statusSpan.className = 'status completed';
+                    }
+                });
+                
+                showNotification('Payroll processed successfully!', 'success');
+            }
+        }
+        
+        // Notification function
+        function showNotification(message, type = 'info') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 20px;
+                border-radius: 5px;
+                color: white;
+                font-weight: 600;
+                z-index: 10000;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                transition: all 0.3s;
+            `;
+            
+            // Set background color based on type
+            switch(type) {
+                case 'success':
+                    notification.style.backgroundColor = 'var(--success)';
+                    break;
+                case 'warning':
+                    notification.style.backgroundColor = 'var(--warning)';
+                    break;
+                case 'danger':
+                    notification.style.backgroundColor = 'var(--danger)';
+                    break;
+                default:
+                    notification.style.backgroundColor = 'var(--info)';
+            }
+            
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            // Remove notification after 3 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 3000);
+        }
+        
+        // Data management functions
+        function getEmployees() {
+            let employees = JSON.parse(localStorage.getItem('bistroEmployees'));
+            
+            // If no employees exist, create sample data
+            if (!employees || employees.length === 0) {
+                employees = [
+                    {
+                        id: 1,
+                        name: 'Maria Santos',
+                        email: 'maria@coffeeaffair.com',
+                        phone: '+63 912 345 6789',
+                        position: 'Barista',
+                        salary: 150,
+                        pin: '1234',
+                        status: 'active',
+                        joinDate: '2025-01-15',
+                        avatar: 'https://ui-avatars.com/api/?name=Maria+Santos&background=8B4513&color=fff'
+                    },
+                    {
+                        id: 2,
+                        name: 'Juan Dela Cruz',
+                        email: 'juan@coffeeaffair.com',
+                        phone: '+63 917 654 3210',
+                        position: 'Cashier',
+                        salary: 140,
+                        pin: '5678',
+                        status: 'active',
+                        joinDate: '2025-02-10',
+                        avatar: 'https://ui-avatars.com/api/?name=Juan+Dela+Cruz&background=8B4513&color=fff'
+                    },
+                    {
+                        id: 3,
+                        name: 'Ana Reyes',
+                        email: 'ana@coffeeaffair.com',
+                        phone: '+63 918 777 8888',
+                        position: 'Manager',
+                        salary: 180,
+                        pin: '9012',
+                        status: 'active',
+                        joinDate: '2024-11-05',
+                        avatar: 'https://ui-avatars.com/api/?name=Ana+Reyes&background=8B4513&color=fff'
+                    },
+                    {
+                        id: 4,
+                        name: 'Carlos Lopez',
+                        email: 'carlos@coffeeaffair.com',
+                        phone: '+63 919 555 4444',
+                        position: 'Barista',
+                        salary: 130,
+                        pin: '3456',
+                        status: 'on leave',
+                        joinDate: '2025-03-20',
+                        avatar: 'https://ui-avatars.com/api/?name=Carlos+Lopez&background=8B4513&color=fff'
+                    },
+                    {
+                        id: 5,
+                        name: 'Elena Torres',
+                        email: 'elena@coffeeaffair.com',
+                        phone: '+63 920 333 2222',
+                        position: 'Server',
+                        salary: 120,
+                        pin: '7890',
+                        status: 'active',
+                        joinDate: '2025-04-12',
+                        avatar: 'https://ui-avatars.com/api/?name=Elena+Torres&background=8B4513&color=fff'
+                    }
+                ];
+                saveEmployees(employees);
+            }
+            
+            return employees;
+        }
+        
+        function saveEmployees(employees) {
+            localStorage.setItem('bistroEmployees', JSON.stringify(employees));
+        }
+
+        // Initialize supervisor data if not exists
+        function initializeSupervisorData() {
+            if (!localStorage.getItem('coffeeShopStaffData')) {
+                const coffeeShopStaffData = {
+                    employees: [
+                        { id: 1, name: 'Maria Santos', role: 'Barista' },
+                        { id: 2, name: 'Juan Dela Cruz', role: 'Cashier' },
+                        { id: 3, name: 'Ana Reyes', role: 'Manager' },
+                        { id: 4, name: 'Carlos Lopez', role: 'Barista' },
+                        { id: 5, name: 'Elena Torres', role: 'Server' }
+                    ],
+                    schedules: [
+                        { employeeId: 1, day: 'MON', start: '8:00', end: '16:00' },
+                        { employeeId: 2, day: 'MON', start: '9:00', end: '17:00' },
+                        { employeeId: 3, day: 'MON', start: '7:00', end: '15:00' },
+                        { employeeId: 1, day: 'TUE', start: '8:00', end: '16:00' },
+                        { employeeId: 4, day: 'TUE', start: '10:00', end: '18:00' },
+                        { employeeId: 5, day: 'TUE', start: '11:00', end: '19:00' }
+                    ],
+                    timeClock: [
+                        { id: 1, employeeId: 1, shift: '8:00-16:00', clockIn: '7:58 AM', clockOut: '', status: 'On Duty' },
+                        { id: 2, employeeId: 2, shift: '9:00-17:00', clockIn: '8:55 AM', clockOut: '', status: 'On Duty' },
+                        { id: 3, employeeId: 3, shift: '7:00-15:00', clockIn: '6:58 AM', clockOut: '3:00 PM', status: 'Completed' },
+                        { id: 4, employeeId: 4, shift: '10:00-18:00', clockIn: '', clockOut: '', status: 'Absent' },
+                        { id: 5, employeeId: 5, shift: '11:00-19:00', clockIn: '11:05 AM', clockOut: '', status: 'Late' }
+                    ],
+                    tasks: [
+                        { id: 1, title: 'Clean coffee machines', assigneeId: 1, dueDate: '2025-06-15', dueTime: '17:00', completed: false },
+                        { id: 2, title: 'Restock supplies', assigneeId: 2, dueDate: '2025-06-15', dueTime: '15:00', completed: true },
+                        { id: 3, title: 'Prepare weekly report', assigneeId: 3, dueDate: '2025-06-16', dueTime: '10:00', completed: false }
+                    ]
+                };
+                localStorage.setItem('coffeeShopStaffData', JSON.stringify(coffeeShopStaffData));
+                localStorage.setItem('bistroSupervisorTasks', JSON.stringify(coffeeShopStaffData.tasks));
+            }
+        }
+
+        // Initialize supervisor data on load
+        initializeSupervisorData();
+    </script>
+</body>
+</html>

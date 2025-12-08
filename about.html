@@ -6,113 +6,655 @@
     <title>About The Coffee Affair Bistro</title>
     <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        body, html {
-            height: 100%;
+        /* CSS Variables for luxurious theming */
+        :root {
+            --primary: #8B4513;
+            --secondary: #D2B48C;
+            --accent: #C19A6B;
+            --light: #F8F5F0;
+            --dark: #2C1810;
+            --text: #3A2C1D;
+            --white: #FFFFFF;
+            --cream: #F5EDE3;
+            --gold: #B89F7A;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Reset and Base Styles */
+        * {
             margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
             font-family: 'Poppins', sans-serif;
-            color: #fff;
+            color: var(--text);
+            line-height: 1.8;
+            background-color: var(--light);
             overflow-x: hidden;
         }
-        .background {
-            /* Background image with overlay */
-            background: linear-gradient(rgba(111, 78, 55, 0.7), rgba(111, 78, 55, 0.7)), url('images/cofeebabackground.jpg') no-repeat center center fixed;
-            background-size: cover;
-            height: calc(100vh - 60px); /* Adjust for header height */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 2rem;
-            text-align: center;
+
+        h1, h2, h3, h4 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 600;
+            letter-spacing: 0.5px;
         }
-        .content {
-            max-width: 700px;
-            background-color: rgba(0, 0, 0, 0.4);
-            padding: 2rem 3rem;
-            border-radius: 12px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+
+        a {
+            text-decoration: none;
+            color: inherit;
         }
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-            font-weight: 700;
-            letter-spacing: 1.5px;
+
+        ul {
+            list-style: none;
         }
-        p {
-            font-size: 1.1rem;
-            line-height: 1.6;
-            white-space: pre-line;
+
+        img {
+            max-width: 100%;
+            height: auto;
         }
+
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+
+        /* Luxury Header */
+        .site-header {
+            background: linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.8) 100%);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(139, 69, 19, 0.1);
+        }
+
         .header-content {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 10px;
-            flex-wrap: nowrap;
+            padding: 0 40px;
         }
-        .header-nav {
-            margin-left: 0 !important;
-        }
+
         .site-title {
-            margin: 0;
-            text-align: left;
-            flex: none;
+            font-size: 1.8rem;
+            color: var(--dark);
+            font-weight: 700;
+            letter-spacing: 1px;
+            position: relative;
+            padding-left: 60px;
         }
-        @media (max-width: 600px) {
-            .content {
-                padding: 1rem 1.5rem;
+
+        .site-title::before {
+            content: "☕";
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 2.2rem;
+            color: var(--gold);
+        }
+
+        /* Hero Section with Parallax Effect */
+        .hero-section {
+            height: 100vh;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            margin-top: 80px;
+        }
+
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 120%;
+            background: linear-gradient(rgba(44, 24, 16, 0.7), rgba(44, 24, 16, 0.8)), 
+                        url('https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
+            z-index: -1;
+            transform: translateY(0);
+            transition: transform 0.3s ease-out;
+        }
+
+        .hero-content {
+            text-align: center;
+            color: var(--white);
+            max-width: 900px;
+            padding: 60px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-title {
+            font-size: 4.5rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            line-height: 1.2;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            position: relative;
+            display: inline-block;
+        }
+
+        .hero-title::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            font-weight: 300;
+            margin-bottom: 40px;
+            opacity: 0.9;
+            letter-spacing: 0.5px;
+        }
+
+        /* Story Section */
+        .story-section {
+            padding: 120px 0;
+            background: var(--white);
+            position: relative;
+        }
+
+        .story-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+
+        .story-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+        }
+
+        .story-image {
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            position: relative;
+            transform: rotate(-2deg);
+            transition: var(--transition);
+        }
+
+        .story-image:hover {
+            transform: rotate(0deg) scale(1.02);
+        }
+
+        .story-image::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            bottom: 20px;
+            left: 20px;
+            border: 2px solid var(--gold);
+            border-radius: 10px;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .story-content h2 {
+            font-size: 3rem;
+            color: var(--dark);
+            margin-bottom: 30px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .story-content h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: var(--gold);
+        }
+
+        .story-text {
+            font-size: 1.1rem;
+            line-height: 1.9;
+            color: var(--text);
+            margin-bottom: 30px;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, var(--cream) 0%, var(--white) 100%);
+            padding: 40px;
+            border-radius: 15px;
+            border-left: 4px solid var(--gold);
+            margin: 40px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .highlight::before {
+            content: '"';
+            position: absolute;
+            top: -20px;
+            left: 20px;
+            font-size: 8rem;
+            color: var(--gold);
+            opacity: 0.1;
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* Values Section */
+        .values-section {
+            padding: 100px 0;
+            background: var(--cream);
+            position: relative;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 3rem;
+            margin-bottom: 60px;
+            color: var(--dark);
+        }
+
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+        }
+
+        .value-card {
+            background: var(--white);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .value-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .value-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--gold), var(--primary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            font-size: 2rem;
+            color: var(--white);
+        }
+
+        .value-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: var(--dark);
+        }
+
+        /* Floating Elements */
+        .floating-element {
+            position: absolute;
+            font-size: 5rem;
+            color: var(--gold);
+            opacity: 0.05;
+            z-index: 1;
+        }
+
+        .floating-1 { top: 10%; left: 5%; animation: float 20s infinite; }
+        .floating-2 { top: 20%; right: 10%; animation: float 25s infinite reverse; }
+        .floating-3 { bottom: 15%; left: 8%; animation: float 30s infinite; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 120px 0;
+            background: linear-gradient(135deg, var(--dark), #1a0f0a);
+            color: var(--white);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0,0 L100,0 L100,100 Z" fill="%23C19A6B" opacity="0.05"/></svg>');
+            background-size: cover;
+        }
+
+        .cta-content h2 {
+            font-size: 3.5rem;
+            margin-bottom: 30px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 18px 45px;
+            background: linear-gradient(135deg, var(--gold), var(--primary));
+            color: var(--white);
+            border-radius: 50px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+            margin-top: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .cta-button:hover::before {
+            left: 100%;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(193, 154, 107, 0.3);
+        }
+
+        /* Scroll Indicator */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            color: var(--white);
+            opacity: 0.7;
+            transition: opacity 0.3s;
+            z-index: 10;
+        }
+
+        .scroll-indicator:hover {
+            opacity: 1;
+        }
+
+        .scroll-indicator span {
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+        }
+
+        .scroll-indicator i {
+            font-size: 1.5rem;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .hero-title {
+                font-size: 3.8rem;
             }
-            h1 {
-                font-size: 1.8rem;
-            }
-            p {
-                font-size: 1rem;
+            .story-grid {
+                gap: 60px;
             }
         }
 
+        @media (max-width: 992px) {
+            .hero-title {
+                font-size: 3.2rem;
+            }
+            .story-grid {
+                grid-template-columns: 1fr;
+                gap: 50px;
+            }
+            .values-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .container {
+                padding: 0 30px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            .hero-subtitle {
+                font-size: 1.1rem;
+            }
+            .values-grid {
+                grid-template-columns: 1fr;
+            }
+            .story-content h2 {
+                font-size: 2.5rem;
+            }
+            .section-title {
+                font-size: 2.5rem;
+            }
+            .cta-content h2 {
+                font-size: 2.8rem;
+            }
+            .header-content {
+                padding: 0 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+            .story-content h2,
+            .section-title,
+            .cta-content h2 {
+                font-size: 2rem;
+            }
+            .value-card {
+                padding: 30px 20px;
+            }
+            .container {
+                padding: 0 20px;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- Luxury Header -->
     <header class="site-header">
         <div class="header-content">
-            <h1 class="site-title"><a href="index.html" style="color: inherit; text-decoration: none;">The Coffee Affair Bistro</a></h1>
-            <nav class="header-nav" style="margin-left: 40px;">
-                <ul>
-                    <li class="dropdown">
-                        <a href="menu.html">MENU</a>
-                        <ul class="dropdown-menu">
-                            <li><a href="menu.html#hot-coffee">Hot Coffee</a></li>
-                            <li><a href="menu.html#iced-coffee">Non-Coffee</a></li>
-                            <li><a href="menu.html#breakfast">Tea</a></li>
-                            <li><a href="menu.html#lunch">Signature Drinks</a></li>
-                            <li><a href="menu.html#wedges">Appetizers</a></li>
-                            <li><a href="menu.html#donuts">Burger & Sandswich</a></li>
-                            <li><a href="menu.html#baked-goods">Pasta</a></li>
-                            <li><a href="menu.html#retail-packs">Desserts</a></li>
-                            <li><a href="menu.html#whats-new">Signature Milkshakes</a></li>
-                        </ul>
-                    </li>
-                    <li><a href="locations.html">LOCATIONS</a></li>
-                    <li><a href="#" id="timscaresph-link">#TCABISTROPH</a></li>
-                </ul>
-            </nav>
-            <div class="header-actions">
-                <a href="login.html" class="login-icon"><i class="fas fa-user"></i></a>
-            </div>
+            <h1 class="site-title">
+                <a href="index.html">The Coffee Affair Bistro</a>
+            </h1>
         </div>
     </header>
 
-    <div class="background">
-        <div class="content">
-            <h1>Welcome to The Coffee Affair Bistro’s online store!</h1>
-            <p>
-Located in Kurba, Bagumbayan, Santa Cruz, Laguna, The Coffee Affair Bistro has been serving the local community since July 2, 2021. Our passion is to bring you the finest coffee blends, freshly brewed and conveniently delivered right to your doorstep.
-
-Our e-commerce website is designed to make your coffee experience easy and enjoyable, allowing you to explore our selections, place orders, and enjoy seamless payments all in one place. Whether you’re craving your favorite brew or looking for the perfect gift, we are committed to delivering quality and satisfaction with every purchase.
-
-At The Coffee Affair Bistro, we blend tradition with modern convenience to bring you exceptional coffee and customer service anytime, anywhere.
-            </p>
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-bg" id="parallax-bg"></div>
+        <div class="hero-content">
+            <h1 class="hero-title">Our Coffee Story</h1>
+            <p class="hero-subtitle">Where tradition meets modern elegance in every cup since 2021</p>
         </div>
-    </div>
+        <div class="scroll-indicator">
+            <span>SCROLL</span>
+            <i class="fas fa-chevron-down"></i>
+        </div>
+    </section>
+
+    <!-- Story Section -->
+    <section class="story-section">
+        <div class="container">
+            <div class="story-grid">
+                <div class="story-image">
+                    <img src= "images/cofeebabackground.jpg" 
+                         alt="Coffee Affair Bistro Interior">
+                </div>
+                <div class="story-content">
+                    <h2>Our Journey</h2>
+                    <p class="story-text">
+                        Nestled in the heart of Kurba, Bagumbayan, Santa Cruz, Laguna, 
+                        The Coffee Affair Bistro began its story on July 2, 2021. 
+                        What started as a humble neighborhood cafe has blossomed into 
+                        a beloved destination for coffee enthusiasts and community members alike.
+                    </p>
+                    
+                    <div class="highlight">
+                        <p class="story-text">
+                            We believe that great coffee is more than just a beverage—it's an experience. 
+                            From the careful selection of beans to the artful preparation, every step in 
+                            our process is infused with passion and attention to detail.
+                        </p>
+                    </div>
+                    
+                    <p class="story-text">
+                        Our mission is simple: to deliver exceptional coffee experiences that bring people together. 
+                        Whether you're starting your day, meeting friends, or seeking inspiration, 
+                        we're here to make every moment special.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Values Section -->
+    <section class="values-section">
+        <div class="container">
+            <h2 class="section-title">Our Values</h2>
+            <div class="values-grid">
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="fas fa-seedling"></i>
+                    </div>
+                    <h3>Sustainable Quality</h3>
+                    <p>Ethically sourced beans from sustainable farms, ensuring quality that benefits both people and planet.</p>
+                </div>
+                
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h3>Community First</h3>
+                    <p>Building relationships with our local community through exceptional service and support.</p>
+                </div>
+                
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="fas fa-award"></i>
+                    </div>
+                    <h3>Artisan Craft</h3>
+                    <p>Traditional brewing methods combined with modern innovation for the perfect cup every time.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Floating decorative elements -->
+        <div class="floating-element floating-1">☕</div>
+        <div class="floating-element floating-2">•</div>
+        <div class="floating-element floating-3">☕</div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Experience Our Coffee</h2>
+                <p style="font-size: 1.2rem; max-width: 700px; margin: 0 auto 30px; opacity: 0.9;">
+                    Visit our bistro in Laguna or explore our online store for premium coffee blends, 
+                    brewing equipment, and exclusive merchandise.
+                </p>
+                <button class="cta-button" onclick="window.location.href='customer.html'">
+                    <i class="fas fa-shopping-bag"></i> Shop Now
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Parallax effect
+        document.addEventListener('scroll', function() {
+            const scrolled = window.pageYOffset;
+            const parallaxBg = document.getElementById('parallax-bg');
+            parallaxBg.style.transform = 'translateY(' + (scrolled * 0.5) + 'px)';
+        });
+
+        // Smooth scroll to story section
+        document.querySelector('.scroll-indicator').addEventListener('click', function() {
+            document.querySelector('.story-section').scrollIntoView({ 
+                behavior: 'smooth' 
+            });
+        });
+
+        // Header scroll effect
+        window.addEventListener('scroll', function() {
+            const header = document.querySelector('.site-header');
+            if (window.scrollY > 100) {
+                header.style.background = 'rgba(255, 255, 255, 0.98)';
+                header.style.boxShadow = '0 5px 20px rgba(0, 0, 0, 0.1)';
+            } else {
+                header.style.background = 'linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.8) 100%)';
+                header.style.boxShadow = 'none';
+            }
+        });
+
+        // Card hover effects enhancement
+        document.querySelectorAll('.value-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.background = 'linear-gradient(135deg, var(--white), var(--cream))';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.background = 'var(--white)';
+            });
+        });
+    </script>
 </body>
 </html>

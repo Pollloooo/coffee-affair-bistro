@@ -1,53 +1,2303 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Inventory Management</title>
-    <link rel="stylesheet" href="style.css">
-    <style> .stock-low { color: #d90429; font-weight: bold; } </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coffee Affair Bistro - Inventory Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --primary: #8B4513;
+            --primary-light: #A0522D;
+            --secondary: #D2691E;
+            --accent: #CD853F;
+            --light: #F5F5DC;
+            --dark: #3E2723;
+            --success: #4CAF50;
+            --warning: #FF9800;
+            --danger: #F44336;
+            --info: #2196F3;
+            --gray: #9E9E9E;
+            --gray-light: #F5F5F5;
+            --white: #FFFFFF;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --radius: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--gray-light);
+            color: var(--dark);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(to bottom, var(--primary), var(--primary-light));
+            color: var(--white);
+            padding: 20px 0;
+            transition: all 0.3s;
+            box-shadow: var(--shadow);
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .logo i {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+
+        .logo h1 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .nav-links {
+            list-style: none;
+        }
+
+        .nav-links li {
+            padding: 12px 20px;
+            transition: all 0.3s;
+        }
+
+        .nav-links li:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-links a {
+            color: var(--white);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            font-size: 15px;
+        }
+
+        .nav-links i {
+            margin-right: 10px;
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .nav-links .active {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-left: 4px solid var(--accent);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            background-color: var(--white);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            z-index: 99;
+        }
+
+        .header h2 {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-info img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+
+        .user-info .btn-logout {
+            background-color: var(--danger);
+            color: var(--white);
+            border: none;
+            padding: 8px 15px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            margin-left: 15px;
+            transition: all 0.3s;
+        }
+
+        .user-info .btn-logout:hover {
+            background-color: #d32f2f;
+        }
+
+        /* Content Area */
+        .content {
+            padding: 30px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .dashboard-section {
+            background-color: var(--white);
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+        }
+
+        .dashboard-section.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .section-header h3 {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .btn-view-all {
+            background-color: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 6px 12px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn-view-all:hover {
+            background-color: var(--primary);
+            color: var(--white);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background-color: var(--white);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 24px;
+        }
+
+        .stock .stat-icon {
+            background-color: rgba(139, 69, 19, 0.1);
+            color: var(--primary);
+        }
+
+        .low-stock .stat-icon {
+            background-color: rgba(255, 152, 0, 0.1);
+            color: var(--warning);
+        }
+
+        .out-of-stock .stat-icon {
+            background-color: rgba(244, 67, 54, 0.1);
+            color: var(--danger);
+        }
+
+        .waste .stat-icon {
+            background-color: rgba(33, 150, 243, 0.1);
+            color: var(--info);
+        }
+
+        .stat-info h3 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-info p {
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        /* Tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            text-align: left;
+            padding: 12px 15px;
+            background-color: var(--gray-light);
+            color: var(--dark);
+            font-weight: 600;
+        }
+
+        .data-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .data-table tr:hover {
+            background-color: rgba(139, 69, 19, 0.05);
+        }
+
+        .status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status.in-stock {
+            background-color: rgba(76, 175, 80, 0.1);
+            color: var(--success);
+        }
+
+        .status.low-stock {
+            background-color: rgba(255, 152, 0, 0.1);
+            color: var(--warning);
+        }
+
+        .status.out-of-stock {
+            background-color: rgba(244, 67, 54, 0.1);
+            color: var(--danger);
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: var(--radius);
+            font-size: 15px;
+            transition: border 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-light);
+        }
+
+        .btn-secondary {
+            background-color: var(--gray);
+            color: var(--white);
+        }
+
+        .btn-secondary:hover {
+            background-color: #757575;
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: var(--white);
+        }
+
+        .btn-danger:hover {
+            background-color: #d32f2f;
+        }
+
+        .btn-sm {
+            padding: 8px 12px;
+            font-size: 14px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--gray-light);
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 12px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            border-bottom: 3px solid var(--primary);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(--white);
+            border-radius: var(--radius);
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .modal-header h3 {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--gray);
+        }
+
+        .close-modal:hover {
+            color: var(--dark);
+        }
+
+        /* Search and Filter */
+        .search-filter-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+
+        .search-box input {
+            padding-left: 40px;
+        }
+
+        .filter-select {
+            min-width: 150px;
+        }
+
+        /* Bulk Actions */
+        .bulk-actions {
+            display: none;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: var(--gray-light);
+            border-radius: var(--radius);
+        }
+
+        .bulk-actions.show {
+            display: flex;
+        }
+
+        .bulk-select {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Analytics Chart */
+        .chart-container {
+            height: 300px;
+            margin-top: 20px;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 80px;
+            }
+            
+            .logo h1, .nav-links span {
+                display: none;
+            }
+            
+            .nav-links i {
+                margin-right: 0;
+                font-size: 20px;
+            }
+            
+            .nav-links li {
+                text-align: center;
+                padding: 15px 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                padding: 15px;
+            }
+            
+            .content {
+                padding: 15px;
+            }
+
+            .search-filter-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box {
+                min-width: 100%;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>Bistro Admin <span class="user-role">- Inventory</span></h1>
-        <nav>
-            <a href="admin.html" class="btn btn-green" style="margin-right: 10px;">Back to Dashboard</a>
-        </nav>
-    </header>
-    <main>
-        <div class="dashboard-card">
-            <h2>Product Inventory & Sales</h2>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fas fa-coffee"></i>
+            <h1>Coffee Affair Bistro</h1>
+        </div>
+        <ul class="nav-links">
+            <li>
+                <a href="admin.html">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Analytics Dashboard</span>
+                </a>
+            </li>
+            <li class="active">
+                <a href="admin_inventory.html">
+                    <i class="fas fa-boxes"></i>
+                    <span>Inventory Management</span>
+                </a>
+            </li>
+            <li>
+                <a href="admin_logins.html">
+                    <i class="fas fa-history"></i>
+                    <span>Login History</span>
+                </a>
+            </li>
+            <li>
+                <a href="menu.html">
+                    <i class="fas fa-utensils"></i>
+                    <span>Menu Management</span>
+                </a>
+            </li>
+            <li>
+                <a href="employee.html">
+                    <i class="fas fa-users"></i>
+                    <span>Employee Management</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header">
+            <h2>Inventory Management</h2>
+            <div class="user-info">
+                <img src="https://ui-avatars.com/api/?name=Admin+User&background=8B4513&color=fff" alt="Admin">
+                <span>Admin User</span>
+                <button class="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Tabs -->
+            <div class="tabs">
+                <div class="tab active" data-tab="overview">Overview</div>
+                <div class="tab" data-tab="analytics">Analytics</div>
+                <div class="tab" data-tab="par-levels">Par Levels</div>
+                <div class="tab" data-tab="audits">Audits</div>
+            </div>
+
+            <!-- Overview Tab Content -->
+            <div class="tab-content active" id="overview">
+                <!-- Stats Overview -->
+                <div class="stats-grid">
+                    <div class="stat-card stock">
+                        <div class="stat-icon">
+                            <i class="fas fa-box"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="total-items">0</h3>
+                            <p>Total Items</p>
+                        </div>
+                    </div>
+                    <div class="stat-card low-stock">
+                        <div class="stat-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="low-stock-items">0</h3>
+                            <p>Low Stock Items</p>
+                        </div>
+                    </div>
+                    <div class="stat-card out-of-stock">
+                        <div class="stat-icon">
+                            <i class="fas fa-times-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="out-of-stock-items">0</h3>
+                            <p>Out of Stock</p>
+                        </div>
+                    </div>
+                    <div class="stat-card waste">
+                        <div class="stat-icon">
+                            <i class="fas fa-trash"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="waste-cost">₱0.00</h3>
+                            <p>Monthly Waste Cost</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <button class="btn btn-primary" id="add-item-btn">
+                        <i class="fas fa-plus"></i> Add New Item
+                    </button>
+                    <button class="btn btn-secondary" id="quick-order-btn">
+                        <i class="fas fa-shopping-cart"></i> Quick Order
+                    </button>
+                    <button class="btn btn-secondary" id="export-data-btn">
+                        <i class="fas fa-file-export"></i> Export Data
+                    </button>
+                    <button class="btn btn-secondary" id="load-sample-data">
+                        <i class="fas fa-vial"></i> Load Sample Data
+                    </button>
+                </div>
+
+                <!-- Search and Filter -->
+                <div class="search-filter-bar">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="search-input" class="form-control" placeholder="Search inventory...">
+                    </div>
+                    <select id="category-filter" class="form-control filter-select">
+                        <option value="">All Categories</option>
+                        <option value="coffee">Coffee Beans</option>
+                        <option value="dairy">Dairy</option>
+                        <option value="syrups">Syrups & Flavors</option>
+                        <option value="pastry">Pastry & Bakery</option>
+                        <option value="packaging">Packaging</option>
+                        <option value="cleaning">Cleaning Supplies</option>
+                    </select>
+                    <select id="status-filter" class="form-control filter-select">
+                        <option value="">All Statuses</option>
+                        <option value="in-stock">In Stock</option>
+                        <option value="low-stock">Low Stock</option>
+                        <option value="out-of-stock">Out of Stock</option>
+                    </select>
+                </div>
+
+                <!-- Bulk Actions -->
+                <div class="bulk-actions" id="bulk-actions">
+                    <div class="bulk-select">
+                        <input type="checkbox" id="select-all-items">
+                        <span id="selected-count">0 items selected</span>
+                    </div>
+                    <button class="btn btn-sm btn-secondary" id="bulk-edit-btn">
+                        <i class="fas fa-edit"></i> Edit Selected
+                    </button>
+                    <button class="btn btn-sm btn-danger" id="bulk-delete-btn">
+                        <i class="fas fa-trash"></i> Delete Selected
+                    </button>
+                </div>
+
+                <!-- Inventory Status -->
+                <div class="dashboard-section full-width">
+                    <div class="section-header">
+                        <h3>Inventory Status</h3>
+                        <button class="btn btn-primary" id="refresh-inventory">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th width="30">
+                                    <input type="checkbox" id="select-all-header">
+                                </th>
+                                <th>Product</th>
+                                <th>Category</th>
+                                <th>Current Stock</th>
+                                <th>Min Level</th>
+                                <th>Status</th>
+                                <th>Last Updated</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventory-body">
+                            <!-- Dynamic content will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Analytics Tab Content -->
+            <div class="tab-content" id="analytics">
+                <div class="dashboard-section full-width">
+                    <div class="section-header">
+                        <h3>Inventory Analytics</h3>
+                        <div>
+                            <select id="analytics-period" class="form-control" style="display: inline-block; width: auto;">
+                                <option value="7">Last 7 Days</option>
+                                <option value="30" selected>Last 30 Days</option>
+                                <option value="90">Last 90 Days</option>
+                                <option value="year">This Year</option>
+                                <option value="last_year">Last Year</option>
+                            </select>
+                            <button class="btn btn-secondary" id="export-analytics-csv" style="margin-left: 10px;">
+                                <i class="fas fa-file-csv"></i> Export CSV
+                            </button>
+                            <button class="btn btn-secondary" id="export-analytics-xlsx" style="margin-left: 5px;">
+                                <i class="fas fa-file-excel"></i> Export XLSX
+                            </button>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="inventory-chart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="dashboard-grid">
+                    <div class="dashboard-section">
+                        <div class="section-header">
+                            <h3>Top Items by Usage</h3>
+                        </div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Usage Rate</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usage-analytics-body">
+                                <!-- Dynamic content will be inserted here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="dashboard-section">
+                        <div class="section-header">
+                            <h3>Reorder Suggestions</h3>
+                        </div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Suggested Qty</th>
+                                    <th>Urgency</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reorder-suggestions-body">
+                                <!-- Dynamic content will be inserted here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Par Levels Tab Content -->
+            <div class="tab-content" id="par-levels">
+                <div class="dashboard-section full-width">
+                    <div class="section-header">
+                        <h3>Par Level Management</h3>
+                        <button class="btn btn-primary" id="configure-par-levels">Configure Par Levels</button>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Min Level</th>
+                                <th>Max Level</th>
+                                <th>Current</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="par-levels-body">
+                            <!-- Dynamic content will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Audits Tab Content -->
+            <div class="tab-content" id="audits">
+                <div class="dashboard-section full-width">
+                    <div class="section-header">
+                        <h3>Inventory Audits</h3>
+                        <button class="btn btn-primary" id="schedule-audit">Schedule New Audit</button>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Auditor</th>
+                                <th>Items Checked</th>
+                                <th>Discrepancy</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="audits-body">
+                            <!-- Dynamic content will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Item Modal -->
+    <div class="modal" id="item-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Add New Inventory Item</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="item-form">
+                <input type="hidden" id="item-id">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="item-name">Item Name</label>
+                        <input type="text" id="item-name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="item-category">Category</label>
+                        <select id="item-category" class="form-control" required>
+                            <option value="">Select Category</option>
+                            <option value="coffee">Coffee Beans</option>
+                            <option value="dairy">Dairy</option>
+                            <option value="syrups">Syrups & Flavors</option>
+                            <option value="pastry">Pastry & Bakery</option>
+                            <option value="packaging">Packaging</option>
+                            <option value="cleaning">Cleaning Supplies</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="item-stock">Current Stock</label>
+                        <input type="number" id="item-stock" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="item-unit">Unit of Measure</label>
+                        <select id="item-unit" class="form-control" required>
+                            <option value="kg">Kilograms (kg)</option>
+                            <option value="g">Grams (g)</option>
+                            <option value="l">Liters (l)</option>
+                            <option value="ml">Milliliters (ml)</option>
+                            <option value="units">Units</option>
+                            <option value="packs">Packs</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="item-min">Minimum Stock Level</label>
+                        <input type="number" id="item-min" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="item-max">Maximum Stock Level</label>
+                        <input type="number" id="item-max" class="form-control" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary" id="modal-submit-btn">Add Item</button>
+                    <button type="button" class="btn btn-secondary" id="cancel-item">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Quick Order Modal -->
+    <div class="modal" id="quick-order-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Quick Order</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="form-group">
+                <label for="order-supplier">Supplier</label>
+                <select id="order-supplier" class="form-control">
+                    <option value="">Select Supplier</option>
+                    <option value="supplier1">Coffee Bean Co.</option>
+                    <option value="supplier2">Dairy Delights</option>
+                    <option value="supplier3">Sweet Syrups Inc.</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Items to Order</label>
+                <div id="order-items-list" style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: var(--radius);">
+                    <!-- Dynamic content will be inserted here -->
+                </div>
+            </div>
+            <div class="form-group">
+                <button class="btn btn-primary" id="submit-order">Submit Order</button>
+                <button type="button" class="btn btn-secondary" id="cancel-order">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audit Viewer Modal -->
+    <div class="modal" id="audit-viewer-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="audit-viewer-title">Inventory Audit</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Date</label>
+                    <div id="audit-viewer-date" class="form-control" style="background:#f9f9f9"></div>
+                </div>
+                <div class="form-group">
+                    <label>Time</label>
+                    <div id="audit-viewer-time" class="form-control" style="background:#f9f9f9"></div>
+                </div>
+                <div class="form-group">
+                    <label>Auditor</label>
+                    <div id="audit-viewer-auditor" class="form-control" style="background:#f9f9f9"></div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Notes</label>
+                <div id="audit-viewer-notes" class="form-control" style="background:#f9f9f9"></div>
+            </div>
+            <h4 style="margin-top:10px;">Audit Items</h4>
             <table class="data-table">
                 <thead>
                     <tr>
-                        <th>Product Name</th>
-                        <th>Category</th>
-                        <th>In Stock (Unused)</th>
-                        <th>Sold (Used)</th>
+                        <th>Item</th>
+                        <th>Expected</th>
+                        <th>Actual</th>
+                        <th>Discrepancy</th>
+                        <th>Notes</th>
                     </tr>
                 </thead>
-                <tbody id="inventory-body"></tbody>
+                <tbody id="audit-viewer-items-body"></tbody>
             </table>
+            <div class="form-group" style="margin-top:10px;">
+                <div id="audit-viewer-summary"></div>
+            </div>
         </div>
-    </main>
-    <script src="data-manager.js"></script>
-    <script>
-        function renderInventory() {
-            const menu = getMenu();
-            const tableBody = document.getElementById('inventory-body');
-            tableBody.innerHTML = '';
+    </div>
+
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize inventory data
+            initializeInventory();
             
-            menu.sort((a,b) => a.stock - b.stock).forEach(item => {
-                const row = document.createElement('tr');
-                const stockClass = item.stock < 10 ? 'stock-low' : '';
-                row.innerHTML = `
-                    <td>${item.name}</td>
-                    <td>${item.category}</td>
-                    <td class="${stockClass}">${item.stock}</td>
-                    <td>${item.sold}</td>
-                `;
-                tableBody.appendChild(row);
+            // Tab functionality
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remove active class from all tabs
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                    
+                    // If analytics tab is selected, update the chart
+                    if (tabId === 'analytics') {
+                        updateAnalytics();
+                    }
+                });
             });
-        }
-        window.onload = renderInventory;
+
+            // Add Item Button
+            document.getElementById('add-item-btn').addEventListener('click', function() {
+                openItemModal('add');
+            });
+            
+            // Quick Order Button
+            document.getElementById('quick-order-btn').addEventListener('click', function() {
+                openQuickOrderModal();
+            });
+            
+            // Export Data Button
+            document.getElementById('export-data-btn').addEventListener('click', function() {
+                exportInventoryData();
+            });
+            
+            // Load Sample Data Button
+            document.getElementById('load-sample-data').addEventListener('click', function() {
+                if (confirm('This will replace your current inventory with sample data. Continue?')) {
+                    loadSampleData();
+                }
+            });
+            
+            // Refresh Inventory Button
+            document.getElementById('refresh-inventory').addEventListener('click', function() {
+                updateInventory();
+            });
+            
+            // Configure Par Levels Button
+            document.getElementById('configure-par-levels').addEventListener('click', function() {
+                alert('Par level configuration functionality would be implemented here');
+            });
+            
+            // Schedule Audit Button
+            document.getElementById('schedule-audit').addEventListener('click', function() {
+                alert('Audit scheduling functionality would be implemented here');
+            });
+            
+            // Logout button
+            document.querySelector('.btn-logout').addEventListener('click', function() {
+                if (confirm('Are you sure you want to logout?')) {
+                    window.location.href = 'login.html';
+                }
+            });
+            
+            // Modal functionality
+            document.querySelectorAll('.close-modal').forEach(button => {
+                button.addEventListener('click', function() {
+                    document.getElementById('item-modal').style.display = 'none';
+                    document.getElementById('quick-order-modal').style.display = 'none';
+                    document.getElementById('audit-viewer-modal').style.display = 'none';
+                });
+            });
+            
+            document.getElementById('cancel-item').addEventListener('click', function() {
+                document.getElementById('item-modal').style.display = 'none';
+            });
+            
+            document.getElementById('cancel-order').addEventListener('click', function() {
+                document.getElementById('quick-order-modal').style.display = 'none';
+            });
+            
+            // Close modal when clicking outside
+            document.getElementById('item-modal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.style.display = 'none';
+                }
+            });
+            
+            document.getElementById('quick-order-modal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.style.display = 'none';
+                }
+            });
+            document.getElementById('audit-viewer-modal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.style.display = 'none';
+                }
+            });
+            
+            // Form submission
+            document.getElementById('item-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveItem();
+            });
+            
+            // Search functionality
+            document.getElementById('search-input').addEventListener('input', function() {
+                filterInventory();
+            });
+            
+            // Filter functionality
+            document.getElementById('category-filter').addEventListener('change', function() {
+                filterInventory();
+            });
+            
+            document.getElementById('status-filter').addEventListener('change', function() {
+                filterInventory();
+            });
+            
+            // Bulk actions
+            document.getElementById('select-all-header').addEventListener('change', function() {
+                const isChecked = this.checked;
+                document.querySelectorAll('.item-checkbox').forEach(checkbox => {
+                    checkbox.checked = isChecked;
+                });
+                updateBulkActions();
+            });
+            
+            document.getElementById('bulk-edit-btn').addEventListener('click', function() {
+                const selectedItems = getSelectedItems();
+                if (selectedItems.length > 0) {
+                    alert(`Bulk editing ${selectedItems.length} items. This would open a bulk edit form in a real application.`);
+                }
+            });
+            
+            document.getElementById('bulk-delete-btn').addEventListener('click', function() {
+                const selectedItems = getSelectedItems();
+                if (selectedItems.length > 0 && confirm(`Are you sure you want to delete ${selectedItems.length} items?`)) {
+                    selectedItems.forEach(itemId => {
+                        deleteItem(itemId);
+                    });
+                }
+            });
+            
+            // Analytics period change
+            document.getElementById('analytics-period').addEventListener('change', function() {
+                updateAnalytics();
+            });
+            
+            // Submit order
+            document.getElementById('submit-order').addEventListener('click', function() {
+                alert('Order submitted successfully!');
+                document.getElementById('quick-order-modal').style.display = 'none';
+            });
+            
+            // Export analytics data
+            document.getElementById('export-analytics-csv').addEventListener('click', function() {
+                exportAnalyticsData('csv');
+            });
+            
+            document.getElementById('export-analytics-xlsx').addEventListener('click', function() {
+                exportAnalyticsData('xlsx');
+            });
+            
+            // Initialize inventory data
+            function initializeInventory() {
+                // Check if we have existing data from supervisor dashboard, if not start with empty inventory
+                if (!localStorage.getItem('bistroInventory')) {
+                    // Initialize with sample data that matches supervisor structure
+                    const sampleInventory = [
+                        { 
+                            id: 1, 
+                            name: 'Arabica Coffee Beans', 
+                            category: 'coffee', 
+                            stock: 25, 
+                            unit: 'kg', 
+                            minLevel: 10, 
+                            maxLevel: 50,
+                            lastUpdated: new Date().toISOString().split('T')[0]
+                        },
+                        { 
+                            id: 2, 
+                            name: 'Whole Milk', 
+                            category: 'dairy', 
+                            stock: 15, 
+                            unit: 'l', 
+                            minLevel: 5, 
+                            maxLevel: 30,
+                            lastUpdated: new Date().toISOString().split('T')[0]
+                        },
+                        { 
+                            id: 3, 
+                            name: 'Oat Milk', 
+                            category: 'dairy', 
+                            stock: 4, 
+                            unit: 'l', 
+                            minLevel: 5, 
+                            maxLevel: 20,
+                            lastUpdated: new Date().toISOString().split('T')[0]
+                        },
+                        { 
+                            id: 4, 
+                            name: 'Vanilla Syrup', 
+                            category: 'coffee', 
+                            stock: 8, 
+                            unit: 'bottles', 
+                            minLevel: 5, 
+                            maxLevel: 20,
+                            lastUpdated: new Date().toISOString().split('T')[0]
+                        },
+                        { 
+                            id: 5, 
+                            name: 'Croissants', 
+                            category: 'food', 
+                            stock: 0, 
+                            unit: 'units', 
+                            minLevel: 10, 
+                            maxLevel: 50,
+                            lastUpdated: new Date().toISOString().split('T')[0]
+                        },
+                        { 
+                            id: 6, 
+                            name: 'Paper Cups', 
+                            category: 'supplies', 
+                            stock: 200, 
+                            unit: 'units', 
+                            minLevel: 100, 
+                            maxLevel: 500,
+                            lastUpdated: new Date().toISOString().split('T')[0]
+                        },
+                        { 
+                            id: 7, 
+                            name: 'Chocolate Syrup', 
+                            category: 'coffee', 
+                            stock: 3, 
+                            unit: 'bottles', 
+                            minLevel: 5, 
+                            maxLevel: 20,
+                            lastUpdated: new Date().toISOString().split('T')[0]
+                        },
+                        { 
+                            id: 8, 
+                            name: 'Espresso Cups', 
+                            category: 'supplies', 
+                            stock: 45, 
+                            unit: 'units', 
+                            minLevel: 20, 
+                            maxLevel: 100,
+                            lastUpdated: new Date().toISOString().split('T')[0]
+                        }
+                    ];
+                    localStorage.setItem('bistroInventory', JSON.stringify(sampleInventory));
+                }
+                
+                // Initialize analytics data if not exists
+                if (!localStorage.getItem('bistroInventoryAnalytics')) {
+                    initializeHistoricalAnalyticsData();
+                }
+                
+                updateInventory();
+            }
+            
+            // Function to load sample data
+            function loadSampleData() {
+                const sampleInventory = [
+                    { 
+                        id: 1, 
+                        name: 'Arabica Coffee Beans', 
+                        category: 'coffee', 
+                        stock: 25, 
+                        unit: 'kg', 
+                        minLevel: 10, 
+                        maxLevel: 50,
+                        lastUpdated: new Date().toISOString().split('T')[0]
+                    },
+                    { 
+                        id: 2, 
+                        name: 'Whole Milk', 
+                        category: 'dairy', 
+                        stock: 15, 
+                        unit: 'l', 
+                        minLevel: 5, 
+                        maxLevel: 30,
+                        lastUpdated: new Date().toISOString().split('T')[0]
+                    },
+                    { 
+                        id: 3, 
+                        name: 'Vanilla Syrup', 
+                        category: 'syrups', 
+                        stock: 8, 
+                        unit: 'bottles', 
+                        minLevel: 5, 
+                        maxLevel: 20,
+                        lastUpdated: new Date().toISOString().split('T')[0]
+                    },
+                    { 
+                        id: 4, 
+                        name: 'Croissants', 
+                        category: 'pastry', 
+                        stock: 0, 
+                        unit: 'units', 
+                        minLevel: 10, 
+                        maxLevel: 50,
+                        lastUpdated: new Date().toISOString().split('T')[0]
+                    },
+                    { 
+                        id: 5, 
+                        name: 'Paper Cups', 
+                        category: 'packaging', 
+                        stock: 200, 
+                        unit: 'units', 
+                        minLevel: 100, 
+                        maxLevel: 500,
+                        lastUpdated: new Date().toISOString().split('T')[0]
+                    },
+                    { 
+                        id: 6, 
+                        name: 'Chocolate Syrup', 
+                        category: 'syrups', 
+                        stock: 3, 
+                        unit: 'bottles', 
+                        minLevel: 5, 
+                        maxLevel: 20,
+                        lastUpdated: new Date().toISOString().split('T')[0]
+                    }
+                ];
+                
+                localStorage.setItem('bistroInventory', JSON.stringify(sampleInventory));
+                // Clear and reinitialize analytics data
+                localStorage.removeItem('bistroInventoryAnalytics');
+                initializeHistoricalAnalyticsData();
+                updateInventory();
+                alert('Sample data loaded successfully!');
+            }
+            
+            // Update the updateInventory function to also update analytics data
+            function updateInventory() {
+                updateStats();
+                updateInventoryTable();
+                updateParLevelsTable();
+                updateAuditsTable();
+                
+                // Update analytics data with current inventory status
+                const inventory = getInventory();
+                getOrCreateAnalyticsData(inventory);
+                
+                // If analytics tab is active, update it
+                const activeTab = document.querySelector('.tab.active');
+                if (activeTab && activeTab.getAttribute('data-tab') === 'analytics') {
+                    updateAnalytics();
+                }
+            }
+            
+            // Update statistics
+            function updateStats() {
+                const inventory = getInventory();
+                
+                // Calculate total items
+                document.getElementById('total-items').textContent = inventory.length;
+                
+                // Calculate low stock items (less than min level)
+                const lowStockCount = inventory.filter(item => item.stock < item.minLevel && item.stock > 0).length;
+                document.getElementById('low-stock-items').textContent = lowStockCount;
+                
+                // Calculate out of stock items
+                const outOfStockCount = inventory.filter(item => item.stock === 0).length;
+                document.getElementById('out-of-stock-items').textContent = outOfStockCount;
+                
+                // Calculate waste cost (simplified)
+                const wasteCost = inventory.reduce((sum, item) => sum + (item.wasteCost || 0), 0);
+                document.getElementById('waste-cost').textContent = `₱${wasteCost.toFixed(2)}`;
+            }
+            
+            // Update inventory table
+            function updateInventoryTable() {
+                const inventory = getInventory();
+                const inventoryBody = document.getElementById('inventory-body');
+                inventoryBody.innerHTML = '';
+                
+                if (inventory.length === 0) {
+                    inventoryBody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 20px;">No inventory items found</td></tr>';
+                } else {
+                    inventory.forEach(item => {
+                        const row = document.createElement('tr');
+                        const status = item.stock === 0 ? 'out-of-stock' : item.stock < item.minLevel ? 'low-stock' : 'in-stock';
+                        const statusText = item.stock === 0 ? 'Out of Stock' : item.stock < item.minLevel ? 'Low Stock' : 'In Stock';
+                        
+                        row.innerHTML = `
+                            <td><input type="checkbox" class="item-checkbox" data-item-id="${item.id}"></td>
+                            <td>${item.name}</td>
+                            <td>${getCategoryName(item.category)}</td>
+                            <td>${item.stock} ${item.unit}</td>
+                            <td>${item.minLevel}</td>
+                            <td><span class="status ${status}">${statusText}</span></td>
+                            <td>${item.lastUpdated || 'N/A'}</td>
+                            <td class="action-buttons">
+                                <button class="btn btn-primary btn-sm edit-item" data-item-id="${item.id}">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                                <button class="btn btn-danger btn-sm delete-item" data-item-id="${item.id}">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </td>
+                        `;
+                        inventoryBody.appendChild(row);
+                    });
+                    
+                    // Add event listeners to edit and delete buttons
+                    document.querySelectorAll('.edit-item').forEach(button => {
+                        button.addEventListener('click', function() {
+                            const itemId = this.getAttribute('data-item-id');
+                            openItemModal('edit', itemId);
+                        });
+                    });
+                    
+                    document.querySelectorAll('.delete-item').forEach(button => {
+                        button.addEventListener('click', function() {
+                            const itemId = this.getAttribute('data-item-id');
+                            deleteItem(itemId);
+                        });
+                    });
+                    
+                    // Add event listeners to checkboxes
+                    document.querySelectorAll('.item-checkbox').forEach(checkbox => {
+                        checkbox.addEventListener('change', function() {
+                            updateBulkActions();
+                        });
+                    });
+                }
+                
+                // Reset select all checkbox
+                document.getElementById('select-all-header').checked = false;
+                updateBulkActions();
+            }
+
+            function initializeHistoricalAnalyticsData() {
+                const analyticsData = JSON.parse(localStorage.getItem('bistroInventoryAnalytics')) || [];
+                
+                if (analyticsData.length === 0) {
+                    // Create 30 days of historical data based on current inventory
+                    const inventory = getInventory();
+                    const today = new Date();
+                    
+                    for (let i = 29; i >= 0; i--) {
+                        const date = new Date();
+                        date.setDate(today.getDate() - i);
+                        const dateStr = date.toISOString().split('T')[0];
+                        
+                        // Calculate current status from inventory
+                        const lowStockCount = inventory.filter(item => item.stock < item.minLevel && item.stock > 0).length;
+                        const outOfStockCount = inventory.filter(item => item.stock === 0).length;
+                        const totalItems = inventory.length;
+                        
+                        analyticsData.push({
+                            date: dateStr,
+                            lowStock: lowStockCount,
+                            outOfStock: outOfStockCount,
+                            totalItems: totalItems,
+                            month: date.toLocaleString('default', { month: 'long' }),
+                            year: date.getFullYear()
+                        });
+                    }
+                    
+                    localStorage.setItem('bistroInventoryAnalytics', JSON.stringify(analyticsData));
+                }
+            }
+            
+            // Update par levels table
+            function updateParLevelsTable() {
+                const inventory = getInventory();
+                const parLevelsBody = document.getElementById('par-levels-body');
+                parLevelsBody.innerHTML = '';
+                
+                if (inventory.length === 0) {
+                    parLevelsBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px;">No par levels configured</td></tr>';
+                } else {
+                    inventory.forEach(item => {
+                        const row = document.createElement('tr');
+                        const status = item.stock < item.minLevel ? 'low-stock' : 'in-stock';
+                        const statusText = item.stock < item.minLevel ? 'Below Par' : 'OK';
+                        
+                        row.innerHTML = `
+                            <td>${item.name}</td>
+                            <td>${item.minLevel}</td>
+                            <td>${item.maxLevel}</td>
+                            <td>${item.stock}</td>
+                            <td><span class="status ${status}">${statusText}</span></td>
+                            <td>
+                                <button class="btn btn-primary btn-sm edit-item" data-item-id="${item.id}">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                            </td>
+                        `;
+                        parLevelsBody.appendChild(row);
+                    });
+                    
+                    // Add event listeners to edit buttons
+                    document.querySelectorAll('#par-levels-body .edit-item').forEach(button => {
+                        button.addEventListener('click', function() {
+                            const itemId = this.getAttribute('data-item-id');
+                            openItemModal('edit', itemId);
+                        });
+                    });
+                }
+            }
+            
+            // Update audits table
+            function updateAuditsTable() {
+                const auditsBody = document.getElementById('audits-body');
+                auditsBody.innerHTML = '';
+                const audits = getAudits();
+                if (!audits || audits.length === 0) {
+                    auditsBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px;">No audit records found</td></tr>';
+                    return;
+                }
+                audits.forEach(audit => {
+                    const itemsChecked = audit.itemsChecked || (audit.items ? audit.items.length : 0);
+                    const discrepancies = audit.discrepancies || 0;
+                    const discrepancyRate = itemsChecked > 0 ? `${(((discrepancies) / itemsChecked) * 100).toFixed(1)}%` : '0%';
+                    const statusText = audit.status || 'Pending';
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${audit.date || ''}</td>
+                        <td>${audit.auditor || ''}</td>
+                        <td>${itemsChecked}</td>
+                        <td>${discrepancyRate}</td>
+                        <td><span class="status in-stock">${statusText}</span></td>
+                        <td>
+                            <button class="btn btn-primary btn-sm view-audit" data-audit-id="${audit.id}">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                        </td>
+                    `;
+                    auditsBody.appendChild(row);
+                });
+                document.querySelectorAll('.view-audit').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const auditId = parseInt(this.getAttribute('data-audit-id'));
+                        openAuditViewer(auditId);
+                    });
+                });
+            }
+            
+            // Update analytics
+            function updateAnalytics() {
+                const inventory = getInventory();
+                const period = document.getElementById('analytics-period').value;
+                
+                // Get actual analytics data from inventory
+                const analyticsData = getOrCreateAnalyticsData(inventory);
+                
+                // Filter data based on selected period
+                let filteredData = [];
+                const today = new Date();
+                
+                if (period === '7') {
+                    // Last 7 days
+                    const sevenDaysAgo = new Date();
+                    sevenDaysAgo.setDate(today.getDate() - 7);
+                    filteredData = analyticsData.filter(item => {
+                        const itemDate = new Date(item.date);
+                        return itemDate >= sevenDaysAgo;
+                    });
+                } else if (period === '30') {
+                    // Last 30 days
+                    const thirtyDaysAgo = new Date();
+                    thirtyDaysAgo.setDate(today.getDate() - 30);
+                    filteredData = analyticsData.filter(item => {
+                        const itemDate = new Date(item.date);
+                        return itemDate >= thirtyDaysAgo;
+                    });
+                } else if (period === '90') {
+                    // Last 90 days
+                    const ninetyDaysAgo = new Date();
+                    ninetyDaysAgo.setDate(today.getDate() - 90);
+                    filteredData = analyticsData.filter(item => {
+                        const itemDate = new Date(item.date);
+                        return itemDate >= ninetyDaysAgo;
+                    });
+                } else if (period === 'year') {
+                    // This year
+                    const currentYear = today.getFullYear();
+                    filteredData = analyticsData.filter(item => {
+                        const itemDate = new Date(item.date);
+                        return itemDate.getFullYear() === currentYear;
+                    });
+                    
+                    // Group by month for yearly view
+                    filteredData = groupAnalyticsByMonth(filteredData);
+                } else if (period === 'last_year') {
+                    // Last year
+                    const lastYear = today.getFullYear() - 1;
+                    filteredData = analyticsData.filter(item => {
+                        const itemDate = new Date(item.date);
+                        return itemDate.getFullYear() === lastYear;
+                    });
+                    
+                    // Group by month for yearly view
+                    filteredData = groupAnalyticsByMonth(filteredData);
+                }
+                
+                // Update chart with actual inventory data
+                updateInventoryChart(filteredData, period);
+                
+                // Update usage analytics
+                updateUsageAnalytics();
+                
+                // Update reorder suggestions
+                updateReorderSuggestions();
+            }
+
+            // New function to get or create analytics data from inventory
+            function getOrCreateAnalyticsData(inventory) {
+                let analyticsData = JSON.parse(localStorage.getItem('bistroInventoryAnalytics')) || [];
+                
+                // Calculate current inventory stats
+                const today = new Date().toISOString().split('T')[0];
+                
+                // Calculate current status from inventory
+                const lowStockCount = inventory.filter(item => item.stock < item.minLevel && item.stock > 0).length;
+                const outOfStockCount = inventory.filter(item => item.stock === 0).length;
+                const totalItems = inventory.length;
+                
+                // Find today's entry
+                const todayIndex = analyticsData.findIndex(item => item.date === today);
+                
+                if (todayIndex !== -1) {
+                    // Update existing entry
+                    analyticsData[todayIndex].lowStock = lowStockCount;
+                    analyticsData[todayIndex].outOfStock = outOfStockCount;
+                    analyticsData[todayIndex].totalItems = totalItems;
+                } else {
+                    // Create new entry for today
+                    const todayEntry = {
+                        date: today,
+                        lowStock: lowStockCount,
+                        outOfStock: outOfStockCount,
+                        totalItems: totalItems,
+                        month: new Date().toLocaleString('default', { month: 'long' }),
+                        year: new Date().getFullYear()
+                    };
+                    
+                    analyticsData.push(todayEntry);
+                    
+                    // Keep only last 365 days
+                    if (analyticsData.length > 365) {
+                        analyticsData = analyticsData.slice(-365);
+                    }
+                }
+                
+                localStorage.setItem('bistroInventoryAnalytics', JSON.stringify(analyticsData));
+                return analyticsData;
+            }
+
+            // New function to group analytics data by month
+            function groupAnalyticsByMonth(analyticsData) {
+                const groupedData = {};
+                
+                analyticsData.forEach(item => {
+                    const monthYear = `${item.month} ${item.year}`;
+                    
+                    if (!groupedData[monthYear]) {
+                        groupedData[monthYear] = {
+                            month: item.month,
+                            year: item.year,
+                            lowStock: [],
+                            outOfStock: [],
+                            totalItems: []
+                        };
+                    }
+                    
+                    groupedData[monthYear].lowStock.push(item.lowStock);
+                    groupedData[monthYear].outOfStock.push(item.outOfStock);
+                    groupedData[monthYear].totalItems.push(item.totalItems);
+                });
+                
+                // Calculate averages for each month
+                const result = [];
+                
+                Object.keys(groupedData).forEach(key => {
+                    const data = groupedData[key];
+                    result.push({
+                        month: data.month,
+                        year: data.year,
+                        lowStock: Math.round(data.lowStock.reduce((a, b) => a + b, 0) / data.lowStock.length),
+                        outOfStock: Math.round(data.outOfStock.reduce((a, b) => a + b, 0) / data.outOfStock.length),
+                        totalItems: Math.round(data.totalItems.reduce((a, b) => a + b, 0) / data.totalItems.length)
+                    });
+                });
+                
+                // Sort by year and month
+                result.sort((a, b) => {
+                    if (a.year !== b.year) return a.year - b.year;
+                    const months = ['January', 'February', 'March', 'April', 'May', 'June', 
+                                'July', 'August', 'September', 'October', 'November', 'December'];
+                    return months.indexOf(a.month) - months.indexOf(b.month);
+                });
+                
+                return result;
+            }
+            
+            // Update the updateInventoryChart function to use the new data format
+            function updateInventoryChart(data, period) {
+                const ctx = document.getElementById('inventory-chart').getContext('2d');
+                
+                // Destroy existing chart if it exists
+                if (window.inventoryChart) {
+                    window.inventoryChart.destroy();
+                }
+                
+                let labels, lowStockData, outOfStockData;
+                
+                if (period === 'year' || period === 'last_year') {
+                    // Monthly data
+                    labels = data.map(item => item.month.substring(0, 3));
+                    lowStockData = data.map(item => item.lowStock);
+                    outOfStockData = data.map(item => item.outOfStock);
+                } else {
+                    // Daily data
+                    labels = data.map(item => {
+                        const date = new Date(item.date);
+                        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    });
+                    lowStockData = data.map(item => item.lowStock);
+                    outOfStockData = data.map(item => item.outOfStock);
+                }
+                
+                window.inventoryChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Low Stock Items',
+                                data: lowStockData,
+                                borderColor: '#FF9800',
+                                backgroundColor: 'rgba(255, 152, 0, 0.1)',
+                                tension: 0.3,
+                                fill: true
+                            },
+                            {
+                                label: 'Out of Stock Items',
+                                data: outOfStockData,
+                                borderColor: '#F44336',
+                                backgroundColor: 'rgba(244, 67, 54, 0.1)',
+                                tension: 0.3,
+                                fill: true
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Inventory Status Over Time'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        label += context.parsed.y;
+                                        return label;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Number of Items'
+                                },
+                                ticks: {
+                                    stepSize: 1,
+                                    callback: function(value) {
+                                        if (Number.isInteger(value)) {
+                                            return value;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Update usage analytics
+            function updateUsageAnalytics() {
+                const inventory = getInventory();
+                const usageBody = document.getElementById('usage-analytics-body');
+                usageBody.innerHTML = '';
+                
+                // Sort by usage rate (simplified - using stock level as proxy)
+                const sortedItems = [...inventory].sort((a, b) => {
+                    const usageA = (a.maxLevel - a.stock) / a.maxLevel;
+                    const usageB = (b.maxLevel - b.stock) / b.maxLevel;
+                    return usageB - usageA;
+                });
+                
+                // Take top 5
+                const topItems = sortedItems.slice(0, 5);
+                
+                topItems.forEach(item => {
+                    const usageRate = ((item.maxLevel - item.stock) / item.maxLevel * 100).toFixed(1);
+                    const status = item.stock === 0 ? 'out-of-stock' : item.stock < item.minLevel ? 'low-stock' : 'in-stock';
+                    const statusText = item.stock === 0 ? 'Out of Stock' : item.stock < item.minLevel ? 'Low Stock' : 'In Stock';
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${item.name}</td>
+                        <td>${usageRate}%</td>
+                        <td><span class="status ${status}">${statusText}</span></td>
+                    `;
+                    usageBody.appendChild(row);
+                });
+            }
+            
+            // Update reorder suggestions
+            function updateReorderSuggestions() {
+                const inventory = getInventory();
+                const reorderBody = document.getElementById('reorder-suggestions-body');
+                reorderBody.innerHTML = '';
+                
+                // Filter items that need reordering
+                const reorderItems = inventory.filter(item => item.stock <= item.minLevel);
+                
+                if (reorderItems.length === 0) {
+                    reorderBody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 20px;">No reorder suggestions at this time</td></tr>';
+                } else {
+                    reorderItems.forEach(item => {
+                        const suggestedQty = item.maxLevel - item.stock;
+                        const urgency = item.stock === 0 ? 'High' : 'Medium';
+                        
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${item.name}</td>
+                            <td>${suggestedQty} ${item.unit}</td>
+                            <td><span class="status ${urgency === 'High' ? 'out-of-stock' : 'low-stock'}">${urgency}</span></td>
+                        `;
+                        reorderBody.appendChild(row);
+                    });
+                }
+            }
+            
+            // Filter inventory
+            function filterInventory() {
+                const searchTerm = document.getElementById('search-input').value.toLowerCase();
+                const categoryFilter = document.getElementById('category-filter').value;
+                const statusFilter = document.getElementById('status-filter').value;
+                
+                const inventory = getInventory();
+                const filteredInventory = inventory.filter(item => {
+                    // Search filter
+                    const matchesSearch = item.name.toLowerCase().includes(searchTerm) || 
+                                        getCategoryName(item.category).toLowerCase().includes(searchTerm);
+                    
+                    // Category filter
+                    const matchesCategory = !categoryFilter || item.category === categoryFilter;
+                    
+                    // Status filter
+                    let matchesStatus = true;
+                    if (statusFilter) {
+                        if (statusFilter === 'in-stock') {
+                            matchesStatus = item.stock >= item.minLevel;
+                        } else if (statusFilter === 'low-stock') {
+                            matchesStatus = item.stock < item.minLevel && item.stock > 0;
+                        } else if (statusFilter === 'out-of-stock') {
+                            matchesStatus = item.stock === 0;
+                        }
+                    }
+                    
+                    return matchesSearch && matchesCategory && matchesStatus;
+                });
+                
+                // Update table with filtered results
+                const inventoryBody = document.getElementById('inventory-body');
+                inventoryBody.innerHTML = '';
+                
+                if (filteredInventory.length === 0) {
+                    inventoryBody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 20px;">No matching items found</td></tr>';
+                } else {
+                    filteredInventory.forEach(item => {
+                        const row = document.createElement('tr');
+                        const status = item.stock === 0 ? 'out-of-stock' : item.stock < item.minLevel ? 'low-stock' : 'in-stock';
+                        const statusText = item.stock === 0 ? 'Out of Stock' : item.stock < item.minLevel ? 'Low Stock' : 'In Stock';
+                        
+                        row.innerHTML = `
+                            <td><input type="checkbox" class="item-checkbox" data-item-id="${item.id}"></td>
+                            <td>${item.name}</td>
+                            <td>${getCategoryName(item.category)}</td>
+                            <td>${item.stock} ${item.unit}</td>
+                            <td>${item.minLevel}</td>
+                            <td><span class="status ${status}">${statusText}</span></td>
+                            <td>${item.lastUpdated || 'N/A'}</td>
+                            <td class="action-buttons">
+                                <button class="btn btn-primary btn-sm edit-item" data-item-id="${item.id}">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                                <button class="btn btn-danger btn-sm delete-item" data-item-id="${item.id}">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </td>
+                        `;
+                        inventoryBody.appendChild(row);
+                    });
+                    
+                    // Add event listeners to edit and delete buttons
+                    document.querySelectorAll('.edit-item').forEach(button => {
+                        button.addEventListener('click', function() {
+                            const itemId = this.getAttribute('data-item-id');
+                            openItemModal('edit', itemId);
+                        });
+                    });
+                    
+                    document.querySelectorAll('.delete-item').forEach(button => {
+                        button.addEventListener('click', function() {
+                            const itemId = this.getAttribute('data-item-id');
+                            deleteItem(itemId);
+                        });
+                    });
+                    
+                    // Add event listeners to checkboxes
+                    document.querySelectorAll('.item-checkbox').forEach(checkbox => {
+                        checkbox.addEventListener('change', function() {
+                            updateBulkActions();
+                        });
+                    });
+                }
+                
+                // Reset select all checkbox
+                document.getElementById('select-all-header').checked = false;
+                updateBulkActions();
+            }
+            
+            // Update bulk actions
+            function updateBulkActions() {
+                const selectedItems = getSelectedItems();
+                const bulkActions = document.getElementById('bulk-actions');
+                const selectedCount = document.getElementById('selected-count');
+                
+                if (selectedItems.length > 0) {
+                    bulkActions.classList.add('show');
+                    selectedCount.textContent = `${selectedItems.length} item${selectedItems.length !== 1 ? 's' : ''} selected`;
+                } else {
+                    bulkActions.classList.remove('show');
+                }
+            }
+            
+            // Get selected items
+            function getSelectedItems() {
+                const selectedItems = [];
+                document.querySelectorAll('.item-checkbox:checked').forEach(checkbox => {
+                    selectedItems.push(checkbox.getAttribute('data-item-id'));
+                });
+                return selectedItems;
+            }
+            
+            // Open quick order modal
+            function openQuickOrderModal() {
+                const modal = document.getElementById('quick-order-modal');
+                const orderItemsList = document.getElementById('order-items-list');
+                
+                // Get low stock and out of stock items
+                const inventory = getInventory();
+                const orderItems = inventory.filter(item => item.stock <= item.minLevel);
+                
+                orderItemsList.innerHTML = '';
+                
+                if (orderItems.length === 0) {
+                    orderItemsList.innerHTML = '<p style="text-align: center; padding: 20px;">No items need to be ordered at this time.</p>';
+                } else {
+                    orderItems.forEach(item => {
+                        const suggestedQty = item.maxLevel - item.stock;
+                        const itemDiv = document.createElement('div');
+                        itemDiv.style.marginBottom = '10px';
+                        itemDiv.style.padding = '10px';
+                        itemDiv.style.border = '1px solid #eee';
+                        itemDiv.style.borderRadius = '4px';
+                        itemDiv.innerHTML = `
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <strong>${item.name}</strong>
+                                    <br>
+                                    <small>Current: ${item.stock} ${item.unit} | Suggested: ${suggestedQty} ${item.unit}</small>
+                                </div>
+                                <input type="number" value="${suggestedQty}" min="1" style="width: 80px; padding: 5px;" data-item-id="${item.id}">
+                            </div>
+                        `;
+                        orderItemsList.appendChild(itemDiv);
+                    });
+                }
+                
+                modal.style.display = 'flex';
+            }
+            
+            // Export inventory data
+            function exportInventoryData() {
+                const inventory = getInventory();
+                const csvContent = "data:text/csv;charset=utf-8," 
+                    + "Name,Category,Current Stock,Unit,Min Level,Max Level,Status\n"
+                    + inventory.map(item => {
+                        const status = item.stock === 0 ? 'Out of Stock' : item.stock < item.minLevel ? 'Low Stock' : 'In Stock';
+                        return `"${item.name}","${getCategoryName(item.category)}",${item.stock},"${item.unit}",${item.minLevel},${item.maxLevel},"${status}"`;
+                    }).join("\n");
+                
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", "inventory_data.csv");
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+            
+            // Export analytics data
+            function exportAnalyticsData(format) {
+                const analyticsData = JSON.parse(localStorage.getItem('bistroInventoryAnalytics')) || [];
+                const period = document.getElementById('analytics-period').value;
+                
+                // Filter data based on selected period
+                let filteredData = [];
+                const today = new Date();
+                
+                if (period === 'year') {
+                    // This year data
+                    const currentYear = today.getFullYear();
+                    filteredData = analyticsData.filter(item => {
+                        const itemDate = new Date(item.date);
+                        return itemDate.getFullYear() === currentYear;
+                    });
+                    
+                    // Group by month for export
+                    filteredData = groupAnalyticsByMonth(filteredData);
+                } else if (period === 'last_year') {
+                    // Last year data
+                    const lastYear = today.getFullYear() - 1;
+                    filteredData = analyticsData.filter(item => {
+                        const itemDate = new Date(item.date);
+                        return itemDate.getFullYear() === lastYear;
+                    });
+                    
+                    // Group by month for export
+                    filteredData = groupAnalyticsByMonth(filteredData);
+                } else {
+                    // Daily data (last 7, 30, 90 days)
+                    const days = parseInt(period);
+                    filteredData = analyticsData.slice(-days);
+                }
+                
+                if (format === 'csv') {
+                    let csvContent = "data:text/csv;charset=utf-8,";
+                    
+                    if (period === 'year' || period === 'last_year') {
+                        // Monthly data
+                        csvContent += "Year,Month,Low Stock Items,Out of Stock Items,Total Items\n";
+                        csvContent += filteredData.map(item => {
+                            return `${item.year},${item.month},${item.lowStock},${item.outOfStock},${item.totalItems}`;
+                        }).join("\n");
+                    } else {
+                        // Daily data
+                        csvContent += "Date,Low Stock Items,Out of Stock Items,Total Items\n";
+                        csvContent += filteredData.map(item => {
+                            return `${item.date},${item.lowStock},${item.outOfStock},${item.totalItems}`;
+                        }).join("\n");
+                    }
+                    
+                    const encodedUri = encodeURI(csvContent);
+                    const link = document.createElement("a");
+                    link.setAttribute("href", encodedUri);
+                    link.setAttribute("download", `analytics_data_${period}.csv`);
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                } else if (format === 'xlsx') {
+                    // Create worksheet
+                    let wsData = [];
+                    
+                    if (period === 'year' || period === 'last_year') {
+                        // Monthly data
+                        wsData = [["Year", "Month", "Low Stock Items", "Out of Stock Items", "Total Items"]];
+                        wsData = wsData.concat(filteredData.map(item => {
+                            return [item.year, item.month, item.lowStock, item.outOfStock, item.totalItems];
+                        }));
+                    } else {
+                        // Daily data
+                        wsData = [["Date", "Low Stock Items", "Out of Stock Items", "Total Items"]];
+                        wsData = wsData.concat(filteredData.map(item => {
+                            return [item.date, item.lowStock, item.outOfStock, item.totalItems];
+                        }));
+                    }
+                    
+                    const ws = XLSX.utils.aoa_to_sheet(wsData);
+                    
+                    // Create workbook and add the worksheet
+                    const wb = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(wb, ws, "Analytics Data");
+                    
+                    // Export the file
+                    XLSX.writeFile(wb, `analytics_data_${period}.xlsx`);
+                }
+            }
+            
+            // Open item modal for add or edit
+            function openItemModal(mode, itemId = null) {
+                const modal = document.getElementById('item-modal');
+                const title = document.getElementById('modal-title');
+                const submitBtn = document.getElementById('modal-submit-btn');
+                const form = document.getElementById('item-form');
+                
+                if (mode === 'add') {
+                    title.textContent = 'Add New Inventory Item';
+                    submitBtn.textContent = 'Add Item';
+                    form.reset();
+                    document.getElementById('item-id').value = '';
+                } else if (mode === 'edit' && itemId) {
+                    title.textContent = 'Edit Inventory Item';
+                    submitBtn.textContent = 'Update Item';
+                    
+                    const inventory = getInventory();
+                    const item = inventory.find(i => i.id == itemId);
+                    
+                    if (item) {
+                        document.getElementById('item-id').value = item.id;
+                        document.getElementById('item-name').value = item.name;
+                        document.getElementById('item-category').value = item.category;
+                        document.getElementById('item-stock').value = item.stock;
+                        document.getElementById('item-unit').value = item.unit;
+                        document.getElementById('item-min').value = item.minLevel;
+                        document.getElementById('item-max').value = item.maxLevel;
+                    }
+                }
+                
+                modal.style.display = 'flex';
+            }
+            
+            // Save item (add or update)
+            function saveItem() {
+                const itemId = document.getElementById('item-id').value;
+                const inventory = getInventory();
+                
+                const itemData = {
+                    name: document.getElementById('item-name').value,
+                    category: document.getElementById('item-category').value,
+                    stock: parseInt(document.getElementById('item-stock').value),
+                    unit: document.getElementById('item-unit').value,
+                    minLevel: parseInt(document.getElementById('item-min').value),
+                    maxLevel: parseInt(document.getElementById('item-max').value),
+                    lastUpdated: new Date().toISOString().split('T')[0] // YYYY-MM-DD format
+                };
+                
+                if (itemId) {
+                    // Update existing item
+                    const index = inventory.findIndex(item => item.id == itemId);
+                    if (index !== -1) {
+                        inventory[index] = { ...inventory[index], ...itemData };
+                    }
+                } else {
+                    // Add new item
+                    const newId = inventory.length > 0 ? Math.max(...inventory.map(item => item.id)) + 1 : 1;
+                    itemData.id = newId;
+                    inventory.push(itemData);
+                }
+                
+                localStorage.setItem('bistroInventory', JSON.stringify(inventory));
+                updateInventory();
+                document.getElementById('item-modal').style.display = 'none';
+                
+                // Show success message
+                alert(`Item ${itemId ? 'updated' : 'added'} successfully!`);
+            }
+            
+            // Delete item
+            function deleteItem(itemId) {
+                if (confirm('Are you sure you want to delete this item?')) {
+                    const inventory = getInventory();
+                    const updatedInventory = inventory.filter(item => item.id != itemId);
+                    localStorage.setItem('bistroInventory', JSON.stringify(updatedInventory));
+                    updateInventory();
+                    
+                    // Show success message
+                    alert('Item deleted successfully!');
+                }
+            }
+            
+            // Helper functions
+            function getInventory() {
+                return JSON.parse(localStorage.getItem('bistroInventory')) || [];
+            }
+            
+            function getAudits() {
+                return JSON.parse(localStorage.getItem('bistroInventoryAudits')) || [];
+            }
+
+            function openAuditViewer(auditId) {
+                const audit = getAudits().find(a => a.id === auditId);
+                if (!audit) {
+                    alert('Audit not found');
+                    return;
+                }
+                document.getElementById('audit-viewer-title').textContent = `View Audit #${String(audit.id).padStart(3,'0')}`;
+                document.getElementById('audit-viewer-date').textContent = audit.date || '';
+                document.getElementById('audit-viewer-time').textContent = audit.time || '';
+                document.getElementById('audit-viewer-auditor').textContent = audit.auditor || '';
+                document.getElementById('audit-viewer-notes').textContent = audit.notes || '';
+                const tbody = document.getElementById('audit-viewer-items-body');
+                tbody.innerHTML = '';
+                const items = audit.items || [];
+                items.forEach(item => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${item.itemName || ''}</td>
+                        <td>${item.expected ?? ''}</td>
+                        <td>${item.actual ?? ''}</td>
+                        <td>${item.discrepancy ?? ''}</td>
+                        <td>${item.notes || ''}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+                const itemsChecked = audit.itemsChecked || items.length;
+                const discrepancies = audit.discrepancies || (items.filter(i => (i.discrepancy ?? 0) !== 0).length);
+                const accuracyRate = audit.accuracyRate || (itemsChecked > 0 ? `${(((itemsChecked - discrepancies)/itemsChecked)*100).toFixed(1)}%` : '0%');
+                const statusText = audit.status || 'Pending';
+                document.getElementById('audit-viewer-summary').textContent = `Items Checked: ${itemsChecked} | Discrepancies: ${discrepancies} | Accuracy: ${accuracyRate} | Status: ${statusText}`;
+                document.getElementById('audit-viewer-modal').style.display = 'flex';
+            }
+
+            function getCategoryName(category) {
+                const categories = {
+                    'coffee': 'Coffee & Beverages',
+                    'dairy': 'Dairy & Alternatives', 
+                    'food': 'Pastries & Food',
+                    'supplies': 'Supplies & Packaging',
+                    'syrups': 'Syrups & Flavors',
+                    'pastry': 'Pastry & Bakery',
+                    'packaging': 'Packaging',
+                    'cleaning': 'Cleaning Supplies'
+                };
+                return categories[category] || category;
+            }
+        });
     </script>
 </body>
 </html>

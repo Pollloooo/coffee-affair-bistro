@@ -54,6 +54,17 @@
         .header-content {
             margin: 0 !important;
         }
+        .notice {
+            background: #ffeb3b;
+            color: #333;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            margin: 10px 0;
+        }
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -64,6 +75,7 @@
     </header>
     <main>
         <div class="login-card">
+            <div id="login-notice" class="notice hidden">Session expired. Please log in to continue.</div>
             <form id="loginForm">
                 <!-- Removed User Role select dropdown and label -->
                 <!-- NEW: Customer-specific login fields (initially hidden) -->
@@ -82,24 +94,97 @@
                 <div class="register-link">
                 Don't have an account? <a href="register.html">Register here</a>
             </div>
-        </div>
             </form>
         </div>
     </main>
     
  <script>
-        // --- 1. The necessary functions from data-manager.js are now here ---
-        function logLogin(userId, userName, userEmail) {
+        // --- 1. Enhanced login logging function with all required details ---
+        function logLogin(userId, userName, userEmail, userRole, status = 'success') {
             const history = JSON.parse(localStorage.getItem('bistroLoginHistory')) || [];
+            
+            // Get client information
+            const userAgent = navigator.userAgent;
+            let deviceInfo = 'Unknown Device';
+            let browser = 'Unknown Browser';
+            
+            // Detect device type
+            if (/Mobile|Android|iPhone|iPad/.test(userAgent)) {
+                deviceInfo = 'Mobile Device';
+            } else {
+                deviceInfo = 'Desktop/Laptop';
+            }
+            
+            // Detect browser
+            if (userAgent.includes('Chrome')) browser = 'Chrome';
+            else if (userAgent.includes('Firefox')) browser = 'Firefox';
+            else if (userAgent.includes('Safari')) browser = 'Safari';
+            else if (userAgent.includes('Edge')) browser = 'Edge';
+            
             const newLogEntry = {
                 logId: new Date().getTime(),
                 userId: userId,
                 name: userName,
                 email: userEmail,
-                loginTime: new Date().toISOString()
+                loginTime: new Date().toISOString(),
+                status: status,
+                ipAddress: '192.168.1.' + Math.floor(Math.random() * 100 + 100), // Simulate different IPs
+                deviceInfo: `${deviceInfo}, ${browser}`,
+                authMethod: 'Password',
+                sessionDuration: 'N/A', // Will be updated on logout
+                role: userRole
             };
+            
             history.unshift(newLogEntry);
             localStorage.setItem('bistroLoginHistory', JSON.stringify(history));
+            console.log('Login recorded:', newLogEntry);
+        }
+
+        // Initialize default users if they don't exist
+        function initializeDefaultUsers() {
+            const users = JSON.parse(localStorage.getItem('bistroUsers')) || [];
+            
+            const defaultUsers = [
+                {
+                    id: 'admin001',
+                    name: 'Administrator User',
+                    email: 'admin@coffeeaffair.com',
+                    password: 'admin123',
+                    role: 'admin',
+                    lastLogin: null
+                },
+                {
+                    id: 'cashier001',
+                    name: 'Cashier User',
+                    email: 'cashier@coffeeaffair.com',
+                    password: 'cashier123',
+                    role: 'cashier',
+                    lastLogin: null
+                },
+                {
+                    id: 'customer001',
+                    name: 'Demo Customer',
+                    email: 'customer@example.com',
+                    password: 'customer123',
+                    role: 'customer',
+                    lastLogin: null
+                }
+            ];
+            
+            let needsUpdate = false;
+            
+            defaultUsers.forEach(defaultUser => {
+                const existingUser = users.find(u => u.email === defaultUser.email);
+                if (!existingUser) {
+                    users.push(defaultUser);
+                    needsUpdate = true;
+                }
+            });
+            
+            if (needsUpdate) {
+                localStorage.setItem('bistroUsers', JSON.stringify(users));
+                console.log('Default users initialized');
+            }
         }
 
         // --- 2. The form handling logic from before ---
@@ -107,6 +192,9 @@
             const loginForm = document.getElementById('loginForm');
             const usernameInput = document.getElementById('username');
             const passwordInput = document.getElementById('password');
+
+            // Initialize default users
+            initializeDefaultUsers();
 
             loginForm.addEventListener('submit', function(e) {
                 e.preventDefault();
@@ -122,8 +210,12 @@
 
                 if (user) {
                     console.log('User found:', user);
-                    // LOG THE LOGIN
-                    logLogin(user.id, user.name, user.email);
+                    // LOG THE LOGIN with enhanced details
+                    logLogin(user.id, user.name, user.email, user.role, 'success');
+
+                    // Update user's last login
+                    user.lastLogin = new Date().toISOString();
+                    localStorage.setItem('bistroUsers', JSON.stringify(users));
 
                     // Store logged-in user in localStorage
                     localStorage.setItem('bistroLoggedInUser', JSON.stringify(user));
@@ -150,9 +242,27 @@
                     }
                 } else {
                     console.log('No matching user found.');
+                    // Log failed login attempt
+                    logLogin('unknown', 'Unknown User', emailInput, 'unknown', 'failed');
                     alert('Invalid email or password.');
                 }
             });
+        });
+
+        // Prevent back navigation after logout
+        window.addEventListener('popstate', function(event) {
+            const loggedInUser = JSON.parse(localStorage.getItem('bistroLoggedInUser'));
+            
+            if (!loggedInUser) {
+                // If user is not logged in and tries to go back, redirect to login
+                window.location.replace('login.html');
+            }
+        });
+
+        // Clear any forward/back navigation
+        history.pushState(null, null, window.location.href);
+        window.addEventListener('popstate', function(event) {
+            history.pushState(null, null, window.location.href);
         });
     </script>
 </body>

@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coffee Affair Bistro - Sales Analytics Report</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #8B4513;
+            --primary-light: #A0522D;
+            --secondary: #D2691E;
+            --accent: #CD853F;
+            --light: #F5F5DC;
+            --dark: #3E2723;
+            --success: #4CAF50;
+            --warning: #FF9800;
+            --danger: #F44336;
+            --info: #2196F3;
+            --gray: #9E9E9E;
+            --gray-light: #F5F5F5;
+            --white: #FFFFFF;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --radius: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--gray-light);
+            color: var(--dark);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .header h1 {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .back-button {
+            background-color: var(--primary);
+            color: var(--white);
+            border: none;
+            padding: 10px 20px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .back-button:hover {
+            background-color: var(--primary-light);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .date-range {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .date-range select, .date-range input {
+            padding: 8px 12px;
+            border: 1px solid var(--gray);
+            border-radius: var(--radius);
+        }
+
+        .export-options {
+            display: flex;
+            gap: 10px;
+        }
+
+        .export-btn {
+            background-color: var(--white);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 8px 15px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s;
+        }
+
+        .export-btn:hover {
+            background-color: var(--primary);
+            color: var(--white);
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background-color: var(--white);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .kpi-card h3 {
+            font-size: 14px;
+            color: var(--gray);
+            margin-bottom: 10px;
+        }
+
+        .kpi-card .value {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .kpi-card .trend {
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .trend.up {
+            color: var(--success);
+        }
+
+        .trend.down {
+            color: var(--danger);
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .chart-section {
+            background-color: var(--white);
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+        }
+
+        .chart-section.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .section-header h3 {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        .tables-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .table-section {
+            background-color: var(--white);
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+        }
+
+        .table-section.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            text-align: left;
+            padding: 12px 15px;
+            background-color: var(--gray-light);
+            color: var(--dark);
+            font-weight: 600;
+        }
+
+        .data-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .data-table tr:hover {
+            background-color: rgba(139, 69, 19, 0.05);
+        }
+
+        .status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status.high {
+            background-color: rgba(76, 175, 80, 0.1);
+            color: var(--success);
+        }
+
+        .status.medium {
+            background-color: rgba(255, 152, 0, 0.1);
+            color: var(--warning);
+        }
+
+        .status.low {
+            background-color: rgba(244, 67, 54, 0.1);
+            color: var(--danger);
+        }
+
+        @media (max-width: 992px) {
+            .charts-grid, .tables-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-section.full-width, .table-section.full-width {
+                grid-column: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .date-range {
+                flex-wrap: wrap;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Sales Analytics Report</h1>
+            <button class="back-button" onclick="window.history.back()">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </button>
+        </div>
+
+        <div class="controls">
+            <div class="date-range">
+                <label for="period">Report Period:</label>
+                <select id="period">
+                    <option value="today">Today</option>
+                    <option value="yesterday">Yesterday</option>
+                    <option value="week" selected>This Week</option>
+                    <option value="month">This Month</option>
+                    <option value="quarter">This Quarter</option>
+                    <option value="year">This Year</option>
+                    <option value="custom">Custom Range</option>
+                </select>
+                <div id="custom-range" style="display: none;">
+                    <input type="date" id="start-date">
+                    <span>to</span>
+                    <input type="date" id="end-date">
+                </div>
+            </div>
+            <div class="export-options">
+                <button class="export-btn">
+                    <i class="fas fa-file-pdf"></i> Export PDF
+                </button>
+                <button class="export-btn">
+                    <i class="fas fa-file-excel"></i> Export Excel
+                </button>
+                <button class="export-btn">
+                    <i class="fas fa-print"></i> Print
+                </button>
+            </div>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <h3>Total Sales</h3>
+                <div class="value" id="total-sales-kpi">₱12,450.75</div>
+                <div class="trend up">
+                    <i class="fas fa-arrow-up"></i> 12.5% vs last period
+                </div>
+            </div>
+            <div class="kpi-card">
+                <h3>Average Order Value</h3>
+                <div class="value" id="avg-order-value">₱245.80</div>
+                <div class="trend up">
+                    <i class="fas fa-arrow-up"></i> 3.2% vs last period
+                </div>
+            </div>
+            <div class="kpi-card">
+                <h3>Transactions</h3>
+                <div class="value" id="total-transactions">187</div>
+                <div class="trend up">
+                    <i class="fas fa-arrow-up"></i> 8.7% vs last period
+                </div>
+            </div>
+            <div class="kpi-card">
+                <h3>Profit Margin</h3>
+                <div class="value" id="profit-margin-kpi">28.5%</div>
+                <div class="trend down">
+                    <i class="fas fa-arrow-down"></i> 1.2% vs last period
+                </div>
+            </div>
+            <div class="kpi-card">
+                <h3>Waste Cost</h3>
+                <div class="value" id="waste-cost">₱345.20</div>
+                <div class="trend down">
+                    <i class="fas fa-arrow-down"></i> 5.3% vs last period
+                </div>
+            </div>
+            <div class="kpi-card">
+                <h3>Avg. Ticket Time</h3>
+                <div class="value" id="avg-ticket-time">4.2 min</div>
+                <div class="trend up">
+                    <i class="fas fa-arrow-up"></i> 0.3 min vs last period
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-grid">
+            <div class="chart-section">
+                <div class="section-header">
+                    <h3>Sales by Category</h3>
+                </div>
+                <div class="chart-container">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-section">
+                <div class="section-header">
+                    <h3>Sales Trend</h3>
+                </div>
+                <div class="chart-container">
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-section full-width">
+                <div class="section-header">
+                    <h3>Hourly Sales Performance</h3>
+                </div>
+                <div class="chart-container">
+                    <canvas id="hourlyChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-section">
+                <div class="section-header">
+                    <h3>Payment Methods</h3>
+                </div>
+                <div class="chart-container">
+                    <canvas id="paymentChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-section">
+                <div class="section-header">
+                    <h3>Customer Demographics</h3>
+                </div>
+                <div class="chart-container">
+                    <canvas id="demographicsChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tables -->
+        <div class="tables-grid">
+            <div class="table-section">
+                <div class="section-header">
+                    <h3>Top Performing Products</h3>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Category</th>
+                            <th>Units Sold</th>
+                            <th>Revenue</th>
+                            <th>Profit</th>
+                        </tr>
+                    </thead>
+                    <tbody id="top-products-body">
+                        <!-- Dynamic content will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="table-section">
+                <div class="section-header">
+                    <h3>Underperforming Products</h3>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Category</th>
+                            <th>Units Sold</th>
+                            <th>Revenue</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="underperforming-body">
+                        <!-- Dynamic content will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="table-section full-width">
+                <div class="section-header">
+                    <h3>Waste Analysis</h3>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Category</th>
+                            <th>Waste Units</th>
+                            <th>Cost</th>
+                            <th>% of Sales</th>
+                            <th>Trend</th>
+                        </tr>
+                    </thead>
+                    <tbody id="waste-body">
+                        <!-- Dynamic content will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize charts
+            initializeCharts();
+            
+            // Update report data
+            updateReportData();
+            
+            // Event listeners for controls
+            document.getElementById('period').addEventListener('change', function() {
+                const customRange = document.getElementById('custom-range');
+                if (this.value === 'custom') {
+                    customRange.style.display = 'flex';
+                } else {
+                    customRange.style.display = 'none';
+                    updateReportData();
+                }
+            });
+            
+            // Initialize tables
+            updateTopProductsTable();
+            updateUnderperformingTable();
+            updateWasteTable();
+            
+            // Initialize charts
+            function initializeCharts() {
+                // Sales by Category Chart
+                const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+                window.categoryChart = new Chart(categoryCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Coffee', 'Pastries', 'Sandwiches', 'Desserts', 'Beverages'],
+                        datasets: [{
+                            data: [45, 20, 15, 12, 8],
+                            backgroundColor: [
+                                '#8B4513',
+                                '#A0522D',
+                                '#CD853F',
+                                '#D2691E',
+                                '#DEB887'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right'
+                            }
+                        }
+                    }
+                });
+                
+                // Sales Trend Chart
+                const trendCtx = document.getElementById('trendChart').getContext('2d');
+                window.trendChart = new Chart(trendCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        datasets: [{
+                            label: 'Current Week',
+                            data: [8500, 9200, 10200, 11000, 12500, 14500, 9800],
+                            borderColor: '#8B4513',
+                            backgroundColor: 'rgba(139, 69, 19, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }, {
+                            label: 'Previous Week',
+                            data: [7800, 8500, 9200, 9800, 11200, 13200, 8900],
+                            borderColor: '#CD853F',
+                            backgroundColor: 'transparent',
+                            tension: 0.4,
+                            borderDash: [5, 5]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+                
+                // Hourly Sales Chart
+                const hourlyCtx = document.getElementById('hourlyChart').getContext('2d');
+                window.hourlyChart = new Chart(hourlyCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['6-7 AM', '7-8 AM', '8-9 AM', '9-10 AM', '10-11 AM', '11-12 PM', 
+                                '12-1 PM', '1-2 PM', '2-3 PM', '3-4 PM', '4-5 PM', '5-6 PM', '6-7 PM'],
+                        datasets: [{
+                            label: 'Average Sales (₱)',
+                            data: [450, 1200, 1850, 1500, 1200, 1800, 2200, 1800, 1200, 1000, 1100, 1500, 900],
+                            backgroundColor: 'rgba(139, 69, 19, 0.7)'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+                
+                // Payment Methods Chart
+                const paymentCtx = document.getElementById('paymentChart').getContext('2d');
+                window.paymentChart = new Chart(paymentCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Cash', 'Credit Card', 'Mobile Wallet', 'Gift Card'],
+                        datasets: [{
+                            data: [35, 40, 20, 5],
+                            backgroundColor: [
+                                '#8B4513',
+                                '#A0522D',
+                                '#CD853F',
+                                '#D2691E'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+                
+                // Customer Demographics Chart
+                const demographicsCtx = document.getElementById('demographicsChart').getContext('2d');
+                window.demographicsChart = new Chart(demographicsCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['18-24', '25-34', '35-44', '45-54', '55+'],
+                        datasets: [{
+                            label: 'Customers',
+                            data: [15, 35, 25, 15, 10],
+                            backgroundColor: 'rgba(139, 69, 19, 0.7)'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Update report data
+            function updateReportData() {
+                // In a real application, this would fetch data based on selected period
+                // For this example, we'll use static data
+                
+                // Update KPI cards
+                document.getElementById('total-sales-kpi').textContent = '₱12,450.75';
+                document.getElementById('avg-order-value').textContent = '₱245.80';
+                document.getElementById('total-transactions').textContent = '187';
+                document.getElementById('profit-margin-kpi').textContent = '28.5%';
+                document.getElementById('waste-cost').textContent = '₱345.20';
+                document.getElementById('avg-ticket-time').textContent = '4.2 min';
+            }
+            
+            // Update top products table
+            function updateTopProductsTable() {
+                const topProductsBody = document.getElementById('top-products-body');
+                topProductsBody.innerHTML = '';
+                
+                const topProducts = [
+                    { name: 'Espresso', category: 'Coffee', units: 85, revenue: 8500, profit: 2400 },
+                    { name: 'Cappuccino', category: 'Coffee', units: 72, revenue: 8640, profit: 2450 },
+                    { name: 'Croissant', category: 'Pastry', units: 65, revenue: 3250, profit: 1950 },
+                    { name: 'Iced Latte', category: 'Coffee', units: 58, revenue: 6960, profit: 2000 },
+                    { name: 'Chocolate Cake', category: 'Dessert', units: 42, revenue: 5880, profit: 1750 }
+                ];
+                
+                topProducts.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${item.name}</td>
+                        <td>${item.category}</td>
+                        <td>${item.units}</td>
+                        <td>₱${item.revenue.toFixed(2)}</td>
+                        <td>₱${item.profit.toFixed(2)}</td>
+                    `;
+                    topProductsBody.appendChild(row);
+                });
+            }
+            
+            // Update underperforming products table
+            function updateUnderperformingTable() {
+                const underperformingBody = document.getElementById('underperforming-body');
+                underperformingBody.innerHTML = '';
+                
+                const underperforming = [
+                    { name: 'Green Tea', category: 'Beverage', units: 8, revenue: 640, status: 'Low' },
+                    { name: 'Almond Croissant', category: 'Pastry', units: 12, revenue: 960, status: 'Low' },
+                    { name: 'Fruit Salad', category: 'Dessert', units: 15, revenue: 1200, status: 'Medium' },
+                    { name: 'Hot Chocolate', category: 'Beverage', units: 18, revenue: 1440, status: 'Medium' },
+                    { name: 'Bagel', category: 'Pastry', units: 22, revenue: 1100, status: 'Medium' }
+                ];
+                
+                underperforming.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${item.name}</td>
+                        <td>${item.category}</td>
+                        <td>${item.units}</td>
+                        <td>₱${item.revenue.toFixed(2)}</td>
+                        <td><span class="status ${item.status}">${item.status}</span></td>
+                    `;
+                    underperformingBody.appendChild(row);
+                });
+            }
+            
+            // Update waste analysis table
+            function updateWasteTable() {
+                const wasteBody = document.getElementById('waste-body');
+                wasteBody.innerHTML = '';
+                
+                const wasteItems = [
+                    { name: 'Milk', category: 'Ingredient', units: 12, cost: 240, percent: 1.9, trend: 'down' },
+                    { name: 'Banana Bread', category: 'Pastry', units: 8, cost: 320, percent: 2.6, trend: 'up' },
+                    { name: 'Croissant', category: 'Pastry', units: 5, cost: 150, percent: 1.2, trend: 'stable' },
+                    { name: 'Coffee Beans', category: 'Ingredient', units: 2, cost: 180, percent: 1.4, trend: 'down' },
+                    { name: 'Sandwich Bread', category: 'Ingredient', units: 10, cost: 200, percent: 1.6, trend: 'up' }
+                ];
+                
+                wasteItems.forEach(item => {
+                    const trendIcon = item.trend === 'up' ? 'fas fa-arrow-up' : 
+                                    item.trend === 'down' ? 'fas fa-arrow-down' : 'fas fa-minus';
+                    const trendClass = item.trend === 'up' ? 'trend up' : 
+                                     item.trend === 'down' ? 'trend down' : '';
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${item.name}</td>
+                        <td>${item.category}</td>
+                        <td>${item.units}</td>
+                        <td>₱${item.cost.toFixed(2)}</td>
+                        <td>${item.percent}%</td>
+                        <td><span class="${trendClass}"><i class="${trendIcon}"></i></span></td>
+                    `;
+                    wasteBody.appendChild(row);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

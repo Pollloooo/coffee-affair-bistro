@@ -4,53 +4,418 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Admin Login History</title>
-    <link rel="stylesheet" href="style.css" />
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --dark-color: #2c3e50;
+            --light-color: #ecf0f1;
+            --border-color: #ddd;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        header {
+            background-color: #A0522D;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        h1 {
+            color:#ffffff;
+            font-size: 1.5rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 8px 16px;
+            background-color: #c98151;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+        
+        .btn:hover {
+            background-color: #8c6d52;
+        }
+        
+        main {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .dashboard-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .dashboard-card h2 {
+            margin-bottom: 1.5rem;
+            color: var(--dark-color);
+            font-size: 1.3rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .data-table th {
+            background-color: var(--light-color);
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--dark-color);
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        .data-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .data-table tr:hover {
+            background-color: rgba(52, 152, 219, 0.05);
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .status-success {
+            background-color: rgba(46, 204, 113, 0.2);
+            color: var(--success-color);
+        }
+        
+        .status-failed {
+            background-color: rgba(231, 76, 60, 0.2);
+            color: var(--danger-color);
+        }
+        
+        .status-suspicious {
+            background-color: rgba(243, 156, 18, 0.2);
+            color: var(--warning-color);
+        }
+        
+        .role {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .role-admin {
+            background-color: rgba(231, 76, 60, 0.2);
+            color: var(--danger-color);
+        }
+        
+        .role-cashier {
+            background-color: rgba(243, 156, 18, 0.2);
+            color: var(--warning-color);
+        }
+        
+        .role-customer {
+            background-color: rgba(46, 204, 113, 0.2);
+            color: var(--success-color);
+        }
+        
+        .role-supervisor {
+            background-color: rgba(52, 152, 219, 0.2);
+            color: var(--primary-color);
+        }
+        
+        .role-unknown {
+            background-color: rgba(158, 158, 158, 0.2);
+            color: var(--gray);
+        }
+        
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            min-width: 150px;
+        }
+        
+        .filter-group label {
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .filter-group select, .filter-group input {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        .no-data {
+            text-align: center;
+            padding: 2rem;
+            color: var(--gray);
+            font-style: italic;
+        }
+        
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            main {
+                padding: 1rem;
+            }
+            
+            .filters {
+                flex-direction: column;
+            }
+            
+            .filter-group {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
     <header>
         <h1>Bistro Admin - Login History</h1>
-        <nav><a href="admin.html" class="btn btn-brown" style="padding: 6px 12px; border-radius: 4px; text-decoration: none;">Back to Dashboard</a></nav>
+        <nav><a href="admin.html" class="btn">Back to Dashboard</a></nav>
     </header>
     <main>
         <div class="dashboard-card">
-            <h2>Customer Login History</h2>
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Customer Name</th>
-                        <th>Email</th>
-                        <th>Login Date &amp; Time</th>
-                    </tr>
-                </thead>
-                <tbody id="login-history-body"></tbody>
-            </table>
+            <h2>User Login History</h2>
+            
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="status-filter">Status</label>
+                    <select id="status-filter">
+                        <option value="all">All Statuses</option>
+                        <option value="success">Successful</option>
+                        <option value="failed">Failed</option>
+                        <option value="suspicious">Suspicious</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="role-filter">Role</label>
+                    <select id="role-filter">
+                        <option value="all">All Roles</option>
+                        <option value="admin">Administrator</option>
+                        <option value="cashier">Cashier</option>
+                        <option value="customer">Customer</option>
+                        <option value="supervisor">Supervisor</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="date-filter">Date Range</label>
+                    <input type="date" id="date-filter">
+                </div>
+                
+                <div class="filter-group">
+                    <label>&nbsp;</label>
+                    <button id="refresh-btn" class="btn" style="margin-top: 5px;">Refresh Data</button>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>User Name</th>
+                            <th>Email</th>
+                            <th>Login Date & Time</th>
+                            <th>Status</th>
+                            <th>IP Address</th>
+                            <th>Device & Browser</th>
+                            <th>Authentication Method</th>
+                            <th>Session Duration</th>
+                            <th>User Role</th>
+                        </tr>
+                    </thead>
+                    <tbody id="login-history-body">
+                        <!-- Data will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
         </div>
     </main>
-<script>
-    // Load login history from localStorage and display in table
-    document.addEventListener('DOMContentLoaded', function() {
-        const loginHistory = JSON.parse(localStorage.getItem('bistroLoginHistory')) || [];
-        const tbody = document.getElementById('login-history-body');
-
-        loginHistory.forEach(entry => {
-            const tr = document.createElement('tr');
-
-            const nameTd = document.createElement('td');
-            nameTd.textContent = entry.name;
-            tr.appendChild(nameTd);
-
-            const emailTd = document.createElement('td');
-            emailTd.textContent = entry.email;
-            tr.appendChild(emailTd);
-
-            const dateTd = document.createElement('td');
-            const date = new Date(entry.loginTime);
-            dateTd.textContent = date.toLocaleString();
-            tr.appendChild(dateTd);
-
-            tbody.appendChild(tr);
+    
+    <script>
+        // Load login history from localStorage
+        function loadLoginHistory() {
+            // Load real login history from localStorage
+            const storedHistory = JSON.parse(localStorage.getItem('bistroLoginHistory')) || [];
+            
+            const tbody = document.getElementById('login-history-body');
+            
+            // Clear existing content
+            tbody.innerHTML = '';
+            
+            console.log('Loading login history:', storedHistory);
+            
+            if (storedHistory.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="no-data">No login history found</td></tr>';
+            } else {
+                // Populate table with login history
+                storedHistory.forEach(entry => {
+                    const tr = document.createElement('tr');
+                    
+                    // User Name
+                    const nameTd = document.createElement('td');
+                    nameTd.textContent = entry.name || 'Unknown User';
+                    tr.appendChild(nameTd);
+                    
+                    // Email
+                    const emailTd = document.createElement('td');
+                    emailTd.textContent = entry.email;
+                    tr.appendChild(emailTd);
+                    
+                    // Login Date & Time
+                    const dateTd = document.createElement('td');
+                    const date = new Date(entry.loginTime);
+                    dateTd.textContent = date.toLocaleString();
+                    tr.appendChild(dateTd);
+                    
+                    // Status with appropriate styling
+                    const statusTd = document.createElement('td');
+                    const statusSpan = document.createElement('span');
+                    const status = entry.status || 'success';
+                    statusSpan.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+                    statusSpan.className = `status status-${status}`;
+                    statusTd.appendChild(statusSpan);
+                    tr.appendChild(statusTd);
+                    
+                    // IP Address
+                    const ipTd = document.createElement('td');
+                    ipTd.textContent = entry.ipAddress || 'Unknown';
+                    tr.appendChild(ipTd);
+                    
+                    // Device & Browser
+                    const deviceTd = document.createElement('td');
+                    deviceTd.textContent = entry.deviceInfo || 'Unknown';
+                    tr.appendChild(deviceTd);
+                    
+                    // Authentication Method
+                    const authTd = document.createElement('td');
+                    authTd.textContent = entry.authMethod || 'Password';
+                    tr.appendChild(authTd);
+                    
+                    // Session Duration
+                    const sessionTd = document.createElement('td');
+                    sessionTd.textContent = entry.sessionDuration || 'N/A';
+                    tr.appendChild(sessionTd);
+                    
+                    // User Role
+                    const roleTd = document.createElement('td');
+                    const roleSpan = document.createElement('span');
+                    const role = entry.role || 'unknown';
+                    roleSpan.textContent = role.charAt(0).toUpperCase() + role.slice(1);
+                    roleSpan.className = `role role-${role}`;
+                    roleTd.appendChild(roleSpan);
+                    tr.appendChild(roleTd);
+                    
+                    tbody.appendChild(tr);
+                });
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initial load
+            loadLoginHistory();
+            
+            // Refresh button
+            document.getElementById('refresh-btn').addEventListener('click', function() {
+                loadLoginHistory();
+                alert('Login history refreshed!');
+            });
+            
+            // Add filter functionality
+            document.getElementById('status-filter').addEventListener('change', filterTable);
+            document.getElementById('role-filter').addEventListener('change', filterTable);
+            document.getElementById('date-filter').addEventListener('change', filterTable);
+            
+            function filterTable() {
+                const statusFilter = document.getElementById('status-filter').value;
+                const roleFilter = document.getElementById('role-filter').value;
+                const dateFilter = document.getElementById('date-filter').value;
+                
+                const rows = document.getElementById('login-history-body').getElementsByTagName('tr');
+                
+                for (let i = 0; i < rows.length; i++) {
+                    const row = rows[i];
+                    
+                    // Skip if this is the "no data" row
+                    if (row.cells.length < 9) continue;
+                    
+                    const statusElement = row.cells[3].querySelector('.status');
+                    const status = statusElement ? statusElement.className.replace('status status-', '') : '';
+                    const roleElement = row.cells[8].querySelector('.role');
+                    const role = roleElement ? roleElement.className.replace('role role-', '') : '';
+                    const dateText = row.cells[2].textContent;
+                    const date = new Date(dateText);
+                    const filterDate = dateFilter ? new Date(dateFilter) : null;
+                    
+                    let showRow = true;
+                    
+                    // Status filter
+                    if (statusFilter !== 'all' && status !== statusFilter) {
+                        showRow = false;
+                    }
+                    
+                    // Role filter
+                    if (roleFilter !== 'all' && role !== roleFilter) {
+                        showRow = false;
+                    }
+                    
+                    // Date filter
+                    if (filterDate && date.toDateString() !== filterDate.toDateString()) {
+                        showRow = false;
+                    }
+                    
+                    row.style.display = showRow ? '' : 'none';
+                }
+            }
         });
-    });
-</script>
+    </script>
 </body>
 </html>

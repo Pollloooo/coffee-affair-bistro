@@ -3,430 +3,1967 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>In-Store Menu - Coffee Affair Bistro</title>
-    
-    <!-- We link to the SAME style.css file to keep the design consistent -->
-    <link rel="stylesheet" href="style.css">
-
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins&display=swap" rel="stylesheet">
-
-    <!-- Font Awesome for Icons -->
+    <title>Coffee Shop Menu Management</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #6f4e37;
+            --secondary-color: #c0a080;
+            --accent-color: #8b5a2b;
+            --light-color: #f5f1e8;
+            --dark-color: #3e2723;
+            --success-color: #4CAF50;
+            --warning-color: #ff9800;
+            --danger-color: #f44336;
+            --info-color: #2196F3;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f9f5f0;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+
+        .admin-container {
+            max-width: 1400px;
+            margin: 100px auto 30px;
+            padding: 0 20px;
+        }
+
+        .admin-header {
+            background: var(--light-color);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+            border-left: 5px solid var(--primary-color);
+        }
+
+        .admin-header h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+
+        .admin-actions {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-color);
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #3d8b40;
+        }
+
+        .btn-warning {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #e68900;
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #d32f2f;
+        }
+
+        .btn-info {
+            background: var(--info-color);
+            color: white;
+        }
+
+        .btn-info:hover {
+            background: #0b7dda;
+        }
+
+        .btn-sm {
+            padding: 8px 12px;
+            font-size: 0.9rem;
+        }
+
+        .admin-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 30px;
+        }
+
+        .sidebar {
+            background: var(--light-color);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            height: fit-content;
+        }
+
+        .sidebar h3 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--secondary-color);
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            color: var(--dark-color);
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .nav-item.active {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .content-area {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-header h2 {
+            color: var(--primary-color);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--light-color);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: var(--dark-color);
+            font-size: 0.9rem;
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .category-card {
+            background: var(--light-color);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            border-top: 5px solid var(--primary-color);
+            position: relative;
+        }
+
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .category-header h3 {
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        .category-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .items-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .menu-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: var(--transition);
+        }
+
+        .menu-item:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .item-info {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .item-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+            background: #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #888;
+        }
+
+        .item-details {
+            flex: 1;
+        }
+
+        .item-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .item-description {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .item-price {
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+
+        .item-sale-price {
+            color: var(--danger-color);
+            font-weight: 700;
+            margin-left: 8px;
+        }
+
+        .item-options {
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+
+        .option-badge {
+            background: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .item-stock {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.open {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--light-color);
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow);
+            border: 2px solid var(--primary-color);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--secondary-color);
+        }
+
+        .modal-header h3 {
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--dark-color);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark-color);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(111, 78, 55, 0.2);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-item input {
+            margin: 0;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-top: 25px;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #888;
+            font-style: italic;
+            padding: 20px;
+        }
+
+        /* Header Styles */
+        .site-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            box-shadow: var(--shadow);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 15px 0;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .welcome-message {
+            font-size: 1.5rem;
+            color: var(--light-color);
+            font-weight: 700;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 15px;
+            border-radius: 4px;
+            transition: var(--transition);
+            cursor: pointer;
+            color: var(--light-color);
+            text-decoration: none;
+        }
+
+        .header-icon:hover {
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Badge styles */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-featured {
+            background: gold;
+            color: #333;
+        }
+
+        .badge-seasonal {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .badge-low-stock {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .badge-out-of-stock {
+            background: #666;
+            color: white;
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--success-color);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+    </style>
 </head>
 <body>
-
     <header class="site-header">
-<div class="header-content">
-    <h1 class="site-title"><a href="index.html" style="color: inherit; text-decoration: none;">The Coffee Affair Bistro</a></h1>
-    <nav class="header-nav" style="margin-left: 40px;">
-        <ul>
-            <li class="dropdown">
-                <a href="menu.html">MENU</a>
-                <ul class="dropdown-menu">
-                    <li><a href="menu.html#hot-coffee">Hot Coffee</a></li>
-                    <li><a href="menu.html#iced-coffee">Non-Coffee</a></li>
-                    <li><a href="menu.html#breakfast">Tea</a></li>
-                    <li><a href="menu.html#lunch">Signature Drinks</a></li>
-                    <li><a href="menu.html#wedges">Appetizers</a></li>
-                    <li><a href="menu.html#donuts">Burger & Sandswich</a></li>
-                    <li><a href="menu.html#baked-goods">Pasta</a></li>
-                    <li><a href="menu.html#retail-packs">Desserts</a></li>
-                    <li><a href="menu.html#whats-new">Signature Milkshakes</a></li>
-                </ul>
-            </li>
-            <li><a href="locations.html">LOCATIONS</a></li>
-            <li><a href="about.html">OUR HISTORY</a></li>
-            <li><a href="#" id="timscaresph-link">#TCABISTROPH</a></li>
-        </ul>
-    </nav>
-    <div class="header-actions">
-        <a href="login.html" class="login-icon"><i class="fas fa-user"></i></a>
-    </div>
-</div>
+        <div class="header-content">
+            <div class="welcome-message">Coffee Shop Menu Management</div>
+            <div class="header-actions">
+                <a href="admin.html" class="header-icon">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+                <div class="header-icon">
+                    <i class="fas fa-user-shield"></i> Admin
+                </div>
+            </div>
+        </div>
     </header>
 
-    <main class="menu-page-wrapper">
-        <section class="menu-hero">
-
-            <h1>In-store Menu</h1>
-            <hr class="menu-divider">
-        </section>
-
-        <!-- Container for all menu categories -->
-        <div class="menu-container">
-
-    <!-- HOT COFFEE SECTION -->
-    <section id="hot-coffee" class="menu-category-section">
-        <div class="category-header">
-            <h2 class="menu-category-title">Hot Coffee</h2>
+    <main class="admin-container">
+        <div class="admin-header">
+            <h1>Menu Management Dashboard</h1>
+            <p>Manage your coffee shop menu, inventory, promotions, and more from one central location.</p>
         </div>
-        <div class="product-grid-drinks">
-            <div class="product-item-image">
-                <img src="images/classic americano.jpg" alt="Classic Americano">
-                <p class="product-caption">Classic Americano</p>
+
+        <div class="admin-layout">
+            <div class="sidebar">
+                <h3>Menu Management</h3>
+                <div class="sidebar-nav">
+                    <a href="#" class="nav-item active" data-section="overview">
+                        <i class="fas fa-tachometer-alt"></i> Overview
+                    </a>
+                    <a href="#" class="nav-item" data-section="products">
+                        <i class="fas fa-coffee"></i> Products
+                    </a>
+                    <a href="#" class="nav-item" data-section="categories">
+                        <i class="fas fa-tags"></i> Categories
+                    </a>
+                    <a href="#" class="nav-item" data-section="customizations">
+                        <i class="fas fa-cogs"></i> Customizations
+                    </a>
+                </div>
             </div>
-            <div class="product-item-image">
-                <img src="images/ice spanish latte.jpg" alt="Ice Spanish Latte">
-                <p class="product-caption">Ice Spanish Latte</p>
+
+            <div class="content-area">
+                <!-- Overview Section -->
+                <div class="content-section active" id="overview-section">
+                    <div class="section-header">
+                        <h2>Dashboard Overview</h2>
+                        <div class="admin-actions">
+                            <button class="btn btn-primary" id="quick-add-item">
+                                <i class="fas fa-plus"></i> Quick Add Item
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="total-items">0</div>
+                            <div class="stat-label">Menu Items</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="total-categories">0</div>
+                            <div class="stat-label">Categories</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="low-stock-items">0</div>
+                            <div class="stat-label">Low Stock Items</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Products Section -->
+                <div class="content-section" id="products-section">
+                    <div class="section-header">
+                        <h2>Product Management</h2>
+                        <div class="admin-actions">
+                            <button class="btn btn-primary" id="add-product-btn">
+                                <i class="fas fa-plus"></i> Add Product
+                            </button>
+                            <button class="btn btn-info" id="import-products-btn">
+                                <i class="fas fa-file-import"></i> Import
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="categories-grid" id="products-container">
+                        <!-- Products will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Categories Section -->
+                <div class="content-section" id="categories-section">
+                    <div class="section-header">
+                        <h2>Category Management</h2>
+                        <div class="admin-actions">
+                            <button class="btn btn-primary" id="add-category-btn">
+                                <i class="fas fa-plus"></i> Add Category
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="categories-grid" id="categories-container">
+                        <!-- Categories will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Customizations Section -->
+                <div class="content-section" id="customizations-section">
+                    <div class="section-header">
+                        <h2>Customization Options</h2>
+                        <div class="admin-actions">
+                            <button class="btn btn-primary" id="add-customization-btn">
+                                <i class="fas fa-plus"></i> Add Customization
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="categories-grid" id="customizations-container">
+                        <!-- Customizations will be loaded here -->
+                    </div>
+                </div>
             </div>
         </div>
-    </section>
-
-    <hr class="menu-divider">
-
-    <!-- ICED COFFEE SECTION -->
-    <section id="iced-coffee" class="menu-category-section">
-        <div class="category-header">
-            <h2 class="menu-category-title">Iced Coffee</h2>
-        </div>
-        <div class="product-grid-drinks">
-            <div class="product-item-image">
-                <img src="images/ice spanish latte.jpg" alt="Iced Creamy Latte">
-                <p class="product-caption">Iced Creamy Latte</p>
-            </div>
-            <!-- Add more iced coffee items here -->
-        </div>
-    </section>
-
-    <hr class="menu-divider">
-
-    <!-- NON-COFFEE SECTION -->
-    <section id="non-coffee" class="menu-category-section">
-        <div class="category-header">
-            <h2 class="menu-category-title">Non-Coffee</h2>
-        </div>
-        <div class="product-grid-drinks">
-            <!-- Add non-coffee items here -->
-        </div>
-    </section>
-
-    <hr class="menu-divider">
-
-    <!-- TEA SECTION -->
-    <section id="tea" class="menu-category-section">
-        <div class="category-header">
-            <h2 class="menu-category-title">Tea</h2>
-        </div>
-        <div class="product-grid-drinks">
-            <!-- Add tea items here -->
-        </div>
-    </section>
-
-    <hr class="menu-divider">
-
-    <!-- SIGNATURE DRINKS SECTION -->
-    <section id="signature-drinks" class="menu-category-section">
-        <div class="category-header">
-            <h2 class="menu-category-title">Signature Drinks</h2>
-        </div>
-        <div class="product-grid-drinks">
-            <!-- Add signature drinks here -->
-        </div>
-    </section>
-
-    <hr class="menu-divider">
-
-    <!-- APPETIZERS SECTION -->
-    <section id="appetizers" class="menu-category-section">
-        <div class="category-header">
-            <h2 class="menu-category-title">Appetizers</h2>
-        </div>
-        <div class="product-grid-food">
-            <!-- Add appetizers here -->
-        </div>
-    </section>
-
-    <hr class="menu-divider">
-
-    <!-- BURGER & SANDWICH SECTION -->
-    <section id="burger-sandwich" class="menu-category-section">
-        <div class="category-header">
-            <h2 class="menu-category-title">Burger & Sandwich</h2>
-        </div>
-        <div class="product-grid-food">
-            <!-- Add burger & sandwich items here -->
-        </div>
-    </section>
-
-    <hr class="menu-divider">
-
-    <!-- PASTA SECTION -->
-    <section id="pasta" class="menu-category-section">
-        <div class="category-header">
-            <h2 class="menu-category-title">Pasta</h2>
-        </div>
-        <div class="product-grid-food">
-            <!-- Add pasta items here -->
-        </div>
-    </section>
-
-    <hr class="menu-divider">
-
-    <!-- DESSERTS SECTION -->
-    <section id="desserts" class="menu-category-section">
-        <div class="category-header">
-            <h2 class="menu-category-title">Desserts</h2>
-        </div>
-        <div class="product-grid-food">
-            <!-- Add desserts items here -->
-        </div>
-    </section>
-
-    <hr class="menu-divider">
-
-    <!-- FRUITY OPTIONS SECTION -->
-    <section id="fruity-options" class="menu-category-section">
-        <div class="category-header">
-            <h2 class="menu-category-title">Fruity Options</h2>
-        </div>
-        <div class="product-grid-food">
-            <!-- Add fruity options here -->
-        </div>
-    </section>
-
-    <hr class="menu-divider">
-
-    <!-- SIGNATURE MILKSHAKES SECTION -->
-    <section id="signature-milkshakes" class="menu-category-section">
-        <div class="category-header">
-            <h2 class="menu-category-title">Signature Milkshakes</h2>
-        </div>
-        <div class="product-grid-food">
-            <!-- Add signature milkshakes here -->
-        </div>
-    </section>
-
-</div>
     </main>
 
-    <!-- Floating Order Now Button -->
-    <a href="login.html" class="floating-order-btn" id="orderNowBtn">
-        <i class="fa-solid fa-store"></i> ORDER NOW
-    </a>
-
-    <!-- Admin Edit Button at Top -->
-    <div id="adminEditButtonTopContainer" style="text-align:center; margin: 1rem 0; display:none;">
-        <button id="adminEditButtonTop" style="background-color:#6f4e37; color:white; border:none; padding: 1rem 2rem; border-radius: 8px; cursor:pointer; font-size: 1.2rem; font-weight: 700;">
-            Edit Menu
-        </button>
+    <!-- Product Modal -->
+    <div class="modal" id="product-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="product-modal-title">Add Product</h3>
+                <button class="close-modal" id="close-product-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="product-form">
+                <div class="form-group">
+                    <label for="product-name">Product Name</label>
+                    <input type="text" id="product-name" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="product-description">Description</label>
+                    <textarea id="product-description" class="form-control" rows="3"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="product-category">Category</label>
+                        <select id="product-category" class="form-control" required>
+                            <option value="">Select Category</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-sku">SKU</label>
+                        <input type="text" id="product-sku" class="form-control">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="product-price">Price (₱)</label>
+                        <input type="number" id="product-price" class="form-control" min="0" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-cost">Cost (₱)</label>
+                        <input type="number" id="product-cost" class="form-control" min="0" step="0.01">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="product-image">Image URL</label>
+                    <input type="text" id="product-image" class="form-control" placeholder="images/coffee/product.jpg">
+                </div>
+                <div class="form-group">
+                    <label>Product Options</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="product-featured">
+                            <label for="product-featured">Featured Item</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="product-seasonal">
+                            <label for="product-seasonal">Seasonal Item</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="product-available" checked>
+                            <label for="product-available">Available</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Inventory Tracking</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="product-track-stock">
+                            <label for="product-track-stock">Track Stock</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="number" id="product-stock" class="form-control" placeholder="Stock Quantity" style="width: 120px;">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-danger" id="cancel-product">Cancel</button>
+                    <button type="submit" class="btn btn-success">Save Product</button>
+                </div>
+            </form>
+        </div>
     </div>
 
-    <!-- Admin Edit Mode Toggle -->
-    <div id="adminEditToggleContainer" style="text-align:center; margin: 1rem 0;">
-        <button id="adminEditToggleBtn" style="background-color:#6f4e37; color:white; border:none; padding: 0.5rem 1rem; border-radius: 5px; cursor:pointer;">
-            Enable Admin Edit Mode
-        </button>
+    <!-- Category Modal -->
+    <div class="modal" id="category-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="category-modal-title">Add Category</h3>
+                <button class="close-modal" id="close-category-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="category-form">
+                <div class="form-group">
+                    <label for="category-name">Category Name</label>
+                    <input type="text" id="category-name" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="category-description">Description</label>
+                    <textarea id="category-description" class="form-control" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="category-image">Image URL</label>
+                    <input type="text" id="category-image" class="form-control" placeholder="images/category/image.jpg">
+                </div>
+                <div class="form-group">
+                    <label for="category-display-order">Display Order</label>
+                    <input type="number" id="category-display-order" class="form-control" min="1" value="1">
+                </div>
+                <div class="form-group">
+                    <label>Visibility</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="category-visible" checked>
+                            <label for="category-visible">Visible on Menu</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-danger" id="cancel-category">Cancel</button>
+                    <button type="submit" class="btn btn-success">Save Category</button>
+                </div>
+            </form>
+        </div>
     </div>
 
-    <!-- Admin Add Item Form (hidden by default) -->
-    <div id="adminAddItemForm" style="display:none; max-width: 400px; margin: 0 auto 2rem auto; padding: 1rem; border: 1px solid #6f4e37; border-radius: 8px; background: #f9f4ef;">
-        <h3 style="color:#6f4e37; text-align:center;">Add New Menu Item</h3>
-        <form id="addItemForm">
-            <div class="form-group" style="margin-bottom: 1rem;">
-                <label for="newItemName" style="color:#6f4e37;">Name</label>
-                <input type="text" id="newItemName" name="newItemName" required style="width: 100%; padding: 0.5rem; border: 1px solid #6f4e37; border-radius: 4px;">
+    <!-- Customization Modal -->
+    <div class="modal" id="customization-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="customization-modal-title">Add Customization</h3>
+                <button class="close-modal" id="close-customization-modal">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
-            <div class="form-group" style="margin-bottom: 1rem;">
-                <label for="newItemImage" style="color:#6f4e37;">Image (JPG only)</label>
-                <input type="file" id="newItemImage" name="newItemImage" accept=".jpg,.jpeg" required style="width: 100%;">
-            </div>
-            <button type="submit" style="background-color:#6f4e37; color:white; border:none; padding: 0.5rem 1rem; border-radius: 5px; cursor:pointer; width: 100%;">Add Item</button>
-        </form>
+            <form id="customization-form">
+                <div class="form-group">
+                    <label for="customization-name">Customization Name</label>
+                    <input type="text" id="customization-name" class="form-control" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="customization-type">Type</label>
+                        <select id="customization-type" class="form-control" required>
+                            <option value="single">Single Selection</option>
+                            <option value="multiple">Multiple Selection</option>
+                        </select>
+                    </div>
+                <div class="form-group">
+                    <label>Applicable Categories</label>
+                    <div class="checkbox-group" id="customization-categories">
+                        <!-- Categories will be populated dynamically as checkboxes -->
+                    </div>
+                    <small style="color: #666; margin-top: 5px; display: block;">
+                        Select which categories this customization should apply to
+                    </small>
+                </div>
+                    <div class="form-group">
+                        <label for="customization-required">Required</label>
+                        <select id="customization-required" class="form-control" required>
+                            <option value="true">Yes</option>
+                            <option value="false">No</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Options</label>
+                    <div id="customization-options">
+                        <div class="form-row option-row">
+                            <div class="form-group">
+                                <input type="text" class="form-control option-name" placeholder="Option Name" required>
+                            </div>
+                            <div class="form-group">
+                                <input type="number" class="form-control option-price" placeholder="Additional Price" min="0" step="0.01">
+                            </div>
+                            <div class="form-group">
+                                <button type="button" class="btn btn-danger remove-option">Remove</button>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-primary" id="add-option">Add Option</button>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-danger" id="cancel-customization">Cancel</button>
+                    <button type="submit" class="btn btn-success">Save Customization</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <script>
-        // Admin Edit Mode toggle logic
-        const adminEditToggleBtn = document.getElementById('adminEditToggleBtn');
-        const adminAddItemForm = document.getElementById('adminAddItemForm');
-        const adminEditButtonTop = document.getElementById('adminEditButtonTop');
-        const adminEditToggleContainer = document.getElementById('adminEditToggleContainer');
-        const orderNowBtn = document.getElementById('orderNowBtn');
-        let adminEditMode = false;
+        // Centralized data management
+        let menuData = {
+            categories: [
+                {
+                    id: 'coffee',
+                    name: 'Coffee',
+                    description: 'Our premium coffee selection',
+                    image: 'images/coffee/category.jpg',
+                    displayOrder: 1,
+                    visible: true,
+                    items: [
+                        {
+                            id: 'americano',
+                            name: 'Americano',
+                            description: 'Rich espresso with hot water',
+                            price: 110,
+                            cost: 40,
+                            image: 'images/coffee/americano.jpg',
+                            sku: 'COF-001',
+                            featured: false,
+                            seasonal: false,
+                            available: true,
+                            trackStock: true,
+                            stock: 50,
+                            customizations: ['temperature', 'size', 'add-ons']
+                        },
+                        {
+                            id: 'latte',
+                            name: 'Cafe Latte',
+                            description: 'Espresso with steamed milk',
+                            price: 120,
+                            cost: 45,
+                            image: 'images/coffee/latte.jpg',
+                            sku: 'COF-002',
+                            featured: true,
+                            seasonal: false,
+                            available: true,
+                            trackStock: true,
+                            stock: 35,
+                            customizations: ['temperature', 'size', 'add-ons']
+                        },
+                        {
+                            id: 'cappuccino',
+                            name: 'Cappuccino',
+                            description: 'Espresso with steamed milk foam',
+                            price: 130,
+                            cost: 45,
+                            image: 'images/coffee/cappuccino.jpg',
+                            sku: 'COF-003',
+                            featured: false,
+                            seasonal: false,
+                            available: true,
+                            trackStock: true,
+                            stock: 40,
+                            customizations: ['temperature', 'size', 'add-ons']
+                        },
+                        {
+                            id: 'caramel-macchiato',
+                            name: 'Caramel Macchiato',
+                            description: 'Espresso with vanilla syrup, steamed milk, and caramel drizzle',
+                            price: 140,
+                            cost: 50,
+                            image: 'images/coffee/caramel-macchiato.jpg',
+                            sku: 'COF-004',
+                            featured: true,
+                            seasonal: false,
+                            available: true,
+                            trackStock: true,
+                            stock: 30,
+                            customizations: ['temperature', 'size', 'add-ons']
+                        }
+                    ]
+                },
+                {
+                    id: 'tea',
+                    name: 'Tea',
+                    description: 'Aromatic tea selections',
+                    image: 'images/tea/category.jpg',
+                    displayOrder: 2,
+                    visible: true,
+                    items: [
+                        {
+                            id: 'chamomile',
+                            name: 'Chamomile Tea',
+                            description: 'Soothing herbal tea',
+                            price: 110,
+                            cost: 30,
+                            image: 'images/tea/chamomile.jpg',
+                            sku: 'TEA-001',
+                            featured: false,
+                            seasonal: false,
+                            available: true,
+                            trackStock: true,
+                            stock: 25,
+                            customizations: ['temperature', 'size', 'add-ons']
+                        },
+                        {
+                            id: 'matcha-latte',
+                            name: 'Matcha Latte',
+                            description: 'Green tea powder with steamed milk',
+                            price: 120,
+                            cost: 35,
+                            image: 'images/tea/matcha-latte.jpg',
+                            sku: 'TEA-002',
+                            featured: false,
+                            seasonal: false,
+                            available: true,
+                            trackStock: true,
+                            stock: 20,
+                            customizations: ['temperature', 'size', 'add-ons']
+                        }
+                    ]
+                },
+                {
+                    id: 'non-coffee',
+                    name: 'Non-Coffee',
+                    description: 'Delicious non-coffee beverages',
+                    image: 'images/non-coffee/category.jpg',
+                    displayOrder: 3,
+                    visible: true,
+                    items: [
+                        {
+                            id: 'choco-milo-smores',
+                            name: 'Choco Milo Smores',
+                            description: 'Chocolate milo with marshmallows',
+                            price: 110,
+                            cost: 35,
+                            image: 'images/non-coffee/choco-milo-smores.jpg',
+                            sku: 'NCF-001',
+                            featured: false,
+                            seasonal: false,
+                            available: true,
+                            trackStock: true,
+                            stock: 25,
+                            customizations: ['temperature', 'size', 'add-ons']
+                        },
+                        {
+                            id: 'strawberry-cream',
+                            name: 'Strawberry Cream',
+                            description: 'Creamy strawberry beverage',
+                            price: 115,
+                            cost: 40,
+                            image: 'images/non-coffee/strawberry-cream.jpg',
+                            sku: 'NCF-002',
+                            featured: false,
+                            seasonal: false,
+                            available: true,
+                            trackStock: true,
+                            stock: 20,
+                            customizations: ['size', 'add-ons']
+                        }
+                    ]
+                },
+                {
+                    id: 'signature-drinks',
+                    name: 'Signature Drinks',
+                    description: 'Our special signature creations',
+                    image: 'images/signature-drinks/category.jpg',
+                    displayOrder: 4,
+                    visible: true,
+                    items: [
+                        {
+                            id: 'black-forest',
+                            name: 'Black Forest',
+                            description: 'Chocolate and cherry signature drink',
+                            price: 110,
+                            cost: 40,
+                            image: 'images/signature-drinks/black-forest.jpg',
+                            sku: 'SIG-001',
+                            featured: true,
+                            seasonal: false,
+                            available: true,
+                            trackStock: true,
+                            stock: 15,
+                            customizations: ['size', 'add-ons']
+                        },
+                        {
+                            id: 'choco-java',
+                            name: 'Choco Java',
+                            description: 'Chocolate and coffee fusion',
+                            price: 115,
+                            cost: 45,
+                            image: 'images/signature-drinks/choco-java.jpg',
+                            sku: 'SIG-002',
+                            featured: false,
+                            seasonal: false,
+                            available: true,
+                            trackStock: true,
+                            stock: 18,
+                            customizations: ['size', 'add-ons']
+                        }
+                    ]
+                },
+                {
+                    id: 'appetizers',
+                    name: 'Appetizers',
+                    description: 'Delicious starters and snacks',
+                    image: 'images/appetizers/category.jpg',
+                    displayOrder: 5,
+                    visible: true,
+                    items: [
+                        {
+                            id: 'fries',
+                            name: 'French Fries',
+                            description: 'Crispy golden fries',
+                            price: 80,
+                            cost: 20,
+                            image: 'images/appetizers/fries.jpg',
+                            sku: 'APP-001',
+                            featured: false,
+                            seasonal: false,
+                            available: true,
+                            trackStock: true,
+                            stock: 30,
+                            customizations: ['other-beverages', 'alcoholic-beverages']
+                        }
+                    ]
+                }
+            ],
+            customizations: [
+                {
+                    id: 'temperature',
+                    name: 'Temperature',
+                    type: 'single',
+                    required: true,
+                    categories: ['coffee', 'tea', 'non-coffee', 'signature-drinks'],
+                    options: [
+                        { id: 'hot', name: 'Hot', price: 0 },
+                        { id: 'cold', name: 'Cold', price: 10 }
+                    ]
+                },
+                {
+                    id: 'size',
+                    name: 'Size',
+                    type: 'single',
+                    required: true,
+                    categories: ['coffee', 'tea', 'non-coffee', 'signature-drinks', 'appetizers'],
+                    options: [
+                        { id: 'small', name: 'Small', price: 0 },
+                        { id: 'medium', name: 'Medium', price: 15 }
+                    ]
+                },
+                {
+                    id: 'add-ons',
+                    name: 'Add-ons',
+                    type: 'multiple',
+                    required: false,
+                    categories: ['coffee', 'tea', 'non-coffee', 'signature-drinks'],
+                    options: [
+                        { id: 'extra-syrup', name: 'Extra Syrup', price: 5 },
+                        { id: 'whip-cream', name: 'Whip Cream', price: 5 },
+                        { id: 'ice-cream', name: 'Ice Cream', price: 15 },
+                        { id: 'espresso-shot', name: 'Espresso Shot', price: 10 },
+                        { id: 'matcha-shot', name: 'Matcha Shot', price: 10 },
+                        { id: 'pearl', name: 'Pearl', price: 10 }
+                    ]
+                },
+                {
+                    id: 'other-beverages',
+                    name: 'Other Beverages',
+                    type: 'single',
+                    required: false,
+                    categories: ['appetizers'],
+                    options: [
+                        { id: 'none', name: 'None', price: 0 },
+                        { id: 'bottled-water', name: 'Bottled Water', price: 20 },
+                        { id: 'coke', name: 'Coke', price: 25 },
+                        { id: 'coke-zero', name: 'Coke Zero', price: 25 },
+                        { id: 'sprite', name: 'Sprite', price: 25 }
+                    ]
+                },
+                {
+                    id: 'alcoholic-beverages',
+                    name: 'Alcoholic Beverages',
+                    type: 'single',
+                    required: false,
+                    categories: ['appetizers'],
+                    options: [
+                        { id: 'none', name: 'None', price: 0 },
+                        { id: 'san-mig-light', name: 'San Mig Light', price: 60 },
+                        { id: 'san-mig-apple', name: 'San Mig Apple', price: 60 },
+                        { id: 'heineken', name: 'Heineken', price: 70 },
+                        { id: 'lemon-dou', name: 'Lemon Dou', price: 50 }
+                    ]
+                }
+            ]
+        };
 
-        // Check logged-in user role and adjust UI accordingly
-        function adjustUIForUserRole() {
-            const loggedInUser = JSON.parse(localStorage.getItem('bistroLoggedInUser'));
-            if (loggedInUser && loggedInUser.role === 'admin') {
-                // Show admin edit button at top and toggle container
-                adminEditButtonTop.style.display = 'block';
-                adminEditToggleContainer.style.display = 'block';
-                // Hide order now button for admin
-                if (orderNowBtn) orderNowBtn.style.display = 'none';
-            } else {
-                // Hide admin edit controls for non-admins
-                adminEditButtonTop.style.display = 'none';
-                adminEditToggleContainer.style.display = 'none';
-                // Show order now button for customers or guests
-                if (orderNowBtn) orderNowBtn.style.display = 'block';
-                // Also hide add item form and reset toggle button text
-                adminAddItemForm.style.display = 'none';
-                adminEditToggleBtn.textContent = 'Enable Admin Edit Mode';
-                adminEditMode = false;
-                showDeleteButtons(false);
-            }
-        }
-
-        // Call on page load
-        adjustUIForUserRole();
-
-        // Admin Edit Button at top click toggles admin edit mode
-        adminEditButtonTop.addEventListener('click', () => {
-            adminEditMode = !adminEditMode;
-            if (adminEditMode) {
-                adminAddItemForm.style.display = 'block';
-                adminEditToggleBtn.textContent = 'Disable Admin Edit Mode';
-                showDeleteButtons(true);
-            } else {
-                adminAddItemForm.style.display = 'none';
-                adminEditToggleBtn.textContent = 'Enable Admin Edit Mode';
-                showDeleteButtons(false);
-            }
-        });
-
-        // Admin Edit Mode toggle button click
-        adminEditToggleBtn.addEventListener('click', () => {
-            adminEditMode = !adminEditMode;
-            if (adminEditMode) {
-                adminAddItemForm.style.display = 'block';
-                adminEditToggleBtn.textContent = 'Disable Admin Edit Mode';
-                showDeleteButtons(true);
-            } else {
-                adminAddItemForm.style.display = 'none';
-                adminEditToggleBtn.textContent = 'Enable Admin Edit Mode';
-                showDeleteButtons(false);
-            }
-        });
-
-        // Show or hide delete buttons next to menu items
-        function showDeleteButtons(show) {
-            const deleteButtons = document.querySelectorAll('.admin-delete-btn');
-            deleteButtons.forEach(btn => {
-                btn.style.display = show ? 'inline-block' : 'none';
-            });
-        }
-
-        // Add delete buttons next to each menu item dynamically
-        function addDeleteButtons() {
-            const productCaptions = document.querySelectorAll('.product-caption');
-            productCaptions.forEach(caption => {
-                // Avoid adding multiple buttons
-                if (caption.querySelector('.admin-delete-btn')) return;
-
-                const deleteBtn = document.createElement('button');
-                deleteBtn.textContent = 'Delete';
-                deleteBtn.className = 'admin-delete-btn';
-                deleteBtn.style.marginLeft = '10px';
-                deleteBtn.style.backgroundColor = '#a05a2c';
-                deleteBtn.style.color = 'white';
-                deleteBtn.style.border = 'none';
-                deleteBtn.style.borderRadius = '4px';
-                deleteBtn.style.padding = '2px 6px';
-                deleteBtn.style.cursor = 'pointer';
-                deleteBtn.style.display = 'none'; // Hidden by default
-
-                deleteBtn.addEventListener('click', () => {
-                    if (confirm(`Are you sure you want to delete "${caption.textContent}"?`)) {
-                        deleteMenuItemByName(caption.textContent);
+        // Load menu data from localStorage if available
+        function loadMenuData() {
+            const savedMenuData = localStorage.getItem('coffeeShopMenuData');
+            if (savedMenuData) {
+                menuData = JSON.parse(savedMenuData);
+        
+                // Migrate existing customizations to include categories if they don't have them
+                menuData.customizations.forEach(custom => {
+                    if (!custom.categories) {
+                        if (custom.id === 'temperature' || custom.id === 'add-ons') {
+                            custom.categories = ['coffee', 'tea', 'non-coffee', 'signature-drinks'];
+                        } else if (custom.id === 'size') {
+                            custom.categories = ['coffee', 'tea', 'non-coffee', 'signature-drinks', 'appetizers'];
+                        } else if (custom.id === 'other-beverages' || custom.id === 'alcoholic-beverages') {
+                            custom.categories = ['appetizers'];
+                        } else {
+                            custom.categories = [];
+                        }
                     }
                 });
+        
+                saveMenuData();
+            }
+        }
 
-                caption.appendChild(deleteBtn);
+        // Save menu data to localStorage
+        function saveMenuData() {
+            localStorage.setItem('coffeeShopMenuData', JSON.stringify(menuData));
+            localStorage.setItem('coffeeShopMenuDataTimestamp', new Date().toISOString());
+        }
+
+        // Current editing items
+        let currentEditingProduct = null;
+        let currentEditingCategory = null;
+        let currentEditingCustomization = null;
+
+        // Initialize the dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            loadMenuData();
+            
+            updateDashboardStats();
+            loadProducts();
+            loadCategories();
+            loadCustomizations();
+
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            // Navigation
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const section = this.getAttribute('data-section');
+                    
+                    document.querySelectorAll('.nav-item').forEach(nav => {
+                        nav.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    
+                    document.querySelectorAll('.content-section').forEach(sec => {
+                        sec.classList.remove('active');
+                    });
+                    document.getElementById(`${section}-section`).classList.add('active');
+                });
+            });
+
+            // Modal buttons
+            document.getElementById('quick-add-item').addEventListener('click', () => openProductModal());
+            document.getElementById('add-product-btn').addEventListener('click', () => openProductModal());
+            document.getElementById('add-category-btn').addEventListener('click', () => openCategoryModal());
+            document.getElementById('add-customization-btn').addEventListener('click', () => openCustomizationModal());
+
+            // Close modal buttons
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('close-modal') || 
+                    e.target.closest('.close-modal')) {
+                    closeAllModals();
+                }
+            
+                if (e.target.classList.contains('modal')) {
+                    closeAllModals();
+                }
+            });
+
+            // Cancel buttons
+            document.getElementById('cancel-product').addEventListener('click', () => closeProductModal());
+            document.getElementById('cancel-category').addEventListener('click', () => closeCategoryModal());
+            document.getElementById('cancel-customization').addEventListener('click', () => closeCustomizationModal());
+
+            // Forms
+            document.getElementById('product-form').addEventListener('submit', handleProductSubmit);
+            document.getElementById('category-form').addEventListener('submit', handleCategorySubmit);
+            document.getElementById('customization-form').addEventListener('submit', handleCustomizationSubmit);
+
+            // Import button
+            document.getElementById('import-products-btn').addEventListener('click', importProducts);
+
+            // Add option button
+            document.getElementById('add-option').addEventListener('click', addCustomizationOption);
+        }
+
+        function closeAllModals() {
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.classList.remove('open');
+            });
+            currentEditingProduct = null;
+            currentEditingCategory = null;
+            currentEditingCustomization = null;
+        }
+
+        function updateDashboardStats() {
+            // Calculate total items
+            let totalItems = 0;
+            menuData.categories.forEach(category => {
+                totalItems += category.items.length;
+            });
+            document.getElementById('total-items').textContent = totalItems;
+
+            // Total categories
+            document.getElementById('total-categories').textContent = menuData.categories.length;
+
+            // Low stock items
+            let lowStockCount = 0;
+            menuData.categories.forEach(category => {
+                category.items.forEach(item => {
+                    if (item.trackStock && item.stock < 10) {
+                        lowStockCount++;
+                    }
+                });
+            });
+            document.getElementById('low-stock-items').textContent = lowStockCount;
+        }
+
+        function addCustomizationOption(name = '', price = 0) {
+            const optionsContainer = document.getElementById('customization-options');
+            
+            const optionRow = document.createElement('div');
+            optionRow.className = 'form-row option-row';
+            optionRow.innerHTML = `
+                <div class="form-group">
+                    <input type="text" class="form-control option-name" placeholder="Option Name" value="${name}" required>
+                </div>
+                <div class="form-group">
+                    <input type="number" class="form-control option-price" placeholder="Additional Price" min="0" step="0.01" value="${price}">
+                </div>
+                <div class="form-group">
+                    <button type="button" class="btn btn-danger remove-option">
+                        <i class="fas fa-times"></i> Remove
+                    </button>
+                </div>
+            `;
+            
+            optionsContainer.appendChild(optionRow);
+            
+            // Add event listener to remove button
+            optionRow.querySelector('.remove-option').addEventListener('click', function() {
+                if (document.querySelectorAll('.option-row').length > 1) {
+                    optionRow.remove();
+                } else {
+                    alert('You must have at least one option');
+                }
             });
         }
 
-        // Delete menu item by name using data_manager.js update functions
-        function deleteMenuItemByName(name) {
-            // Get current menu from localStorage
-            let menu = JSON.parse(localStorage.getItem('bistroMenu')) || [];
-            // Find item by name
-            const item = menu.find(i => i.name === name);
-            if (!item) {
-                alert('Item not found.');
-                return;
-            }
-            // Remove item from menu array
-            menu = menu.filter(i => i.id !== item.id);
-            // Save updated menu
-            localStorage.setItem('bistroMenu', JSON.stringify(menu));
-            // Refresh page to update UI
-            location.reload();
+        function loadProducts() {
+            const container = document.getElementById('products-container');
+            container.innerHTML = '';
+
+            menuData.categories.forEach(category => {
+                const categoryCard = document.createElement('div');
+                categoryCard.className = 'category-card';
+                
+                let itemsHTML = '';
+                category.items.forEach(item => {
+                    const stockBadge = item.trackStock && item.stock < 10 ? 
+                        `<span class="badge badge-low-stock"><i class="fas fa-exclamation-triangle"></i> Low Stock</span>` : '';
+                    
+                    const featuredBadge = item.featured ? 
+                        `<span class="badge badge-featured"><i class="fas fa-star"></i> Featured</span>` : '';
+                    
+                    const seasonalBadge = item.seasonal ? 
+                        `<span class="badge badge-seasonal"><i class="fas fa-leaf"></i> Seasonal</span>` : '';
+                    
+                    itemsHTML += `
+                        <div class="menu-item">
+                            <div class="item-info">
+                                <div class="item-image">
+                                    <i class="fas fa-coffee"></i>
+                                </div>
+                                <div class="item-details">
+                                    <div class="item-name">
+                                        ${item.name}
+                                        ${featuredBadge}
+                                        ${seasonalBadge}
+                                        ${stockBadge}
+                                    </div>
+                                    <div class="item-description">${item.description}</div>
+                                    <div class="item-price">₱${item.price}</div>
+                                    ${item.trackStock ? `<div class="item-stock">Stock: ${item.stock}</div>` : ''}
+                                </div>
+                            </div>
+                            <div class="item-actions">
+                                <button class="btn btn-warning btn-sm edit-product" data-category="${category.id}" data-id="${item.id}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-danger btn-sm delete-product" data-category="${category.id}" data-id="${item.id}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                categoryCard.innerHTML = `
+                    <div class="category-header">
+                        <h3>${category.name}</h3>
+                        <div class="category-actions">
+                            <button class="btn btn-primary btn-sm add-to-category" data-category="${category.id}">
+                                <i class="fas fa-plus"></i> Add Item
+                            </button>
+                        </div>
+                    </div>
+                    <div class="items-list">
+                        ${itemsHTML || '<div class="empty-message">No items in this category</div>'}
+                    </div>
+                `;
+                
+                container.appendChild(categoryCard);
+            });
+
+            // Add event listeners to buttons
+            document.querySelectorAll('.edit-product').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const categoryId = this.getAttribute('data-category');
+                    const itemId = this.getAttribute('data-id');
+                    openProductModal(itemId, categoryId);
+                });
+            });
+
+            document.querySelectorAll('.delete-product').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const categoryId = this.getAttribute('data-category');
+                    const itemId = this.getAttribute('data-id');
+                    deleteProduct(categoryId, itemId);
+                });
+            });
+
+            document.querySelectorAll('.add-to-category').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const categoryId = this.getAttribute('data-category');
+                    openProductModal(null, categoryId);
+                });
+            });
         }
 
-        // Handle add item form submission
-        document.getElementById('addItemForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const nameInput = document.getElementById('newItemName');
-            const imageInput = document.getElementById('newItemImage');
+        function loadCategories() {
+            const container = document.getElementById('categories-container');
+            container.innerHTML = '';
 
-            const name = nameInput.value.trim();
-            const file = imageInput.files[0];
+            menuData.categories.forEach(category => {
+                const categoryCard = document.createElement('div');
+                categoryCard.className = 'category-card';
+                
+                categoryCard.innerHTML = `
+                    <div class="category-header">
+                        <h3>${category.name}</h3>
+                        <div class="category-actions">
+                            <button class="btn btn-warning btn-sm edit-category" data-id="${category.id}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-danger btn-sm delete-category" data-id="${category.id}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <p>${category.description}</p>
+                    <div class="item-stock">${category.items.length} items</div>
+                `;
+                
+                container.appendChild(categoryCard);
+            });
 
-            if (!name) {
-                alert('Please enter a name for the menu item.');
-                return;
-            }
-            if (!file) {
-                alert('Please select a JPG image file.');
-                return;
-            }
-            if (!file.name.match(/\.(jpg|jpeg)$/i)) {
-                alert('Only JPG images are allowed.');
-                return;
-            }
+            // Add event listeners to buttons
+            document.querySelectorAll('.edit-category').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const categoryId = this.getAttribute('data-id');
+                    openCategoryModal(categoryId);
+                });
+            });
 
-            // Read image file as data URL
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                const imageUrl = event.target.result;
+            document.querySelectorAll('.delete-category').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const categoryId = this.getAttribute('data-id');
+                    deleteCategory(categoryId);
+                });
+            });
+        }
 
-                // Create new item object with default price and description empty
-                const newItem = {
-                    name: name,
-                    description: '',
-                    price: 0,
-                    imageUrl: imageUrl,
-                    category: 'Uncategorized'
-                };
+        function loadCustomizations() {
+            const container = document.getElementById('customizations-container');
+            container.innerHTML = '';
 
-                // Add item to menu in localStorage
-                let menu = JSON.parse(localStorage.getItem('bistroMenu')) || [];
-                const newId = menu.length > 0 ? Math.max(...menu.map(i => i.id)) + 1 : 1;
-                newItem.id = newId;
-                menu.push(newItem);
-                localStorage.setItem('bistroMenu', JSON.stringify(menu));
+            menuData.customizations.forEach(custom => {
+                const customizationCard = document.createElement('div');
+                customizationCard.className = 'category-card';
+            
+                let optionsHTML = '';
+                custom.options.forEach(option => {
+                    const priceText = option.price > 0 ? `+₱${option.price}` : '';
+                    optionsHTML += `<div class="option-badge">${option.name} ${priceText}</div>`;
+                });
+                
+                let categoriesHTML = '';
+                if (custom.categories && custom.categories.length > 0) {
+                    const categoryNames = custom.categories.map(catId => {
+                        const category = menuData.categories.find(c => c.id === catId);
+                        return category ? category.name : catId;
+                    });
+                    categoriesHTML = `<p><strong>Applicable Categories:</strong> ${categoryNames.join(', ')}</p>`;
+                } else {
+                    categoriesHTML = '<p><strong>Applicable Categories:</strong> All Categories</p>';
+                }
+                
+                customizationCard.innerHTML = `
+                    <div class="category-header">
+                        <h3>${custom.name}</h3>
+                        <div class="category-actions">
+                            <button class="btn btn-warning btn-sm edit-customization" data-id="${custom.id}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-danger btn-sm delete-customization" data-id="${custom.id}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <p>Type: ${custom.type} | Required: ${custom.required ? 'Yes' : 'No'}</p>
+                    ${categoriesHTML}
+                    <div class="item-options">
+                        ${optionsHTML}
+                    </div>
+                `;
+                
+                container.appendChild(customizationCard);
+            });
 
-                // Clear form
-                nameInput.value = '';
-                imageInput.value = '';
+            // Add event listeners to buttons
+            document.querySelectorAll('.edit-customization').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const customId = this.getAttribute('data-id');
+                    openCustomizationModal(customId);
+                });
+            });
 
-                // Refresh page to show new item
-                location.reload();
-            };
-            reader.readAsDataURL(file);
-        });
+            document.querySelectorAll('.delete-customization').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const customId = this.getAttribute('data-id');
+                    deleteCustomization(customId);
+                });
+            });
+        }
 
-        // Initialize delete buttons on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            addDeleteButtons();
-        });
-    </script>
-
-    <script>
-        // When user clicks "Order Now" button, check if logged in
-        document.getElementById('orderNowBtn').addEventListener('click', function(event) {
-            // Check if user is logged in by checking localStorage for a logged-in user
-            const loggedInUser = JSON.parse(localStorage.getItem('bistroLoggedInUser'));
-            if (!loggedInUser) {
-                // Not logged in, allow default link to login.html
-                // After login, redirect to customer.html handled in login.html script
-                return;
+        function openProductModal(productId = null, categoryId = null) {
+            const modal = document.getElementById('product-modal');
+            const title = document.getElementById('product-modal-title');
+            const form = document.getElementById('product-form');
+            
+            // Populate category dropdown
+            const categorySelect = document.getElementById('product-category');
+            categorySelect.innerHTML = '<option value="">Select Category</option>';
+            menuData.categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category.id;
+                option.textContent = category.name;
+                if (categoryId && category.id === categoryId) {
+                    option.selected = true;
+                }
+                categorySelect.appendChild(option);
+            });
+            
+            if (productId) {
+                title.textContent = 'Edit Product';
+                currentEditingProduct = { productId, categoryId };
+                
+                // Find the product
+                const category = menuData.categories.find(cat => cat.id === categoryId);
+                const product = category.items.find(item => item.id === productId);
+                
+                // Populate form with product data
+                document.getElementById('product-name').value = product.name;
+                document.getElementById('product-description').value = product.description;
+                document.getElementById('product-sku').value = product.sku;
+                document.getElementById('product-price').value = product.price;
+                document.getElementById('product-cost').value = product.cost;
+                document.getElementById('product-image').value = product.image || '';
+                document.getElementById('product-featured').checked = product.featured;
+                document.getElementById('product-seasonal').checked = product.seasonal;
+                document.getElementById('product-available').checked = product.available;
+                document.getElementById('product-track-stock').checked = product.trackStock;
+                document.getElementById('product-stock').value = product.stock || '';
             } else {
-                // User is logged in, redirect directly to customer.html
-                event.preventDefault();
-                window.location.href = 'customer.html';
+                title.textContent = 'Add Product';
+                currentEditingProduct = null;
+                form.reset();
+                
+                // Set default values
+                document.getElementById('product-available').checked = true;
+                if (categoryId) {
+                    document.getElementById('product-category').value = categoryId;
+                }
             }
-        });
-    </script>
+            
+            modal.classList.add('open');
+        }
 
+        function closeProductModal() {
+            document.getElementById('product-modal').classList.remove('open');
+            currentEditingProduct = null;
+        }
+
+        function openCategoryModal(categoryId = null) {
+            const modal = document.getElementById('category-modal');
+            const title = document.getElementById('category-modal-title');
+            const form = document.getElementById('category-form');
+            
+            if (categoryId) {
+                title.textContent = 'Edit Category';
+                currentEditingCategory = categoryId;
+                
+                // Find the category
+                const category = menuData.categories.find(cat => cat.id === categoryId);
+                
+                // Populate form with category data
+                document.getElementById('category-name').value = category.name;
+                document.getElementById('category-description').value = category.description;
+                document.getElementById('category-image').value = category.image || '';
+                document.getElementById('category-display-order').value = category.displayOrder;
+                document.getElementById('category-visible').checked = category.visible;
+            } else {
+                title.textContent = 'Add Category';
+                currentEditingCategory = null;
+                form.reset();
+                
+                // Set default values
+                document.getElementById('category-visible').checked = true;
+                document.getElementById('category-display-order').value = 1;
+            }
+            
+            modal.classList.add('open');
+        }
+
+        function closeCategoryModal() {
+            document.getElementById('category-modal').classList.remove('open');
+            currentEditingCategory = null;
+        }
+
+        function openCustomizationModal(customizationId = null) {
+            const modal = document.getElementById('customization-modal');
+            const title = document.getElementById('customization-modal-title');
+            const form = document.getElementById('customization-form');
+            const optionsContainer = document.getElementById('customization-options');
+            const categoriesContainer = document.getElementById('customization-categories');
+
+            // Clear existing options and categories
+            optionsContainer.innerHTML = '';
+            categoriesContainer.innerHTML = '';
+
+            // Populate categories
+            menuData.categories.forEach(category => {
+                const checkboxItem = document.createElement('div');
+                checkboxItem.className = 'checkbox-item';
+                checkboxItem.innerHTML = `
+                    <input type="checkbox" id="cat-${category.id}" value="${category.id}">
+                    <label for="cat-${category.id}">${category.name}</label>
+                `;
+                categoriesContainer.appendChild(checkboxItem);
+            });
+
+            if (customizationId) {
+                title.textContent = 'Edit Customization';
+                currentEditingCustomization = customizationId;
+
+                // Find the customization
+                const custom = menuData.customizations.find(c => c.id === customizationId);
+
+                // Populate form with customization data
+                document.getElementById('customization-name').value = custom.name;
+                document.getElementById('customization-type').value = custom.type;
+                document.getElementById('customization-required').value = custom.required.toString();
+
+                // Check applicable categories
+                if (custom.categories && custom.categories.length > 0) {
+                    custom.categories.forEach(catId => {
+                        const checkbox = document.getElementById(`cat-${catId}`);
+                        if (checkbox) {
+                            checkbox.checked = true;
+                        }
+                    });
+                }
+
+                // Add options
+                custom.options.forEach(option => {
+                    addCustomizationOption(option.name, option.price);
+                });
+            } else {
+                title.textContent = 'Add Customization';
+                currentEditingCustomization = null;
+                form.reset();
+
+                // Set default values
+                document.getElementById('customization-type').value = 'single';
+                document.getElementById('customization-required').value = 'false';
+
+                // Add one default option
+                addCustomizationOption();
+            }
+
+            modal.classList.add('open');
+        }
+
+        function closeCustomizationModal() {
+            document.getElementById('customization-modal').classList.remove('open');
+            currentEditingCustomization = null;
+        }
+
+        function handleProductSubmit(e) {
+            e.preventDefault();
+            
+            const formData = {
+                name: document.getElementById('product-name').value,
+                description: document.getElementById('product-description').value,
+                category: document.getElementById('product-category').value,
+                sku: document.getElementById('product-sku').value,
+                price: parseFloat(document.getElementById('product-price').value),
+                cost: parseFloat(document.getElementById('product-cost').value) || 0,
+                image: document.getElementById('product-image').value,
+                featured: document.getElementById('product-featured').checked,
+                seasonal: document.getElementById('product-seasonal').checked,
+                available: document.getElementById('product-available').checked,
+                trackStock: document.getElementById('product-track-stock').checked,
+                stock: document.getElementById('product-track-stock').checked ? 
+                    parseInt(document.getElementById('product-stock').value) : 0
+            };
+
+            if (formData.trackStock && formData.stock <= 0) {
+                formData.available = false;
+            }
+            
+            if (currentEditingProduct) {
+                // Update existing product
+                const category = menuData.categories.find(cat => cat.id === currentEditingProduct.categoryId);
+                const productIndex = category.items.findIndex(item => item.id === currentEditingProduct.productId);
+                
+                if (productIndex !== -1) {
+                    category.items[productIndex] = {
+                        ...category.items[productIndex],
+                        ...formData
+                    };
+                }
+                
+                alert('Product updated successfully!');
+            } else {
+                // Add new product
+                const category = menuData.categories.find(cat => cat.id === formData.category);
+                if (category) {
+                    const newProduct = {
+                        id: generateId(),
+                        ...formData
+                    };
+                    category.items.push(newProduct);
+                    alert('Product added successfully!');
+                }
+            }
+            
+            // Save to localStorage
+            saveMenuData();
+            
+            closeProductModal();
+            updateDashboardStats();
+            loadProducts();
+        }
+
+        function handleCategorySubmit(e) {
+            e.preventDefault();
+            
+            const formData = {
+                name: document.getElementById('category-name').value,
+                description: document.getElementById('category-description').value,
+                image: document.getElementById('category-image').value,
+                displayOrder: parseInt(document.getElementById('category-display-order').value),
+                visible: document.getElementById('category-visible').checked
+            };
+            
+            if (currentEditingCategory) {
+                // Update existing category
+                const categoryIndex = menuData.categories.findIndex(cat => cat.id === currentEditingCategory);
+                
+                if (categoryIndex !== -1) {
+                    menuData.categories[categoryIndex] = {
+                        ...menuData.categories[categoryIndex],
+                        ...formData
+                    };
+                }
+                
+                alert('Category updated successfully!');
+            } else {
+                // Add new category
+                const newCategory = {
+                    id: generateId(),
+                    items: [],
+                    ...formData
+                };
+                menuData.categories.push(newCategory);
+                alert('Category added successfully!');
+            }
+            
+            // Save to localStorage
+            saveMenuData();
+            
+            closeCategoryModal();
+            updateDashboardStats();
+            loadCategories();
+            loadProducts();
+        }
+
+        function handleCustomizationSubmit(e) {
+            e.preventDefault();
+
+            // Collect options
+            const options = [];
+            document.querySelectorAll('.option-row').forEach(row => {
+                const name = row.querySelector('.option-name').value;
+                const price = parseFloat(row.querySelector('.option-price').value) || 0;
+                if (name.trim() !== '') {
+                    options.push({
+                        id: generateId(),
+                        name: name.trim(),
+                        price
+                    });
+                }
+            });
+
+            // Validate at least one option
+            if (options.length === 0) {
+                alert('Please add at least one customization option');
+                return;
+            }
+
+            // Collect selected categories
+            const selectedCategories = [];
+            document.querySelectorAll('#customization-categories input[type="checkbox"]:checked').forEach(checkbox => {
+                selectedCategories.push(checkbox.value);
+            });
+
+            // Validate at least one category is selected
+            if (selectedCategories.length === 0) {
+                alert('Please select at least one category for this customization');
+                return;
+            }
+
+            const formData = {
+                name: document.getElementById('customization-name').value,
+                type: document.getElementById('customization-type').value,
+                required: document.getElementById('customization-required').value === 'true',
+                options,
+                categories: selectedCategories
+            };
+
+            if (currentEditingCustomization) {
+                // Update existing customization
+                const customIndex = menuData.customizations.findIndex(c => c.id === currentEditingCustomization);
+                
+                if (customIndex !== -1) {
+                    menuData.customizations[customIndex] = {
+                        ...menuData.customizations[customIndex],
+                        ...formData
+                    };
+                }
+                
+                alert('Customization updated successfully!');
+            } else {
+                // Add new customization
+                const newCustom = {
+                    id: generateId(),
+                    ...formData
+                };
+                menuData.customizations.push(newCustom);
+                alert('Customization added successfully!');
+            }
+            
+            // Save to localStorage
+            saveMenuData();
+            
+            closeAllModals();
+            loadCustomizations();
+        }
+
+        function deleteProduct(categoryId, productId) {
+            if (confirm('Are you sure you want to delete this product?')) {
+                const category = menuData.categories.find(cat => cat.id === categoryId);
+                if (category) {
+                    category.items = category.items.filter(item => item.id !== productId);
+                    alert('Product deleted successfully!');
+                    
+                    saveMenuData();
+                    
+                    updateDashboardStats();
+                    loadProducts();
+                }
+            }
+        }
+
+        function deleteCategory(categoryId) {
+            if (confirm('Are you sure you want to delete this category? All products in this category will also be deleted.')) {
+                menuData.categories = menuData.categories.filter(cat => cat.id !== categoryId);
+                alert('Category deleted successfully!');
+                
+                saveMenuData();
+                
+                updateDashboardStats();
+                loadCategories();
+                loadProducts();
+            }
+        }
+
+        function deleteCustomization(customizationId) {
+            if (confirm('Are you sure you want to delete this customization?')) {
+                menuData.customizations = menuData.customizations.filter(c => c.id !== customizationId);
+                alert('Customization deleted successfully!');
+                
+                saveMenuData();
+                
+                loadCustomizations();
+            }
+        }
+
+        function importProducts() {
+            alert('Import functionality would connect to your file system in a real application. For now, we\'ll add some sample products.');
+            
+            // Add some sample products
+            const coffeeCategory = menuData.categories.find(cat => cat.id === 'coffee');
+            if (coffeeCategory) {
+                coffeeCategory.items.push({
+                    id: generateId(),
+                    name: 'Mocha',
+                    description: 'Espresso with chocolate and steamed milk',
+                    price: 140,
+                    cost: 55,
+                    image: 'images/coffee/mocha.jpg',
+                    sku: 'COF-005',
+                    featured: false,
+                    seasonal: true,
+                    available: true,
+                    trackStock: true,
+                    stock: 30,
+                    customizations: ['temperature', 'size', 'add-ons']
+                });
+                
+                alert('Sample product imported successfully!');
+                
+                saveMenuData();
+                
+                updateDashboardStats();
+                loadProducts();
+            }
+        }
+
+        function generateId() {
+            return '_' + Math.random().toString(36).substr(2, 9);
+        }
+    </script>
 </body>
 </html>

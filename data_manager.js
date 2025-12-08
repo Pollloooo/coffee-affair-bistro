@@ -258,5 +258,20 @@ function resetUsers() {
     localStorage.setItem('bistroUsers', JSON.stringify(defaultUsers));
 }
 
+// Authentication helpers
+function logout() {
+    localStorage.removeItem('bistroLoggedInUser');
+    localStorage.setItem('sessionExpired', Date.now());
+    window.location.replace('login.html');
+}
+
+function isAuthenticated() {
+    return !!localStorage.getItem('bistroLoggedInUser');
+}
+
+function clearSessionFlag() {
+    localStorage.removeItem('sessionExpired');
+}
+
 // Run initialization on script load
 initializeData();

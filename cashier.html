@@ -1,67 +1,2845 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Cashier</title>
-    <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cashier Panel - Coffee Affair Bistro</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #7D4A2D;
+            --secondary-color: #C19A6B;
+            --accent-color: #9C6F44;
+            --light-color: #FFFDFA;
+            --dark-color: #2C1810;
+            --success-color: #2E8B57;
+            --warning-color: #DAA520;
+            --danger-color: #B22222;
+            --info-color: #4682B4;
+            --card-bg: #FFFFFF;
+            --sidebar-bg: #1A0F0A;
+            --shadow-sm: 0 2px 20px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 15px 50px rgba(0, 0, 0, 0.12);
+            --radius-sm: 12px;
+            --radius-md: 20px;
+            --radius-lg: 28px;
+            --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            --glass-bg: rgba(255, 255, 255, 0.98);
+            --glass-border: rgba(255, 255, 255, 0.3);
+            --gradient-primary: linear-gradient(135deg, #7D4A2D 0%, #9C6F44 100%);
+            --gradient-secondary: linear-gradient(135deg, #C19A6B 0%, #E4C6A0 100%);
+            --gradient-gold: linear-gradient(135deg, #D4A574 0%, #F5E6C9 100%);
+            --gradient-bg: radial-gradient(ellipse at top, #F8F3ED 0%, #F0E6DC 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--gradient-bg);
+            color: var(--dark-color);
+            line-height: 1.7;
+            min-height: 100vh;
+            overflow-x: hidden;
+            font-weight: 300;
+            letter-spacing: 0.02em;
+        }
+
+        /* Elegant Header */
+        .site-header {
+            background: linear-gradient(135deg, #1A0F0A 0%, #2C1810 100%);
+            box-shadow: var(--shadow-lg);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 0;
+            height: 80px;
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 50px;
+            height: 100%;
+            max-width: 100%;
+        }
+
+        .welcome-message {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            color: #F5E6C9;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            position: relative;
+        }
+
+        .welcome-message:before {
+            content: "☕";
+            font-size: 2.5rem;
+            opacity: 0.8;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+        }
+
+        .welcome-message:after {
+            content: "";
+            position: absolute;
+            bottom: -5px;
+            left: 45px;
+            width: 120px;
+            height: 3px;
+            background: var(--gradient-gold);
+            border-radius: 3px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .header-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+            color: #F5E6C9;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-icon:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--gradient-gold);
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .header-icon:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(193, 154, 107, 0.2);
+        }
+
+        .header-icon:hover:before {
+            opacity: 0.1;
+        }
+
+        .header-icon i {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Main Layout */
+        .cashier-container {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 40px;
+            max-width: 1800px;
+            margin: 110px auto 50px;
+            padding: 0 50px;
+        }
+
+        @media (max-width: 1400px) {
+            .cashier-container {
+                gap: 30px;
+                padding: 0 30px;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .cashier-container {
+                grid-template-columns: 1fr;
+                padding: 0 30px;
+            }
+        }
+
+        /* Premium Panel Design */
+        .panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(40px);
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--glass-border);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .panel:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+        }
+
+        .panel:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg), 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 35px;
+            padding-bottom: 25px;
+            border-bottom: 2px solid rgba(125, 74, 45, 0.08);
+            position: relative;
+        }
+
+        .panel-header:after {
+            content: "";
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 80px;
+            height: 2px;
+            background: var(--gradient-gold);
+        }
+
+        .panel-title {
+            font-family: 'Playfair Display', serif;
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            font-weight: 800;
+            position: relative;
+            padding-left: 25px;
+            letter-spacing: 0.5px;
+        }
+
+        .panel-title:before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 6px;
+            background: var(--gradient-gold);
+            border-radius: 3px;
+        }
+
+        /* Enhanced Orders Panel */
+        .orders-list {
+            display: grid;
+            gap: 25px;
+            max-height: calc(85vh - 150px);
+            overflow-y: auto;
+            padding-right: 15px;
+            padding-bottom: 10px;
+        }
+
+        .orders-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .orders-list::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.03);
+            border-radius: 10px;
+        }
+
+        .orders-list::-webkit-scrollbar-thumb {
+            background: var(--gradient-gold);
+            border-radius: 10px;
+        }
+
+        .order-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            padding: 28px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(125, 74, 45, 0.08);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .order-card:hover {
+            transform: translateY(-8px) scale(1.01);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--secondary-color);
+        }
+
+        .order-card:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .order-card:hover:before {
+            opacity: 1;
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .order-id {
+            font-weight: 700;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+            background: rgba(125, 74, 45, 0.08);
+            padding: 8px 18px;
+            border-radius: 50px;
+            border: 1px solid rgba(125, 74, 45, 0.15);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .order-customer {
+            font-weight: 600;
+            color: var(--dark-color);
+            font-size: 1.1rem;
+            margin-left: 10px;
+        }
+
+        .order-timestamp {
+            color: #888;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.03);
+            padding: 6px 12px;
+            border-radius: 6px;
+        }
+
+        .order-items {
+            margin-bottom: 20px;
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.02) 0%, rgba(125, 74, 45, 0.02) 100%);
+            border: 1px solid rgba(0, 0, 0, 0.03);
+            transition: var(--transition);
+        }
+
+        .order-item:hover {
+            background: linear-gradient(135deg, rgba(125, 74, 45, 0.05) 0%, rgba(193, 154, 107, 0.05) 100%);
+            transform: translateX(5px);
+            border-color: rgba(193, 154, 107, 0.2);
+        }
+
+        .order-delivery {
+            margin: 16px 0 20px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            background: rgba(125, 74, 45, 0.06);
+            border: 1px solid rgba(125, 74, 45, 0.15);
+            color: var(--dark-color);
+            font-size: 0.95rem;
+        }
+
+        .order-delivery-title {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 6px;
+        }
+
+        .order-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .order-total {
+            font-weight: 800;
+            color: var(--primary-color);
+            font-size: 1.4rem;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* Premium Status Badges */
+        .status-badge {
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .status-badge:before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .status-new {
+            background: linear-gradient(135deg, rgba(70, 130, 180, 0.1) 0%, rgba(70, 130, 180, 0.2) 100%);
+            color: var(--info-color);
+        }
+
+        .status-new:before {
+            background: var(--info-color);
+        }
+
+        .status-preparing {
+            background: linear-gradient(135deg, rgba(218, 165, 32, 0.1) 0%, rgba(218, 165, 32, 0.2) 100%);
+            color: var(--warning-color);
+        }
+
+        .status-preparing:before {
+            background: var(--warning-color);
+        }
+
+        .status-ready {
+            background: linear-gradient(135deg, rgba(46, 139, 87, 0.1) 0%, rgba(46, 139, 87, 0.2) 100%);
+            color: var(--success-color);
+        }
+
+        .status-ready:before {
+            background: var(--success-color);
+        }
+
+        .status-completed {
+            background: linear-gradient(135deg, rgba(149, 165, 166, 0.1) 0%, rgba(149, 165, 166, 0.2) 100%);
+            color: #95A5A6;
+        }
+
+        .status-completed:before {
+            background: #95A5A6;
+        }
+
+        .status-select {
+            padding: 10px 20px;
+            border-radius: var(--radius-sm);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            background: var(--card-bg);
+            color: var(--dark-color);
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            min-width: 160px;
+            font-family: 'Inter', sans-serif;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237D4A2D' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 16px;
+            padding-right: 45px;
+        }
+
+        .status-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(125, 74, 45, 0.1);
+        }
+
+        /* Premium POS Panel */
+        .pos-controls {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 35px;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 25px;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(125, 74, 45, 0.05);
+        }
+
+        .search-box {
+            flex: 1;
+            padding: 15px 25px;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: var(--radius-sm);
+            background: var(--card-bg);
+            font-size: 1rem;
+            transition: var(--transition);
+            font-family: 'Inter', sans-serif;
+            color: var(--dark-color);
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(125, 74, 45, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .search-box::placeholder {
+            color: #999;
+            font-weight: 300;
+        }
+
+        .category-filter {
+            padding: 15px 25px;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: var(--radius-sm);
+            background: var(--card-bg);
+            color: var(--dark-color);
+            font-weight: 500;
+            min-width: 200px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: 'Inter', sans-serif;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237D4A2D' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 20px center;
+            background-size: 16px;
+            padding-right: 50px;
+        }
+
+        .category-filter:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(125, 74, 45, 0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Premium Menu Tabs */
+        .menu-tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 35px;
+            flex-wrap: wrap;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 25px;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(125, 74, 45, 0.05);
+        }
+
+        .menu-tab {
+            padding: 12px 25px;
+            background: var(--card-bg);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 50px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+            font-size: 0.95rem;
+            font-family: 'Poppins', sans-serif;
+            color: #666;
+        }
+
+        .menu-tab:hover {
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: var(--shadow-md);
+            border-color: var(--secondary-color);
+            color: var(--primary-color);
+        }
+
+        .menu-tab.active {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            box-shadow: 0 8px 25px rgba(125, 74, 45, 0.25);
+            transform: translateY(-2px);
+        }
+
+        /* Premium Menu Grid */
+        .pos-menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 25px;
+            margin-bottom: 35px;
+            max-height: 380px;
+            overflow-y: auto;
+            padding: 10px 5px 25px;
+        }
+
+        .pos-menu-grid::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .pos-menu-grid::-webkit-scrollbar-thumb {
+            background: var(--gradient-gold);
+            border-radius: 10px;
+        }
+
+        .pos-product-item {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            padding: 25px 20px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+            animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .pos-product-item:hover {
+            transform: translateY(-10px) scale(1.03);
+            box-shadow: var(--shadow-lg);
+            border-color: transparent;
+        }
+
+        .pos-product-item:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 100%;
+            background: var(--gradient-gold);
+            opacity: 0;
+            transition: var(--transition);
+            z-index: 0;
+        }
+
+        .pos-product-item:hover:before {
+            opacity: 0.03;
+        }
+
+        .pos-product-name {
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--dark-color);
+            font-size: 1.1rem;
+            font-family: 'Poppins', sans-serif;
+            position: relative;
+            z-index: 1;
+        }
+
+        .pos-product-price {
+            color: var(--primary-color);
+            font-weight: 800;
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            font-family: 'Poppins', sans-serif;
+            position: relative;
+            z-index: 1;
+        }
+
+        .add-to-order-btn {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 12px 25px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            width: 100%;
+            font-family: 'Poppins', sans-serif;
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .add-to-order-btn:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--gradient-secondary);
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .add-to-order-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(125, 74, 45, 0.3);
+        }
+
+        .add-to-order-btn:hover:before {
+            opacity: 1;
+        }
+
+        /* Premium Current Order */
+        .current-order {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            padding: 35px;
+            box-shadow: var(--shadow-lg);
+            border: 2px solid rgba(125, 74, 45, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .current-order:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-gold);
+        }
+
+        .current-order h3 {
+            font-family: 'Playfair Display', serif;
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            font-size: 1.6rem;
+            font-weight: 800;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .current-order h3:before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--gradient-gold);
+            border-radius: 2px;
+        }
+
+        .order-items-list {
+            max-height: 220px;
+            overflow-y: auto;
+            margin-bottom: 30px;
+            padding-right: 15px;
+        }
+
+        .order-items-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .order-items-list::-webkit-scrollbar-thumb {
+            background: var(--gradient-gold);
+            border-radius: 10px;
+        }
+
+        .order-item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            transition: var(--transition);
+        }
+
+        .order-item-row:hover {
+            background: linear-gradient(135deg, rgba(125, 74, 45, 0.03) 0%, rgba(193, 154, 107, 0.03) 100%);
+            padding: 16px 15px;
+            border-radius: 12px;
+            transform: translateX(5px);
+        }
+
+        .order-item-info {
+            flex: 1;
+        }
+
+        .order-item-name {
+            font-weight: 600;
+            font-size: 1.05rem;
+            color: var(--dark-color);
+        }
+
+        .order-item-customization {
+            font-size: 0.9rem;
+            color: #777;
+            margin-top: 5px;
+            font-weight: 300;
+        }
+
+        .order-item-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .order-item-quantity {
+            width: 70px;
+            text-align: center;
+            padding: 10px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            font-weight: 600;
+            background: var(--light-color);
+            font-family: 'Inter', sans-serif;
+            transition: var(--transition);
+        }
+
+        .order-item-quantity:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(125, 74, 45, 0.1);
+        }
+
+        .remove-item-btn {
+            background: rgba(178, 34, 34, 0.1);
+            color: var(--danger-color);
+            border: 1px solid rgba(178, 34, 34, 0.15);
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .remove-item-btn:hover {
+            background: var(--danger-color);
+            color: white;
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 5px 15px rgba(178, 34, 34, 0.2);
+        }
+
+        .order-summary {
+            border-top: 2px solid rgba(125, 74, 45, 0.08);
+            padding-top: 25px;
+        }
+
+        .order-total-row {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 800;
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            color: var(--primary-color);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .complete-order-btn {
+            width: 100%;
+            padding: 18px;
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            letter-spacing: 0.5px;
+            box-shadow: 0 10px 30px rgba(125, 74, 45, 0.2);
+            font-family: 'Poppins', sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .complete-order-btn:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--gradient-secondary);
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .complete-order-btn:hover:not(:disabled) {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(125, 74, 45, 0.3);
+        }
+
+        .complete-order-btn:hover:not(:disabled):before {
+            opacity: 1;
+        }
+
+        .complete-order-btn:disabled {
+            background: #95A5A6;
+            cursor: not-allowed;
+            opacity: 0.5;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .complete-order-btn i {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Premium Customization Modal */
+        .customization-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1003;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            animation: modalBgIn 0.4s ease;
+        }
+
+        @keyframes modalBgIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .customization-modal.open {
+            display: flex;
+        }
+
+        .customization-content {
+            background: var(--glass-bg);
+            backdrop-filter: blur(30px);
+            border-radius: var(--radius-lg);
+            padding: 50px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg), 0 30px 80px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: modalSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+
+        @keyframes modalSlideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .customization-content:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-gold);
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+        }
+
+        .customization-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 35px;
+            padding-bottom: 25px;
+            border-bottom: 2px solid rgba(125, 74, 45, 0.1);
+            position: relative;
+        }
+
+        .customization-header h3 {
+            font-family: 'Playfair Display', serif;
+            color: var(--primary-color);
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 800;
+        }
+
+        .close-customization {
+            background: rgba(0, 0, 0, 0.05);
+            border: none;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: var(--dark-color);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-customization:hover {
+            background: var(--danger-color);
+            color: white;
+            transform: rotate(90deg) scale(1.1);
+            box-shadow: 0 5px 15px rgba(178, 34, 34, 0.2);
+        }
+
+        .customization-group {
+            margin-bottom: 35px;
+        }
+
+        .customization-group h4 {
+            color: var(--accent-color);
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+        }
+
+        .customization-group h4:before {
+            content: "▸";
+            color: var(--primary-color);
+            font-size: 1.4rem;
+        }
+
+        .option-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .option-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 25px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 12px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: var(--transition);
+        }
+
+        .option-item:hover {
+            background: white;
+            border-color: var(--secondary-color);
+            transform: translateX(8px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .option-label {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            cursor: pointer;
+            flex: 1;
+            font-size: 1.05rem;
+        }
+
+        .option-price {
+            color: var(--primary-color);
+            font-weight: 700;
+            font-size: 1.1rem;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        input[type="radio"],
+        input[type="checkbox"] {
+            width: 22px;
+            height: 22px;
+            accent-color: var(--primary-color);
+        }
+
+        .customization-total {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            text-align: center;
+            margin: 40px 0 30px;
+            padding-top: 30px;
+            border-top: 2px solid rgba(125, 74, 45, 0.1);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .add-to-order-final {
+            width: 100%;
+            padding: 20px;
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            letter-spacing: 0.5px;
+            box-shadow: 0 10px 30px rgba(125, 74, 45, 0.2);
+            font-family: 'Poppins', sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .add-to-order-final:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--gradient-secondary);
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .add-to-order-final:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(125, 74, 45, 0.3);
+        }
+
+        .add-to-order-final:hover:before {
+            opacity: 1;
+        }
+
+        .add-to-order-final i {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Premium Empty States */
+        .empty-state {
+            text-align: center;
+            padding: 60px 40px;
+            color: #95A5A6;
+        }
+
+        .empty-state i {
+            font-size: 5rem;
+            margin-bottom: 25px;
+            color: #E0E0E0;
+            opacity: 0.7;
+        }
+
+        .empty-state p {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 300;
+        }
+
+        /* Customer Type Badge */
+        .customer-type {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 10px 25px;
+            border-radius: 50px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 5px 20px rgba(125, 74, 45, 0.2);
+            font-family: 'Poppins', sans-serif;
+            letter-spacing: 0.5px;
+        }
+
+        .customer-type:before {
+            content: "👤";
+            font-size: 1.2rem;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: flex;
+            gap: 25px;
+            margin-bottom: 35px;
+        }
+
+        .stat-card {
+            flex: 1;
+            background: var(--card-bg);
+            padding: 30px 25px;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            text-align: center;
+            border-top: 4px solid var(--primary-color);
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-card h3 {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 800;
+        }
+
+        .stat-card p {
+            color: #666;
+            font-size: 1rem;
+            font-weight: 300;
+        }
+
+        /* Enhanced Responsive Design */
+        @media (max-width: 768px) {
+            .cashier-container {
+                padding: 0 20px;
+                margin-top: 100px;
+                gap: 25px;
+            }
+            
+            .panel {
+                padding: 30px;
+            }
+            
+            .header-content {
+                padding: 0 30px;
+            }
+            
+            .welcome-message {
+                font-size: 1.5rem;
+            }
+            
+            .pos-menu-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 20px;
+            }
+            
+            .menu-tabs {
+                padding: 20px;
+                overflow-x: auto;
+                flex-wrap: nowrap;
+            }
+            
+            .pos-controls {
+                flex-direction: column;
+            }
+            
+            .category-filter {
+                min-width: 100%;
+            }
+            
+            .order-footer {
+                flex-direction: column;
+                gap: 20px;
+                align-items: stretch;
+            }
+            
+            .status-select {
+                min-width: 100%;
+            }
+            
+            .stats-bar {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .stat-card small {
+                display: block;
+                margin-top: 8px;
+                opacity: 0.7;
+                font-weight: 400;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .cashier-container {
+                grid-template-columns: 1fr;
+                padding: 0 15px;
+            }
+            
+            .pos-menu-grid {
+                grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+                gap: 15px;
+            }
+            
+            .customization-content {
+                padding: 30px 25px;
+            }
+        }
+
+        /* Premium Floating Action Button */
+        .fab {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            width: 70px;
+            height: 70px;
+            background: var(--gradient-primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            cursor: pointer;
+            box-shadow: 0 10px 40px rgba(125, 74, 45, 0.3);
+            z-index: 100;
+            display: none;
+            transition: var(--transition);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 10px 40px rgba(125, 74, 45, 0.3); }
+            50% { box-shadow: 0 10px 60px rgba(125, 74, 45, 0.5); }
+            100% { box-shadow: 0 10px 40px rgba(125, 74, 45, 0.3); }
+        }
+
+        .fab:hover {
+            transform: scale(1.15) rotate(90deg);
+            box-shadow: 0 15px 50px rgba(125, 74, 45, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .fab {
+                display: flex;
+            }
+        }
+
+        /* Premium Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 120px;
+            right: 40px;
+            background: var(--gradient-primary);
+            color: white;
+            padding: 20px 30px;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 1001;
+            opacity: 0;
+            transform: translateY(20px) scale(0.95);
+            transition: var(--transition);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 400px;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            animation: toastSlideIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes toastSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .toast.error {
+            background: linear-gradient(135deg, #B22222 0%, #DC143C 100%);
+        }
+
+        .toast.warning {
+            background: linear-gradient(135deg, #DAA520 0%, #F4A460 100%);
+        }
+
+        .toast.success {
+            background: linear-gradient(135deg, #2E8B57 0%, #3CB371 100%);
+        }
+
+        /* Loading Animation */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(125, 74, 45, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Hover Effects Enhancement */
+        .hover-lift {
+            transition: var(--transition);
+        }
+
+        .hover-lift:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Glass Morphism Enhancement */
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Gradient Text */
+        .gradient-text {
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Subtle Background Pattern */
+        .panel:after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C6F44' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            pointer-events: none;
+            opacity: 0.3;
+            z-index: 0;
+        }
+
+        .panel > * {
+            position: relative;
+            z-index: 1;
+        }
+    </style>
 </head>
 <body>
-<header>
-    <h1>The Coffee Affair Bistro – Cashier</h1>
-</header>
-    <main>
-        <div class="dashboard-card" style="margin-top: 2rem;">
-            <h2>New Orders</h2>
-            <div id="new-orders-container">
-                <p>No orders in this category.</p>
+
+    <header class="site-header">
+        <div class="header-content">
+            <div class="welcome-message">CASHIER PANEL - COFFEE AFFAIR</div>
+            <div class="header-actions">
+                <div class="header-icon" id="refresh-orders" title="Refresh Orders">
+                    <i class="fas fa-sync-alt"></i>
+                </div>
+                <div class="header-icon" id="logout-btn" title="Logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                </div>
             </div>
         </div>
-        <div class="dashboard-card" style="margin-top: 2rem;">
-            <h2>Preparing</h2>
-            <div id="preparing-orders-container">
-                <p>No orders in this category.</p>
+    </header>
+
+    <main class="cashier-container">
+        <!-- Orders Panel -->
+        <div class="panel">
+            <div class="panel-header">
+                <h2 class="panel-title">Customer Orders</h2>
+                <button class="header-icon" id="refresh-orders-btn" title="Refresh Orders">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+            <div class="orders-list" id="orders-list">
+                <!-- Orders will be dynamically inserted here -->
+            </div>
+        </div>
+
+        <!-- POS Panel -->
+        <div class="panel">
+            <div class="panel-header">
+                <h2 class="panel-title">Point of Sale</h2>
+                <div class="customer-type">
+                    <span>Walk-in Customer</span>
+                </div>
+            </div>
+            
+            <div class="pos-controls">
+                <input type="text" class="search-box" id="menu-search" placeholder="🔍 Search menu...">
+                <select class="category-filter" id="category-filter">
+                    <option value="all">All Categories</option>
+                    <!-- Options will be dynamically inserted here -->
+                </select>
+            </div>
+            
+            <div class="menu-tabs" id="menu-tabs">
+                <!-- Menu tabs will be dynamically inserted here -->
+            </div>
+            
+            <div class="pos-menu-grid" id="pos-menu-grid">
+                <!-- Menu items will be dynamically inserted here -->
+            </div>
+            
+            <div class="current-order">
+                <h3>Current Order</h3>
+                <div class="order-items-list" id="current-order-items">
+                    <!-- Current order items will be dynamically inserted here -->
+                </div>
+                <div class="order-summary">
+                    <div class="order-total-row">
+                        <span>Total:</span>
+                        <span id="current-order-total">₱0.00</span>
+                    </div>
+                    <button id="complete-order-btn" class="complete-order-btn" disabled>
+                        <i class="fas fa-check-circle"></i> Complete Order
+                    </button>
+                </div>
             </div>
         </div>
     </main>
-    <script src="data_manager.js"></script>
+
+    <!-- Customization Modal -->
+    <div class="customization-modal" id="customization-modal">
+        <div class="customization-content">
+            <div class="customization-header">
+                <h3 id="modal-product-name">Customize Order</h3>
+                <button class="close-customization" id="close-customization">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div id="customization-options">
+                <!-- Options will be dynamically inserted here -->
+            </div>
+            
+            <div class="customization-total" id="modal-total-price">Total: ₱0.00</div>
+            <button class="add-to-order-final" id="add-to-order-final">
+                <i class="fas fa-plus-circle"></i> Add to Order
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toast-message">Order completed successfully!</span>
+    </div>
+
+    <!-- Floating Action Button (Mobile) -->
+    <div class="fab" id="mobile-complete-order" title="Complete Order">
+        <i class="fas fa-check"></i>
+    </div>
+
     <script>
+        // Global variables
+        let customizationsData = [];
+        let currentProduct = null;
+        let menuData = {};
+        let categoryOrder = [];
+        let categoryNames = {};
+
+        // Load menu data from localStorage
+        function loadMenuData() {
+            const savedMenuData = localStorage.getItem('coffeeShopMenuData');
+            if (savedMenuData) {
+                try {
+                    const parsedData = JSON.parse(savedMenuData);
+                    
+                    // Reset data structures
+                    menuData = {};
+                    categoryOrder = [];
+                    categoryNames = {};
+                    
+                    // Check if data is in admin format
+                    if (parsedData.categories && Array.isArray(parsedData.categories)) {
+                        // Sort categories by displayOrder
+                        const sortedCategories = [...parsedData.categories].sort((a, b) => 
+                            (a.displayOrder || 999) - (b.displayOrder || 999)
+                        );
+                        
+                        // Store categories in order
+                        sortedCategories.forEach(category => {
+                            if (!category.visible && category.visible !== undefined) {
+                                return; // Skip hidden categories
+                            }
+                            
+                            const categoryKey = category.id || category.name?.toLowerCase().replace(/\s+/g, '-');
+                            if (categoryKey && category.items) {
+                                categoryOrder.push(categoryKey);
+                                categoryNames[categoryKey] = category.name;
+                                
+                                // Only add categories that have items
+                                const availableItems = category.items.filter(item => item.available !== false);
+                                if (availableItems.length > 0) {
+                                    menuData[categoryKey] = availableItems.map(item => ({
+                                        name: item.name,
+                                        price: parseFloat(item.price) || 0,
+                                        category: categoryKey,
+                                        id: item.id,
+                                        description: item.description,
+                                        available: item.available !== false
+                                    }));
+                                }
+                            }
+                        });
+                        
+                        // If no categories were loaded, load default structure
+                        if (categoryOrder.length === 0) {
+                            loadDefaultMenuData();
+                        }
+                    } else {
+                        // Load default data if admin data is not in expected format
+                        loadDefaultMenuData();
+                    }
+                    
+                    // Load customizations if available
+                    if (parsedData.customizations && Array.isArray(parsedData.customizations)) {
+                        customizationsData = parsedData.customizations;
+                    }
+                    
+                    console.log('Menu data loaded. Categories:', categoryOrder);
+                } catch (error) {
+                    console.error('Error parsing menu data:', error);
+                    loadDefaultMenuData();
+                }
+            } else {
+                // No saved data, load defaults
+                loadDefaultMenuData();
+            }
+        }
+
+        // Load default menu data structure
+        function loadDefaultMenuData() {
+            console.log('Loading default menu data');
+    
+            // Default category order and names
+            const defaultCategories = [
+                { id: 'coffee', name: 'Coffee' },
+                { id: 'tea', name: 'Tea' },
+                { id: 'non-coffee', name: 'Non-Coffee' },
+                { id: 'signature-drinks', name: 'Signature Drinks' },
+                { id: 'appetizers', name: 'Appetizers' },
+                { id: 'burger-sandwich', name: 'Burger & Sandwich' },
+                { id: 'pasta', name: 'Pasta' },
+                { id: 'desserts', name: 'Desserts' },
+                { id: 'fruity-options', name: 'Fruity Options' },
+                { id: 'signature-milkshakes', name: 'Signature Milkshakes' }
+            ];
+
+            categoryOrder = defaultCategories.map(cat => cat.id);
+            defaultCategories.forEach(cat => {
+                categoryNames[cat.id] = cat.name;
+            });
+            
+            // Default menu items
+            const defaultMenuData = {
+                'coffee': [
+                    { name: "Americano", price: 110, category: "coffee", available: true },
+                    { name: "Cafe Latte", price: 120, category: "coffee", available: true },
+                    { name: "Cappuccino", price: 130, category: "coffee", available: true },
+                    { name: "Caramel Macchiato", price: 140, category: "coffee", available: true },
+                    { name: "Hazelnut Macchiato", price: 145, category: "coffee", available: true },
+                    { name: "Nutella Latte", price: 150, category: "coffee", available: true },
+                    { name: "Biscoff Latte", price: 155, category: "coffee", available: true }
+                ],
+                'tea': [
+                    { name: "Chamomile Tea", price: 110, category: "tea", available: true },
+                    { name: "Dalgona Matcha", price: 115, category: "tea", available: true },
+                    { name: "Matcha Latte", price: 120, category: "tea", available: true },
+                    { name: "Peppermint Tea", price: 125, category: "tea", available: true },
+                    { name: "Spanish Matcha", price: 125, category: "tea", available: true }
+                ],
+                'non-coffee': [
+                    { name: "Choco Milo Smores", price: 110, category: "non-coffee", available: true },
+                    { name: "Strawberry Cream", price: 115, category: "non-coffee", available: true },
+                    { name: "Milk Chocolate", price: 120, category: "non-coffee", available: true },
+                    { name: "Dark Chocolate", price: 125, category: "non-coffee", available: true }
+                ],
+                'signature-drinks': [
+                    { name: "Black Forest", price: 110, category: "signature-drinks", available: true },
+                    { name: "Choco Java", price: 115, category: "signature-drinks", available: true },
+                    { name: "Caramel Frappe", price: 120, category: "signature-drinks", available: true },
+                    { name: "Dark Chocolate", price: 125, category: "signature-drinks", available: true },
+                    { name: "Matcha Frappe", price: 125, category: "signature-drinks", available: true },
+                    { name: "White Mocha", price: 125, category: "signature-drinks", available: true }
+                ],
+                'appetizers': [
+                    { name: "BBQ Fries", price: 110, category: "appetizers", available: true },
+                    { name: "Cheese Fries", price: 115, category: "appetizers", available: true },
+                    { name: "Chick and Chips", price: 120, category: "appetizers", available: true },
+                    { name: "Chicken Caesar", price: 125, category: "appetizers", available: true },
+                    { name: "Chicken Goujons", price: 125, category: "appetizers", available: true },
+                    { name: "Creamy Mushroom", price: 125, category: "appetizers", available: true },
+                    { name: "Nacho Supreme", price: 125, category: "appetizers", available: true },
+                    { name: "Sour & Cream", price: 125, category: "appetizers", available: true }
+                ],
+                'burger-sandwich': [
+                    { name: "Kimchi Burger", price: 110, category: "burger-sandwich", available: true },
+                    { name: "Chicken Sandwich", price: 115, category: "burger-sandwich", available: true },
+                    { name: "Clubhouse", price: 120, category: "burger-sandwich", available: true },
+                    { name: "Double Cheese", price: 125, category: "burger-sandwich", available: true },
+                    { name: "Ham & Egg Sandwich", price: 125, category: "burger-sandwich", available: true },
+                    { name: "Texas BBQ Burger", price: 125, category: "burger-sandwich", available: true }
+                ],
+                'pasta': [
+                    { name: "Aglio Olio", price: 110, category: "pasta", available: true },
+                    { name: "Beef Bolognese", price: 115, category: "pasta", available: true },
+                    { name: "Black Calamari", price: 120, category: "pasta", available: true },
+                    { name: "Chicken Mushroom", price: 125, category: "pasta", available: true },
+                    { name: "Chicken Pesto", price: 125, category: "pasta", available: true },
+                    { name: "Seafood Fettu", price: 125, category: "pasta", available: true },
+                    { name: "Seafood Olio", price: 125, category: "pasta", available: true },
+                    { name: "Spaghetti ala Carbonara", price: 125, category: "pasta", available: true }
+                ],
+                'desserts': [
+                    { name: "Affogato", price: 110, category: "desserts", available: true },
+                    { name: "Banana Sundae", price: 115, category: "desserts", available: true },
+                    { name: "Belgian Waffles", price: 120, category: "desserts", available: true },
+                    { name: "Fudge Brownie", price: 125, category: "desserts", available: true },
+                    { name: "Biscoff Caramel Waffle", price: 125, category: "desserts", available: true },
+                    { name: "Nutella Waffles", price: 125, category: "desserts", available: true },
+                    { name: "Waffle & Ice Cream", price: 125, category: "desserts", available: true }
+                ],
+                'fruity-options': [
+                    { name: "Banana Mango Smoothie", price: 110, category: "fruity-options", available: true },
+                    { name: "Banoffee", price: 115, category: "fruity-options", available: true },
+                    { name: "Mango Fizz", price: 120, category: "fruity-options", available: true },
+                    { name: "Mango Smoothie", price: 125, category: "fruity-options", available: true },
+                    { name: "Mixed Berries", price: 125, category: "fruity-options", available: true },
+                    { name: "Orange Lemon", price: 125, category: "fruity-options", available: true },
+                    { name: "Strawberry Fizz", price: 125, category: "fruity-options", available: true },
+                    { name: "Strawberry Smoothie", price: 125, category: "fruity-options", available: true }
+                ],
+                'signature-milkshakes': [
+                    { name: "Brown Sugar Milk Tea", price: 110, category: "signature-milkshakes", available: true },
+                    { name: "Choco Matcha", price: 115, category: "signature-milkshakes", available: true },
+                    { name: "Cucumber Lime Tea", price: 120, category: "signature-milkshakes", available: true },
+                    { name: "Dirty Matcha", price: 125, category: "signature-milkshakes", available: true },
+                    { name: "Honey Lemon Tea", price: 125, category: "signature-milkshakes", available: true },
+                    { name: "Orange Americano", price: 125, category: "signature-milkshakes", available: true },
+                    { name: "Thai Milk Tea", price: 125, category: "signature-milkshakes", available: true }
+                ]
+            };
+            
+            // Set menuData to default
+            menuData = { ...defaultMenuData };
+        }
+
+        // Initialize
         document.addEventListener('DOMContentLoaded', function() {
-            const newOrdersContainer = document.getElementById('new-orders-container');
-            const preparingOrdersContainer = document.getElementById('preparing-orders-container');
-            const orders = JSON.parse(localStorage.getItem('bistroOrders')) || [];
+            console.log('Initializing cashier panel...');
+            loadMenuData();
+            
+            // Initialize components after menu data is loaded
+            setTimeout(() => {
+                initializeMenuTabs();
+                initializeCategoryFilter();
+                initializeEventListeners();
+                updateCurrentOrderDisplay();
+                
+                // Set initial active category
+                const firstCategory = categoryOrder.find(cat => menuData[cat] && menuData[cat].length > 0) || 'coffee';
+                switchMenuCategory(firstCategory);
+            }, 100);
+            
+            loadOrders();
+            
+            // Try to sync immediately
+            syncMenuDataFromAdmin();
+            
+            // Auto-refresh orders every 10 seconds
+            setInterval(loadOrders, 10000);
+            
+            // Also sync menu data periodically (every 3 seconds for better responsiveness)
+            setInterval(syncMenuDataFromAdmin, 3000);
+        });
 
-            function renderOrders() {
-                const newOrders = orders.filter(order => order.status === 'New');
-                const preparingOrders = orders.filter(order => order.status === 'Preparing');
+        // Initialize menu tabs
+        function initializeMenuTabs() {
+            const menuTabs = document.getElementById('menu-tabs');
+            // Clear existing tabs
+            menuTabs.innerHTML = '';
+            
+            // Use categoryOrder to determine tab order
+            let categories = categoryOrder.length > 0 ? categoryOrder : Object.keys(menuData || {});
+            
+            if (categories.length === 0) {
+                // Fallback to default categories
+                categories = [
+                    'coffee', 'tea', 'non-coffee', 'signature-drinks', 
+                    'appetizers', 'burger-sandwich', 'pasta', 'desserts', 
+                    'fruity-options', 'signature-milkshakes'
+                ];
+            }
+            
+            // Create tabs in the correct order
+            categories.forEach((category, index) => {
+                // Only create tab if category exists in menuData and has items
+                if (menuData[category] && menuData[category].length > 0) {
+                    const tab = document.createElement('div');
+                    tab.className = 'menu-tab';
+                    if (index === 0) tab.classList.add('active');
+                    tab.textContent = formatCategoryName(category);
+                    tab.dataset.category = category;
+                    tab.addEventListener('click', () => switchMenuCategory(category));
+                    menuTabs.appendChild(tab);
+                }
+            });
+            
+            // If no tabs were created, show a message
+            if (menuTabs.children.length === 0) {
+                menuTabs.innerHTML = '<div class="empty-state"><i class="fas fa-coffee"></i><p>No categories available</p></div>';
+            }
+        }
 
-                if (newOrders.length === 0) {
-                    newOrdersContainer.innerHTML = '<p>No orders in this category.</p>';
-                } else {
-                    newOrdersContainer.innerHTML = '';
-                    newOrders.forEach(order => {
-                        const orderDiv = document.createElement('div');
-                        orderDiv.classList.add('order-card');
-                        orderDiv.textContent = `Order ID: ${order.id} - Customer: ${order.customerName} - Total: ₱${order.totalPrice.toFixed(2)}`;
-                        newOrdersContainer.appendChild(orderDiv);
+        // Get applicable customizations for a category
+        function getCustomizationsForCategory(categoryId) {
+            if (!customizationsData || !Array.isArray(customizationsData)) {
+                return getDefaultCustomizationsForCategory(categoryId);
+            }
+            
+            return customizationsData.filter(custom => 
+                custom.categories && custom.categories.includes(categoryId)
+            );
+        }
+
+        // Get default customizations for a category (fallback)
+        function getDefaultCustomizationsForCategory(categoryId) {
+            const defaultCustomizations = [
+                {
+                    id: 'temperature',
+                    name: 'Temperature',
+                    type: 'single',
+                    required: true,
+                    categories: ['coffee', 'tea', 'non-coffee', 'signature-drinks'],
+                    options: [
+                        { id: 'hot', name: 'Hot', price: 0 },
+                        { id: 'cold', name: 'Cold', price: 10 }
+                    ]
+                },
+                {
+                    id: 'size',
+                    name: 'Size',
+                    type: 'single',
+                    required: true,
+                    categories: ['coffee', 'tea', 'non-coffee', 'signature-drinks'],
+                    options: [
+                        { id: 'small', name: 'Small', price: 0 },
+                        { id: 'medium', name: 'Medium', price: 15 },
+                        { id: 'large', name: 'Large', price: 25 }
+                    ]
+                }
+            ];
+            
+            return defaultCustomizations.filter(custom => 
+                custom.categories && custom.categories.includes(categoryId)
+            );
+        }
+
+        // Format category name for display
+        function formatCategoryName(category) {
+            if (!category) return '';
+            
+            // First try to get from categoryNames mapping
+            if (categoryNames[category]) {
+                return categoryNames[category];
+            }
+            
+            // If not found, try to map from known categories
+            const nameMap = {
+                'coffee': '☕ Coffee',
+                'tea': '🍵 Tea',
+                'non-coffee': '🥤 Non-Coffee',
+                'signature-drinks': '⭐ Signature Drinks',
+                'appetizers': '🍟 Appetizers',
+                'burger-sandwich': '🍔 Burger & Sandwich',
+                'pasta': '🍝 Pasta',
+                'desserts': '🍰 Desserts',
+                'fruity-options': '🍓 Fruity Options',
+                'signature-milkshakes': '🥛 Signature Milkshakes'
+            };
+            
+            if (nameMap[category]) {
+                return nameMap[category];
+            }
+            
+            // Fallback: format from kebab-case to readable
+            return category.split('-')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ');
+        }
+
+        // Switch menu category
+        function switchMenuCategory(category) {
+            if (category === 'all') {
+                // If "all" is selected, show first category
+                const firstCategory = categoryOrder.find(cat => menuData[cat] && menuData[cat].length > 0) || 'coffee';
+                category = firstCategory;
+            }
+            
+            // Update active tab
+            document.querySelectorAll('.menu-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            const activeTab = document.querySelector(`.menu-tab[data-category="${category}"]`);
+            if (activeTab) {
+                activeTab.classList.add('active');
+            }
+            
+            // Update category filter dropdown
+            const categoryFilter = document.getElementById('category-filter');
+            if (categoryFilter) {
+                categoryFilter.value = category;
+            }
+            
+            // Load menu items for the category
+            loadMenuItems(category);
+        }
+
+        // Load menu items for a category
+        function loadMenuItems(category) {
+            const menuGrid = document.getElementById('pos-menu-grid');
+            menuGrid.innerHTML = '';
+            
+            const items = menuData?.[category] || [];
+            
+            if (items && items.length > 0) {
+                items.forEach(item => {
+                    if (item.available !== false) { // Only show available items
+                        const productItem = document.createElement('div');
+                        productItem.className = 'pos-product-item';
+                        productItem.innerHTML = `
+                            <div class="pos-product-name">${item.name}</div>
+                            <div class="pos-product-price">₱${item.price.toFixed(2)}</div>
+                            <button class="add-to-order-btn" data-name="${item.name}" data-price="${item.price}" data-category="${item.category}">
+                                <i class="fas fa-plus"></i> Add
+                            </button>
+                        `;
+                        menuGrid.appendChild(productItem);
+                    }
+                });
+                
+                // Add event listeners to add buttons
+                document.querySelectorAll('.add-to-order-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const name = e.target.dataset.name;
+                        const price = parseFloat(e.target.dataset.price);
+                        const category = e.target.dataset.category;
+                        
+                        showCustomizationModal(name, price, category);
+                    });
+                });
+            } else {
+                menuGrid.innerHTML = '<div class="empty-state"><i class="fas fa-coffee"></i><p>No items in this category</p></div>';
+            }
+        }
+
+        // Show customization modal
+        function showCustomizationModal(name, basePrice, category) {
+            const modal = document.getElementById('customization-modal');
+            const modalProductName = document.getElementById('modal-product-name');
+            const modalTotalPrice = document.getElementById('modal-total-price');
+            const customizationOptions = document.getElementById('customization-options');
+            
+            modalProductName.textContent = `Customize ${name}`;
+            modalTotalPrice.textContent = `Total: ₱${basePrice.toFixed(2)}`;
+            
+            // Clear previous options
+            customizationOptions.innerHTML = '';
+            
+            // Get applicable customizations for this category
+            const applicableCustomizations = getCustomizationsForCategory(category);
+            
+            if (applicableCustomizations.length === 0) {
+                // No customizations needed, add directly to order
+                customizationOptions.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-check-circle"></i>
+                        <p>No customizations available for this item</p>
+                    </div>
+                `;
+                
+                // Update add button text
+                document.getElementById('add-to-order-final').innerHTML = 
+                    '<i class="fas fa-plus-circle"></i> Add to Order (No Customizations)';
+            } else {
+                // Build customization groups
+                applicableCustomizations.forEach(customization => {
+                    const group = document.createElement('div');
+                    group.className = 'customization-group';
+                    group.dataset.customizationId = customization.id;
+                    group.dataset.customizationType = customization.type;
+                    group.dataset.required = customization.required;
+                    
+                    // Create group header
+                    const header = document.createElement('h4');
+                    header.textContent = customization.name;
+                    if (customization.required) {
+                        header.innerHTML += ' <span style="color: var(--danger-color);">*</span>';
+                    }
+                    group.appendChild(header);
+                    
+                    // Create options container
+                    const optionList = document.createElement('div');
+                    optionList.className = 'option-list';
+                    
+                    // Add options
+                    customization.options.forEach((option, index) => {
+                        const optionItem = document.createElement('div');
+                        optionItem.className = 'option-item';
+                        
+                        const inputId = `${customization.id}-${option.id}`;
+                        
+                        if (customization.type === 'single') {
+                            optionItem.innerHTML = `
+                                <label class="option-label">
+                                    <input type="radio" 
+                                           name="${customization.id}" 
+                                           value="${option.id}" 
+                                           id="${inputId}"
+                                           data-price="${option.price || 0}"
+                                           ${index === 0 ? 'checked' : ''}>
+                                    <span>${option.name}</span>
+                                </label>
+                                <span class="option-price">${option.price > 0 ? '+₱' + option.price.toFixed(2) : 'No Charge'}</span>
+                            `;
+                        } else {
+                            optionItem.innerHTML = `
+                                <label class="option-label">
+                                    <input type="checkbox" 
+                                           name="${customization.id}" 
+                                           value="${option.id}" 
+                                           id="${inputId}"
+                                           data-price="${option.price || 0}">
+                                    <span>${option.name}</span>
+                                </label>
+                                <span class="option-price">${option.price > 0 ? '+₱' + option.price.toFixed(2) : 'No Charge'}</span>
+                            `;
+                        }
+                        
+                        optionList.appendChild(optionItem);
+                    });
+                    
+                    group.appendChild(optionList);
+                    customizationOptions.appendChild(group);
+                    
+                    // Add instructions for required fields
+                    if (customization.required && customization.type === 'single') {
+                        const note = document.createElement('p');
+                        note.style.color = '#666';
+                        note.style.fontSize = '0.9rem';
+                        note.style.marginTop = '5px';
+                        note.innerHTML = '<i class="fas fa-info-circle"></i> This selection is required';
+                        group.appendChild(note);
+                    }
+                });
+                
+                // Update add button text
+                document.getElementById('add-to-order-final').innerHTML = 
+                    '<i class="fas fa-plus-circle"></i> Add to Order';
+            }
+            
+            // Add event listeners to update total when options change
+            customizationOptions.querySelectorAll('input').forEach(input => {
+                input.addEventListener('change', updateModalTotal);
+            });
+            
+            // Show the modal
+            modal.classList.add('open');
+            
+            // Store current product info
+            currentProduct = { 
+                name, 
+                basePrice, 
+                category,
+                id: Date.now().toString() // Generate temporary ID
+            };
+        }
+
+        // Update modal total calculation
+        function updateModalTotal() {
+            const modalTotalPrice = document.getElementById('modal-total-price');
+            const customizationOptions = document.getElementById('customization-options');
+            
+            if (!currentProduct) return currentProduct.basePrice;
+            
+            let total = currentProduct.basePrice;
+            
+            // Loop through all customization groups
+            customizationOptions.querySelectorAll('.customization-group').forEach(group => {
+                const type = group.dataset.customizationType;
+                
+                if (type === 'single') {
+                    const selectedOption = group.querySelector('input[type="radio"]:checked');
+                    if (selectedOption) {
+                        total += parseFloat(selectedOption.dataset.price || 0);
+                    }
+                } else if (type === 'multiple') {
+                    const selectedOptions = group.querySelectorAll('input[type="checkbox"]:checked');
+                    selectedOptions.forEach(option => {
+                        total += parseFloat(option.dataset.price || 0);
                     });
                 }
+            });
+            
+            modalTotalPrice.textContent = `Total: ₱${total.toFixed(2)}`;
+            return total;
+        }
 
-                if (preparingOrders.length === 0) {
-                    preparingOrdersContainer.innerHTML = '<p>No orders in this category.</p>';
-                } else {
-                    preparingOrdersContainer.innerHTML = '';
-                    preparingOrders.forEach(order => {
-                        const orderDiv = document.createElement('div');
-                        orderDiv.classList.add('order-card');
-                        orderDiv.textContent = `Order ID: ${order.id} - Customer: ${order.customerName} - Total: ₱${order.totalPrice.toFixed(2)}`;
-                        preparingOrdersContainer.appendChild(orderDiv);
+        // Add item to current order
+        function addToCurrentOrder() {
+            if (!currentProduct) return;
+            
+            const finalPrice = updateModalTotal();
+            const customizations = {};
+            
+            const customizationOptions = document.getElementById('customization-options');
+            
+            // Check if there are no customizations
+            if (!customizationOptions.querySelector('.customization-group')) {
+                // No customizations available, add as-is
+            } else {
+                // Collect selected customizations
+                customizationOptions.querySelectorAll('.customization-group').forEach(group => {
+                    const customizationId = group.dataset.customizationId;
+                    const type = group.dataset.customizationType;
+                    const required = group.dataset.required === 'true';
+                    
+                    if (type === 'single') {
+                        const selectedOption = group.querySelector('input[type="radio"]:checked');
+                        if (selectedOption) {
+                            const optionId = selectedOption.value;
+                            const optionElement = group.querySelector(`#${customizationId}-${optionId}`);
+                            const optionName = optionElement?.closest('.option-label')?.querySelector('span')?.textContent || optionId;
+                            
+                            customizations[customizationId] = {
+                                type: 'single',
+                                value: optionId,
+                                name: optionName,
+                                price: parseFloat(selectedOption.dataset.price || 0)
+                            };
+                        } else if (required) {
+                            showToast(`Please select a ${group.querySelector('h4').textContent} option`, 'error');
+                            return;
+                        }
+                    } else if (type === 'multiple') {
+                        const selectedOptions = group.querySelectorAll('input[type="checkbox"]:checked');
+                        const selected = [];
+                        
+                        selectedOptions.forEach(option => {
+                            const optionId = option.value;
+                            const optionElement = group.querySelector(`#${customizationId}-${optionId}`);
+                            const optionName = optionElement?.closest('.option-label')?.querySelector('span')?.textContent || optionId;
+                            
+                            selected.push({
+                                id: optionId,
+                                name: optionName,
+                                price: parseFloat(option.dataset.price || 0)
+                            });
+                        });
+                        
+                        if (selected.length > 0) {
+                            customizations[customizationId] = {
+                                type: 'multiple',
+                                values: selected
+                            };
+                        }
+                    }
+                });
+            }
+            
+            // Get current order from localStorage or initialize
+            let currentOrder = JSON.parse(localStorage.getItem('cashierCurrentOrder')) || { items: [] };
+            
+            // Check if item already exists with same customizations
+            const existingItemIndex = currentOrder.items.findIndex(item => 
+                item.name === currentProduct.name && 
+                JSON.stringify(item.customizations) === JSON.stringify(customizations)
+            );
+            
+            if (existingItemIndex !== -1) {
+                // Increase quantity if item exists with same customizations
+                currentOrder.items[existingItemIndex].quantity += 1;
+            } else {
+                // Add new item with customizations
+                currentOrder.items.push({
+                    id: currentProduct.id,
+                    name: currentProduct.name,
+                    basePrice: currentProduct.basePrice,
+                    finalPrice: finalPrice,
+                    customizations: customizations,
+                    quantity: 1,
+                    category: currentProduct.category
+                });
+            }
+            
+            // Save to localStorage
+            localStorage.setItem('cashierCurrentOrder', JSON.stringify(currentOrder));
+            
+            // Update UI
+            updateCurrentOrderDisplay();
+            
+            // Close modal
+            document.getElementById('customization-modal').classList.remove('open');
+            
+            // Show success message
+            showToast(`${currentProduct.name} added to order`, 'success');
+            
+            // Reset current product
+            currentProduct = null;
+        }
+
+        // Helper function to format customizations for display
+        function formatCustomizationsForDisplay(customizations) {
+            if (!customizations || Object.keys(customizations).length === 0) {
+                return '';
+            }
+            
+            const parts = [];
+            
+            Object.entries(customizations).forEach(([customId, custom]) => {
+                if (custom.type === 'single') {
+                    parts.push(`${custom.name}: ${custom.value}`);
+                } else if (custom.type === 'multiple' && custom.values) {
+                    const valueNames = custom.values.map(v => v.name).join(', ');
+                    if (valueNames) {
+                        parts.push(`${customId}: ${valueNames}`);
+                    }
+                }
+            });
+            
+            return parts.length > 0 ? ` (${parts.join('; ')})` : '';
+        }
+
+        // Update current order display
+        function updateCurrentOrderDisplay() {
+            const currentOrder = JSON.parse(localStorage.getItem('cashierCurrentOrder')) || { items: [] };
+            const orderItemsList = document.getElementById('current-order-items');
+            const orderTotal = document.getElementById('current-order-total');
+            const completeOrderBtn = document.getElementById('complete-order-btn');
+            const mobileCompleteBtn = document.getElementById('mobile-complete-order');
+            
+            orderItemsList.innerHTML = '';
+            
+            if (currentOrder.items.length === 0) {
+                orderItemsList.innerHTML = '<div class="empty-state"><i class="fas fa-shopping-cart"></i><p>No items in order</p></div>';
+                orderTotal.textContent = '₱0.00';
+                completeOrderBtn.disabled = true;
+                mobileCompleteBtn.style.display = 'none';
+                return;
+            }
+            
+            let total = 0;
+            
+            currentOrder.items.forEach((item, index) => {
+                const itemRow = document.createElement('div');
+                itemRow.className = 'order-item-row';
+                
+                const customizationString = formatCustomizationsForDisplay(item.customizations);
+                
+                itemRow.innerHTML = `
+                    <div class="order-item-info">
+                        <div class="order-item-name">${item.name}${customizationString}</div>
+                        <div class="order-item-customization">₱${item.finalPrice.toFixed(2)} each</div>
+                    </div>
+                    <div class="order-item-actions">
+                        <input type="number" class="order-item-quantity" value="${item.quantity}" min="1" data-index="${index}">
+                        <button class="remove-item-btn" data-index="${index}" title="Remove item">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `;
+                
+                orderItemsList.appendChild(itemRow);
+                total += parseFloat(item.finalPrice) * item.quantity;
+            });
+            
+            orderTotal.textContent = `₱${total.toFixed(2)}`;
+            completeOrderBtn.disabled = false;
+            mobileCompleteBtn.style.display = 'flex';
+            
+            // Add event listeners
+            document.querySelectorAll('.order-item-quantity').forEach(input => {
+                input.addEventListener('change', (e) => {
+                    const index = parseInt(e.target.dataset.index);
+                    const newQuantity = parseInt(e.target.value);
+                    
+                    if (newQuantity < 1) {
+                        currentOrder.items.splice(index, 1);
+                    } else {
+                        currentOrder.items[index].quantity = newQuantity;
+                    }
+                    
+                    localStorage.setItem('cashierCurrentOrder', JSON.stringify(currentOrder));
+                    updateCurrentOrderDisplay();
+                });
+            });
+            
+            document.querySelectorAll('.remove-item-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const index = parseInt(e.target.closest('.remove-item-btn').dataset.index);
+                    const itemName = currentOrder.items[index].name;
+                    currentOrder.items.splice(index, 1);
+                    localStorage.setItem('cashierCurrentOrder', JSON.stringify(currentOrder));
+                    updateCurrentOrderDisplay();
+                    showToast(`${itemName} removed from order`, 'warning');
+                });
+            });
+        }
+
+        // Load orders from localStorage
+        function loadOrders() {
+            const ordersList = document.getElementById('orders-list');
+            const orders = JSON.parse(localStorage.getItem('bistroOrders')) || [];
+            
+            ordersList.innerHTML = '';
+            
+            if (orders.length === 0) {
+                ordersList.innerHTML = '<div class="empty-state"><i class="fas fa-clipboard-list"></i><p>No orders yet</p></div>';
+                return;
+            }
+            
+            // Sort orders by timestamp (newest first)
+            orders.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            
+            orders.forEach(order => {
+                const orderCard = document.createElement('div');
+                orderCard.className = 'order-card';
+                orderCard.dataset.orderId = order.id;
+                
+                // Format timestamp
+                const orderDate = new Date(order.timestamp);
+                const formattedTime = orderDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const formattedDate = orderDate.toLocaleDateString();
+
+                const deliveryType = order.delivery && order.delivery.type ? order.delivery.type : null;
+                const deliveryTitle = deliveryType === 'delivery' ? 'Delivery' : (deliveryType === 'pickup' ? 'Pickup' : 'Order Type');
+                let deliveryInfoHTML = '';
+                if (deliveryType === 'delivery') {
+                    const addr = order.delivery.address || '';
+                    const instr = order.delivery.instructions || '';
+                    const fee = typeof order.delivery.fee === 'number' ? order.delivery.fee : 0;
+                    deliveryInfoHTML = `
+                        <div class="order-delivery">
+                            <div class="order-delivery-title">${deliveryTitle}</div>
+                            <div>Address: ${addr || 'N/A'}</div>
+                            ${instr ? `<div>Instructions: ${instr}</div>` : ''}
+                            ${fee ? `<div>Delivery Fee: ₱${fee.toFixed(2)}</div>` : ''}
+                        </div>
+                    `;
+                } else if (deliveryType === 'pickup') {
+                    const pickupTime = order.delivery.pickupTime || '';
+                    deliveryInfoHTML = `
+                        <div class="order-delivery">
+                            <div class="order-delivery-title">${deliveryTitle}</div>
+                            ${pickupTime ? `<div>Pickup Time: ${pickupTime}</div>` : ''}
+                        </div>
+                    `;
+                }
+
+                const computedTotal = Array.isArray(order.items)
+                    ? order.items.reduce((sum, it) => sum + ((parseFloat(it.finalPrice) || 0) * (parseInt(it.quantity) || 0)), 0)
+                    : 0;
+                const displayTotal = (typeof order.total === 'number' ? order.total : undefined)
+                    ?? (typeof order.totalPrice === 'number' ? order.totalPrice : undefined)
+                    ?? computedTotal;
+                
+                orderCard.innerHTML = `
+                    <div class="order-header">
+                        <div>
+                            <span class="order-id">Order #${order.id}</span>
+                            <span class="order-customer"> - ${order.customerName}</span>
+                        </div>
+                        <div class="order-timestamp">${formattedDate} ${formattedTime}</div>
+                    </div>
+                    <div class="order-items">
+                        ${order.items.map(item => {
+                            const customizationString = formatCustomizationsForDisplay(item.customizations);
+                            return `
+                                <div class="order-item">
+                                    <span>${item.quantity}x ${item.name}${customizationString}</span>
+                                    <span>₱${item.finalPrice.toFixed(2)}</span>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                    ${deliveryInfoHTML || ''}
+                    <div class="order-footer">
+                        <div class="order-total">Total: ₱${displayTotal.toFixed(2)}</div>
+                        <div>
+                            <span class="status-badge status-${order.status.toLowerCase()}">${order.status}</span>
+                            <select class="status-select" data-order-id="${order.id}">
+                                <option value="New" ${order.status === 'New' ? 'selected' : ''}>New</option>
+                                <option value="Preparing" ${order.status === 'Preparing' ? 'selected' : ''}>Preparing</option>
+                                <option value="Ready" ${order.status === 'Ready' ? 'selected' : ''}>Ready</option>
+                                <option value="Completed" ${order.status === 'Completed' ? 'selected' : ''}>Completed</option>
+                            </select>
+                        </div>
+                    </div>
+                `;
+                
+                ordersList.appendChild(orderCard);
+            });
+            
+            // Add event listeners to status selects
+            document.querySelectorAll('.status-select').forEach(select => {
+                select.addEventListener('change', (e) => {
+                    const orderId = e.target.dataset.orderId;
+                    const newStatus = e.target.value;
+                    updateOrderStatus(orderId, newStatus);
+                });
+            });
+        }
+
+        // Update order status
+        function updateOrderStatus(orderId, newStatus) {
+            const orders = JSON.parse(localStorage.getItem('bistroOrders')) || [];
+            const orderIndex = orders.findIndex(order => String(order.id) === String(orderId));
+            
+            if (orderIndex !== -1) {
+                orders[orderIndex].status = newStatus;
+                localStorage.setItem('bistroOrders', JSON.stringify(orders));
+            
+                // Update the status badge in the UI
+                const orderCard = document.querySelector(`.order-card[data-order-id="${orderId}"]`);
+                if (orderCard) {
+                    const statusBadge = orderCard.querySelector('.status-badge');
+            
+                    // Update classes
+                    statusBadge.className = `status-badge status-${newStatus.toLowerCase()}`;
+                    statusBadge.textContent = newStatus;
+            
+                    // Show confirmation for completed orders
+                    if (newStatus === 'Completed') {
+                        showToast(`Order #${orderId} marked as completed!`, 'success');
+                        // Refresh stats when order is marked as completed
+                        initializeStats();
+                    }
+                }
+            
+                // Reload orders to reflect changes
+                loadOrders();
+            }
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            const icon = toast.querySelector('i');
+            
+            toastMessage.textContent = message;
+            
+            // Update icon based on type
+            if (type === 'success') {
+                icon.className = 'fas fa-check-circle';
+            } else if (type === 'error') {
+                icon.className = 'fas fa-exclamation-circle';
+            } else if (type === 'warning') {
+                icon.className = 'fas fa-exclamation-triangle';
+            }
+            
+            toast.className = `toast ${type}`;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Initialize event listeners
+        function initializeEventListeners() {
+            // Close customization modal
+            document.getElementById('close-customization').addEventListener('click', () => {
+                document.getElementById('customization-modal').classList.remove('open');
+                currentProduct = null;
+            });
+            
+            // Close modal when clicking outside
+            document.getElementById('customization-modal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('customization-modal')) {
+                    document.getElementById('customization-modal').classList.remove('open');
+                    currentProduct = null;
+                }
+            });
+            
+            // Add to order from modal
+            document.getElementById('add-to-order-final').addEventListener('click', addToCurrentOrder);
+            
+            // Category filter change
+            document.getElementById('category-filter').addEventListener('change', (e) => {
+                switchMenuCategory(e.target.value);
+            });
+            
+            // Menu search
+            document.getElementById('menu-search').addEventListener('input', (e) => {
+                filterMenuItems(e.target.value);
+            });
+            
+            // Refresh orders
+            document.getElementById('refresh-orders-btn').addEventListener('click', loadOrders);
+            document.getElementById('refresh-orders').addEventListener('click', loadOrders);
+            
+            // Complete order
+            document.getElementById('complete-order-btn').addEventListener('click', completeCurrentOrder);
+            
+            // Mobile complete order button
+            document.getElementById('mobile-complete-order').addEventListener('click', completeCurrentOrder);
+            
+            // Logout
+            document.getElementById('logout-btn').addEventListener('click', () => {
+                if (confirm('Are you sure you want to logout?')) {
+                    window.location.href = 'login.html';
+                }
+            });
+            
+            // Escape key to close modal
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    document.getElementById('customization-modal').classList.remove('open');
+                    currentProduct = null;
+                }
+            });
+        }
+
+        // Complete current order
+        function completeCurrentOrder() {
+            const currentOrder = JSON.parse(localStorage.getItem('cashierCurrentOrder'));
+            
+            if (!currentOrder || currentOrder.items.length === 0) {
+                showToast('No items in current order!', 'error');
+                return;
+            }
+            
+            // Calculate total
+            const totalPrice = currentOrder.items.reduce((total, item) => total + (parseFloat(item.finalPrice) * item.quantity), 0);
+            
+            // Create order object
+            const order = {
+                id: Date.now(), // Simple ID based on timestamp
+                customerName: 'Walk-in Customer',
+                items: [...currentOrder.items], // Copy current order items
+                totalPrice: totalPrice,
+                status: 'New', // Note: New orders start as 'New', not 'Completed'
+                timestamp: new Date().toISOString()
+            };
+            
+            // Save to orders in localStorage
+            const orders = JSON.parse(localStorage.getItem('bistroOrders')) || [];
+            orders.push(order);
+            localStorage.setItem('bistroOrders', JSON.stringify(orders));
+            
+            // Clear current order
+            localStorage.removeItem('cashierCurrentOrder');
+            updateCurrentOrderDisplay();
+            
+            // Reload orders to show the new one
+            loadOrders();
+            
+            // Refresh stats (though this order is 'New', so it won't affect completed revenue yet)
+            initializeStats();
+            
+            // Show success message
+            showToast(`Order #${order.id} placed successfully! Total: ₱${totalPrice.toFixed(2)}`, 'success');
+        }
+
+        // Filter menu items based on search query
+        function filterMenuItems(query) {
+            const activeCategory = document.querySelector('.menu-tab.active')?.dataset.category || 'coffee';
+            const menuGrid = document.getElementById('pos-menu-grid');
+            
+            // If query is empty, show all items in active category
+            if (!query.trim()) {
+                loadMenuItems(activeCategory);
+                return;
+            }
+            
+            // Filter items across all categories if "all" is selected, otherwise filter within active category
+            const categoriesToSearch = document.getElementById('category-filter').value === 'all' 
+                ? categoryOrder.filter(cat => menuData[cat])  // Use ordered categories
+                : [activeCategory];
+            
+            let filteredItems = [];
+            
+            categoriesToSearch.forEach(category => {
+                const categoryItems = menuData?.[category] || [];
+                const matchingItems = categoryItems.filter(item => 
+                    item.name.toLowerCase().includes(query.toLowerCase())
+                );
+                filteredItems = filteredItems.concat(matchingItems.map(item => ({...item, category})));
+            });
+            
+            // Display filtered items
+            menuGrid.innerHTML = '';
+            
+            if (filteredItems.length > 0) {
+                filteredItems.forEach(item => {
+                    const productItem = document.createElement('div');
+                    productItem.className = 'pos-product-item';
+                    productItem.innerHTML = `
+                        <div class="pos-product-name">${item.name}</div>
+                        <div class="pos-product-price">₱${item.price.toFixed(2)}</div>
+                        <div style="font-size: 0.8rem; color: #666; margin-bottom: 10px;">${formatCategoryName(item.category)}</div>
+                        <button class="add-to-order-btn" data-name="${item.name}" data-price="${item.price}" data-category="${item.category}">
+                            <i class="fas fa-plus"></i> Add
+                        </button>
+                    `;
+                    menuGrid.appendChild(productItem);
+                });
+                
+                // Add event listeners to add buttons
+                document.querySelectorAll('.add-to-order-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const name = e.target.dataset.name;
+                        const price = parseFloat(e.target.dataset.price);
+                        const category = e.target.dataset.category;
+                        
+                        showCustomizationModal(name, price, category);
                     });
+                });
+            } else {
+                menuGrid.innerHTML = '<div class="empty-state"><i class="fas fa-search"></i><p>No items found</p></div>';
+            }
+        }
+
+        // Initialize category filter dropdown
+        function initializeCategoryFilter() {
+            const categoryFilter = document.getElementById('category-filter');
+            if (categoryFilter) {
+                // Clear existing options except "All Categories"
+                categoryFilter.innerHTML = '<option value="all">All Categories</option>';
+                
+                // Use ordered categories
+                const categories = categoryOrder.length > 0 ? 
+                    categoryOrder.filter(cat => menuData[cat] && menuData[cat].length > 0) : 
+                    Object.keys(menuData || {}).filter(cat => menuData[cat] && menuData[cat].length > 0);
+                
+                // Add category options
+                categories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category;
+                    option.textContent = formatCategoryName(category);
+                    categoryFilter.appendChild(option);
+                });
+            }
+        }
+
+        // Enhanced synchronization function
+        function syncMenuDataFromAdmin() {
+            // Check if admin data is newer than our cache
+            const lastUpdate = localStorage.getItem('menuDataLastUpdate');
+            const adminLastUpdate = localStorage.getItem('coffeeShopMenuDataTimestamp');
+            
+            if (adminLastUpdate && (!lastUpdate || new Date(adminLastUpdate) > new Date(lastUpdate))) {
+                console.log('New admin data detected, updating cashier panel...');
+                
+                // Save current active category
+                const activeTab = document.querySelector('.menu-tab.active');
+                const activeCategory = activeTab ? activeTab.dataset.category : null;
+                
+                // Save current order items (if any)
+                const currentOrder = JSON.parse(localStorage.getItem('cashierCurrentOrder')) || { items: [] };
+                
+                // Reload data
+                loadMenuData();
+                localStorage.setItem('menuDataLastUpdate', new Date().toISOString());
+                
+                // Reinitialize tabs and filter
+                initializeMenuTabs();
+                initializeCategoryFilter();
+                
+                // Restore current order
+                localStorage.setItem('cashierCurrentOrder', JSON.stringify(currentOrder));
+                
+                // Restore active category or use first available
+                if (activeCategory && menuData[activeCategory] && menuData[activeCategory].length > 0) {
+                    switchMenuCategory(activeCategory);
+                } else {
+                    // Find first category with items
+                    const firstCategory = categoryOrder.find(cat => menuData[cat] && menuData[cat].length > 0) || 'coffee';
+                    switchMenuCategory(firstCategory);
+                }
+                
+                // Update current order display
+                updateCurrentOrderDisplay();
+                
+                showToast('Menu updated with latest changes from admin', 'success');
+                return true;
+            }
+            return false;
+        }
+
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl + Enter to complete order
+            if (e.ctrlKey && e.key === 'Enter') {
+                completeCurrentOrder();
+            }
+            // Escape to close modal
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('customization-modal');
+                if (modal.classList.contains('open')) {
+                    modal.classList.remove('open');
+                    currentProduct = null;
                 }
             }
-
-            renderOrders();
+            // Ctrl + F to focus search
+            if (e.ctrlKey && e.key === 'f') {
+                e.preventDefault();
+                document.getElementById('menu-search').focus();
+            }
+            // Ctrl + R to refresh orders
+            if (e.ctrlKey && e.key === 'r') {
+                e.preventDefault();
+                loadOrders();
+                showToast('Orders refreshed', 'success');
+            }
         });
+
+        // Enhanced stats initialization with completed-only calculations
+        function initializeStats() {
+            const orders = JSON.parse(localStorage.getItem('bistroOrders')) || [];
+            const today = new Date();
+            const todayString = today.toDateString();
+            
+            // Filter for today's orders
+            const todayOrders = orders.filter(order => {
+                const orderDate = new Date(order.timestamp).toDateString();
+                return orderDate === todayString;
+            });
+            
+            // Filter for today's COMPLETED orders only
+            const todayCompletedOrders = todayOrders.filter(order => {
+                const status = order.status ? order.status.toLowerCase() : '';
+                return status === 'completed';
+            });
+            
+            // Filter for today's NEW/PENDING orders
+            const todayPendingOrders = todayOrders.filter(order => {
+                const status = order.status ? order.status.toLowerCase() : '';
+                return status === 'new' || status === 'preparing' || status === 'ready';
+            });
+            
+            // Calculate total revenue from COMPLETED orders only
+            const totalRevenue = todayCompletedOrders.reduce((sum, order) => {
+                // Handle different possible property names for total
+                const orderTotal = order.totalPrice || order.total || 
+                                (order.items && Array.isArray(order.items) ? 
+                                order.items.reduce((itemSum, item) => 
+                                    itemSum + ((parseFloat(item.finalPrice) || 0) * (parseInt(item.quantity) || 0)), 0) : 0);
+                return sum + parseFloat(orderTotal);
+            }, 0);
+            
+            // Calculate average order value from COMPLETED orders only
+            const averageOrderValue = todayCompletedOrders.length > 0 ? 
+                totalRevenue / todayCompletedOrders.length : 0;
+            
+            // Create stats bar if it doesn't exist
+            let statsBar = document.querySelector('.stats-bar');
+            if (!statsBar) {
+                statsBar = document.createElement('div');
+                statsBar.className = 'stats-bar';
+                const panel = document.querySelector('.panel:first-child');
+                if (panel) {
+                    panel.insertBefore(statsBar, document.querySelector('.panel-header').nextSibling);
+                }
+            }
+            
+            // Determine revenue change indicator
+            let revenueChange = '';
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayString = yesterday.toDateString();
+            
+            const yesterdayCompletedOrders = orders.filter(order => {
+                const orderDate = new Date(order.timestamp).toDateString();
+                const status = order.status ? order.status.toLowerCase() : '';
+                return orderDate === yesterdayString && status === 'completed';
+            });
+            
+            const yesterdayRevenue = yesterdayCompletedOrders.reduce((sum, order) => {
+                const orderTotal = order.totalPrice || order.total || 0;
+                return sum + parseFloat(orderTotal);
+            }, 0);
+            
+            if (yesterdayRevenue > 0) {
+                const changePercent = ((totalRevenue - yesterdayRevenue) / yesterdayRevenue * 100);
+                if (Math.abs(changePercent) > 0.1) {
+                    revenueChange = changePercent > 0 ? 
+                        `<span style="color: #2E8B57; font-size: 0.9rem;">↑ ${Math.abs(changePercent).toFixed(1)}%</span>` :
+                        `<span style="color: #B22222; font-size: 0.9rem;">↓ ${Math.abs(changePercent).toFixed(1)}%</span>`;
+                }
+            }
+            
+            statsBar.innerHTML = `
+                <div class="stat-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                        <h3>${todayOrders.length}</h3>
+                        <span style="background: rgba(70, 130, 180, 0.1); color: #4682B4; padding: 2px 8px; border-radius: 10px; font-size: 0.85rem; font-weight: 600;">
+                            ${todayPendingOrders.length} pending
+                        </span>
+                    </div>
+                    <p>Today's Orders</p>
+                    <small style="color: #666; font-size: 0.85rem; display: block; margin-top: 5px;">
+                        All statuses • ${todayCompletedOrders.length} completed
+                    </small>
+                </div>
+                <div class="stat-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                        <h3>₱${totalRevenue.toFixed(2)}</h3>
+                        ${revenueChange}
+                    </div>
+                    <p>Today's Revenue</p>
+                    <small style="color: #666; font-size: 0.85rem; display: block; margin-top: 5px;">
+                        From ${todayCompletedOrders.length} completed order${todayCompletedOrders.length !== 1 ? 's' : ''}
+                    </small>
+                </div>
+                <div class="stat-card">
+                    <h3>₱${averageOrderValue.toFixed(2)}</h3>
+                    <p>Average Order</p>
+                    <small style="color: #666; font-size: 0.85rem; display: block; margin-top: 5px;">
+                        Based on completed orders only
+                    </small>
+                </div>
+            `;
+            
+            // Add hover effects to stat cards
+            statsBar.querySelectorAll('.stat-card').forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-8px) scale(1.02)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+        }
+
+        // Call initializeStats when loading orders
+        const originalLoadOrders = loadOrders;
+        loadOrders = function() {
+            originalLoadOrders();
+            initializeStats();
+        };
+
+        // Initialize stats on page load
+        setTimeout(initializeStats, 1000);
     </script>
 </body>
 </html>
