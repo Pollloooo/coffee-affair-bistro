@@ -1,1 +1,0 @@
-- [x] Replace the header in about.html with the header from index.html to make them identical.
