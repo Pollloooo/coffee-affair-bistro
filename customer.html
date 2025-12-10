@@ -1,3 +1,5 @@
+[file name]: customer.html
+[file content begin]
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -386,6 +388,7 @@
 
         .product-item.out-of-stock::before {
             content: "";
+;
             position: absolute;
             top: 0;
             left: 0;
@@ -2249,59 +2252,138 @@
             }
         }
 
-        // Load menu data from localStorage (shared with admin menu)
-        function loadMenuData() {
-            const savedMenuData = localStorage.getItem('coffeeShopMenuData');
-            if (savedMenuData) {
-                const data = JSON.parse(savedMenuData);
-                // Remove promotions from loaded data
-                if (data.promotions) {
-                    delete data.promotions;
+        // Replace the ENTIRE loadMenuData function with this:
+        async function loadMenuData() {
+            console.log('Loading menu data from server...');
+            
+            // Cache key for localStorage
+            const CACHE_KEY = 'coffeeShopMenuData_v2';
+            const CACHE_TIMESTAMP_KEY = 'coffeeShopMenuTimestamp';
+            
+            try {
+                // Try to fetch from server FIRST (always try to get fresh data)
+                const timestamp = new Date().getTime();
+                const response = await fetch(`/menu-data.json?t=${timestamp}`);
+                
+                if (response.ok) {
+                    const serverData = await response.json();
+                    console.log('✅ Successfully loaded menu data from server:', {
+                        version: serverData.version || 'unknown',
+                        categories: serverData.categories?.length || 0,
+                        lastUpdated: serverData.lastUpdated || 'unknown'
+                    });
+                    
+                    // Save to localStorage for offline use
+                    localStorage.setItem(CACHE_KEY, JSON.stringify(serverData));
+                    localStorage.setItem(CACHE_TIMESTAMP_KEY, Date.now().toString());
+                    
+                    return serverData;
                 }
-                return data;
+            } catch (error) {
+                console.log('⚠️ Could not fetch from server, checking cache...', error.message);
             }
-            // Return default structure if no data exists
-            return {
-                customizations: [
-                    {
-                        id: 'temperature',
-                        name: 'Temperature',
-                        type: 'single',
-                        required: true,
-                        categories: ['coffee', 'non-coffee', 'tea'],
-                        options: [
+            
+            // Fallback to localStorage cache if server fetch fails
+            const cachedData = localStorage.getItem(CACHE_KEY);
+            if (cachedData) {
+                try {
+                    const data = JSON.parse(cachedData);
+                    console.log('📦 Using cached menu data (offline mode)');
+                    return data;
+                } catch (error) {
+                    console.error('Error parsing cached data:', error);
+                }
+            }
+            
+            // Ultimate fallback: default data
+            console.warn('⚠️ No server data and no cache, using default menu');
+            return getDefaultMenuData();
+        }
+
+        // Auto-check for updates every 30 seconds
+        function setupMenuAutoRefresh() {
+            setInterval(async () => {
+                try {
+                    const timestamp = new Date().getTime();
+                    const response = await fetch(`/menu-data.json?t=${timestamp}`);
+                    
+                    if (response.ok) {
+                        const serverData = await response.json();
+                        const cachedData = JSON.parse(localStorage.getItem('coffeeShopMenuData_v2') || '{}');
+                        
+                        // Check if server data is newer
+                        const serverVersion = serverData.version || 0;
+                        const cachedVersion = cachedData.version || 0;
+                        
+                        if (serverVersion > cachedVersion) {
+                            console.log('🔄 Menu updated detected! Refreshing...');
+                            localStorage.setItem('coffeeShopMenuData_v2', JSON.stringify(serverData));
+                            localStorage.setItem('coffeeShopMenuTimestamp', Date.now().toString());
+                            
+                            // Show notification to user
+                            showNotification('Menu has been updated! Refreshing...', 'info');
+                            
+                            // Reload the menu after 2 seconds
+                            setTimeout(() => {
+                                generateMenu();
+                                showNotification('Menu refreshed with latest items!', 'success');
+                            }, 2000);
+                        }
+                    }
+                } catch (error) {
+                    // Silent fail - it's okay if auto-refresh fails
+                }
+            }, 30000); // Check every 30 seconds
+        }
+
+        // Create a menu-data.json file in your Netlify site root
+        // Helper function for default customizations
+        function getDefaultCustomizations() {
+            return [
+                {
+                    id: 'temperature',
+                    name: 'Temperature',
+                    type: 'single',
+                    required: true,
+                    categories: ['coffee', 'tea', 'non-coffee', 'signature-drinks'],
+                    options: [
                         { id: 'hot', name: 'Hot', price: 0 },
                         { id: 'cold', name: 'Cold', price: 10 }
-                        ]
-                    },
-                    {
-                        id: 'size',
-                        name: 'Size',
-                        type: 'single',
-                        required: true,
-                        categories: ['coffee', 'non-coffee', 'tea', 'signature-drinks'],
-                        options: [
+                    ]
+                },
+                {
+                    id: 'size',
+                    name: 'Size',
+                    type: 'single',
+                    required: true,
+                    categories: ['coffee', 'tea', 'non-coffee', 'signature-drinks', 'appetizers'],
+                    options: [
                         { id: 'small', name: 'Small', price: 0 },
                         { id: 'medium', name: 'Medium', price: 15 }
-                        ]
-                    }
-                ],
+                    ]
+                }
+            ];
+        }
+
+        // Get default menu data structure
+        function getDefaultMenuData() {
+            return {
                 categories: [
                     {
                         id: 'coffee',
                         name: 'Coffee',
                         description: 'Our premium coffee selection',
-                        image: 'images/coffee/category.jpg',
+                        image: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60',
                         displayOrder: 1,
                         visible: true,
                         items: [
                             {
                                 id: 'americano',
                                 name: 'Americano',
-                                description: 'Rich espresso with hot water for a bold, smooth flavor that awakens your senses. Perfect for those who appreciate the pure taste of coffee.',
+                                description: 'Rich espresso with hot water',
                                 price: 110,
                                 cost: 40,
-                                image: 'images/coffee/americano.jpg',
+                                image: 'https://images.unsplash.com/photo-1498804103079-a6351b050096?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
                                 sku: 'COF-001',
                                 featured: false,
                                 seasonal: false,
@@ -2310,42 +2392,14 @@
                                 stock: 50
                             },
                             {
-                                id: 'latte',
-                                name: 'Cafe Latte',
-                                description: 'Espresso with steamed milk and a light layer of foam. A classic favorite with a perfect balance of coffee and milk.',
-                                price: 120,
-                                cost: 45,
-                                image: 'https://images.unsplash.com/photo-1561047029-3000c68339ca?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8bGF0dGV8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60',
-                                sku: 'COF-002',
-                                featured: true,
-                                seasonal: false,
-                                available: true,
-                                trackStock: true,
-                                stock: 35
-                            },
-                            {
-                                id: 'espresso',
-                                name: 'Espresso',
-                                description: 'Strong and concentrated coffee that delivers a rich flavor in a small serving.',
-                                price: 90,
-                                cost: 30,
-                                image: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8ZXNwcmVzc298ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60',
-                                sku: 'COF-003',
-                                featured: false,
-                                seasonal: false,
-                                available: true,
-                                trackStock: true,
-                                stock: 40
-                            },
-                            {
                                 id: 'cappuccino',
                                 name: 'Cappuccino',
-                                description: 'Equal parts espresso, steamed milk, and milk foam. A classic Italian coffee with a rich, creamy texture.',
-                                price: 125,
+                                description: 'Espresso with steamed milk and foam',
+                                price: 130,
                                 cost: 45,
-                                image: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y2FwcHVjY2lub3xlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=500&q=60',
-                                sku: 'COF-004',
-                                featured: false,
+                                image: 'https://images.unsplash.com/photo-1570197788417-0e82375c9371?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
+                                sku: 'COF-002',
+                                featured: true,
                                 seasonal: false,
                                 available: true,
                                 trackStock: true,
@@ -2356,81 +2410,48 @@
                     {
                         id: 'tea',
                         name: 'Tea',
-                        description: 'Aromatic tea selections',
-                        image: 'images/tea/category.jpg',
+                        description: 'Various tea selections',
+                        image: 'https://images.unsplash.com/photo-1560512823-829485b8bf24?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
                         displayOrder: 2,
                         visible: true,
                         items: [
                             {
-                                id: 'earl-grey',
-                                name: 'Earl Grey',
-                                description: 'Classic bergamot-infused black tea with a distinctive citrus aroma and smooth finish.',
-                                price: 80,
-                                cost: 25,
-                                image: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8ZWFybCUyMGdyZXl8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60',
+                                id: 'green-tea',
+                                name: 'Green Tea',
+                                description: 'Refreshing green tea leaves',
+                                price: 90,
+                                cost: 30,
+                                image: 'https://images.unsplash.com/photo-1560512823-829485b8bf24?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
                                 sku: 'TEA-001',
                                 featured: false,
                                 seasonal: false,
                                 available: true,
                                 trackStock: true,
-                                stock: 25
-                            },
-                            {
-                                id: 'green-tea',
-                                name: 'Green Tea',
-                                description: 'Light and refreshing green tea with delicate vegetal notes and a clean finish.',
-                                price: 75,
-                                cost: 20,
-                                image: 'https://images.unsplash.com/photo-1544787219-7f47ccb76574?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Z3JlZW4lMjB0ZWF8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60',
-                                sku: 'TEA-002',
-                                featured: false,
-                                seasonal: false,
-                                available: true,
-                                trackStock: true,
-                                stock: 35
-                            }
-                        ]
-                    },
-                    {
-                        id: 'desserts',
-                        name: 'Desserts',
-                        description: 'Sweet treats to complement your drink',
-                        image: 'images/desserts/category.jpg',
-                        displayOrder: 3,
-                        visible: true,
-                        items: [
-                            {
-                                id: 'tiramisu',
-                                name: 'Tiramisu',
-                                description: 'Classic Italian coffee-flavored dessert with layers of coffee-soaked ladyfingers and mascarpone cream.',
-                                price: 150,
-                                cost: 60,
-                                image: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8dGlyYW1pc3V8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60',
-                                sku: 'DES-001',
-                                featured: true,
-                                seasonal: false,
-                                available: true,
-                                trackStock: true,
-                                stock: 15
-                            },
-                            {
-                                id: 'chocolate-cake',
-                                name: 'Chocolate Cake',
-                                description: 'Rich and moist chocolate delight with layers of decadent chocolate frosting.',
-                                price: 140,
-                                cost: 50,
-                                image: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y2hvY29sYXRlJTIwY2FrZXxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=500&q=60',
-                                sku: 'DES-002',
-                                featured: false,
-                                seasonal: false,
-                                available: true,
-                                trackStock: true,
-                                stock: 12
+                                stock: 40
                             }
                         ]
                     }
-                ]
+                ],
+                customizations: getDefaultCustomizations()
             };
+        }
+
+        // Check and sync data automatically
+        function checkAndSyncData() {
+            // Check for data sync every 2 seconds
+            setInterval(() => {
+                const saved = localStorage.getItem('coffeeShopMenuData');
+                if (saved) {
+                    // Data exists, update menu if needed
+                    const menuContainer = document.getElementById('menu-container');
+                    
+                    // Only regenerate if menu is empty
+                    if (menuContainer && menuContainer.children.length === 0) {
+                        console.log('Auto-refreshing menu with stored data');
+                        generateMenu();
+                    }
+                }
+            }, 2000);
         }
 
         // Load order data from localStorage
@@ -2533,7 +2554,6 @@
             });
         }
 
-
         // Helper function to get customization by ID
         function getCustomizationById(customizationId) {
             const menuData = loadMenuData();
@@ -2552,8 +2572,9 @@
         }
 
         // Generate the menu based on loaded data
-        function generateMenu() {
-            const menuData = loadMenuData();
+        async function generateMenu() {
+            console.log('Generating menu from loaded data...');
+            const menuData = await loadMenuData();
             const categoriesContainer = document.getElementById('categories-container');
             const menuContainer = document.getElementById('menu-container');
             
@@ -2563,7 +2584,10 @@
             const sortedCategories = menuData.categories.sort((a, b) => a.displayOrder - b.displayOrder);
             
             sortedCategories.forEach((category, index) => {
-                if (!category.visible) return;
+                if (!category.visible) {
+                    console.log(`Skipping hidden category: ${category.name}`);
+                    return;
+                }
                 
                 // Create category tab
                 const categoryTab = document.createElement('div');
@@ -2583,35 +2607,41 @@
                 section.style.animationDelay = `${index * 0.1}s`;
                 
                 let itemsHTML = '';
-                category.items.forEach((item, itemIndex) => {
-                    if (!item.available) return;
-                    
-                    const isOutOfStock = item.trackStock && item.stock <= 0;
-                    const outOfStockClass = isOutOfStock ? 'out-of-stock' : '';
-                    const outOfStockBadge = isOutOfStock ? '<div class="out-of-stock-badge">Out of Stock</div>' : '';
-                    
-                    // Create a clean product data string without complex escaping
-                    const productData = encodeURIComponent(JSON.stringify(item));
-                    
-                    itemsHTML += `
-                        <div class="product-item ${outOfStockClass}" data-product="${productData}" style="animation-delay: ${itemIndex * 0.05}s">
-                            ${outOfStockBadge}
-                            <div class="product-image-container">
-                                <img src="${item.image}" alt="${item.name}">
-                                <div class="product-overlay"></div>
+                const availableItems = category.items.filter(item => item.available);
+                
+                if (availableItems.length === 0) {
+                    itemsHTML = '<p class="empty-message" style="text-align: center; color: #777; font-style: italic; padding: 40px 0;">No items available in this category</p>';
+                } else {
+                    availableItems.forEach((item, itemIndex) => {
+                        const isOutOfStock = item.trackStock && item.stock <= 0;
+                        const outOfStockClass = isOutOfStock ? 'out-of-stock' : '';
+                        const outOfStockBadge = isOutOfStock ? '<div class="out-of-stock-badge">Out of Stock</div>' : '';
+                        
+                        // Create a clean product data string
+                        const productData = encodeURIComponent(JSON.stringify(item));
+                        
+                        itemsHTML += `
+                            <div class="product-item ${outOfStockClass}" data-product="${productData}" style="animation-delay: ${itemIndex * 0.05}s">
+                                ${outOfStockBadge}
+                                <div class="product-image-container">
+                                    <img src="${item.image}" 
+                                        alt="${item.name}"
+                                        onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1559056199-641a0ac8b55e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60'">
+                                    <div class="product-overlay"></div>
+                                </div>
+                                <p class="product-caption">${item.name}</p>
+                                <p class="product-price">₱${item.price}</p>
                             </div>
-                            <p class="product-caption">${item.name}</p>
-                            <p class="product-price">₱${item.price}</p>
-                        </div>
-                    `;
-                });
+                        `;
+                    });
+                }
                 
                 section.innerHTML = `
                     <div class="category-header">
                         <h2 class="menu-category-title">${category.name}</h2>
                     </div>
                     <div class="product-grid">
-                        ${itemsHTML || '<p class="empty-message">No items available in this category</p>'}
+                        ${itemsHTML}
                     </div>
                 `;
                 
@@ -2620,6 +2650,7 @@
             
             setupEventListeners();
             generateOrderStatusPanel();
+            console.log('Menu generation completed');
         }
 
         // Helper function to get appropriate icon for each category
@@ -2824,7 +2855,7 @@
                 // Update total initially
                 updateModalTotal(product);
             } else {
-                modalCustomization.innerHTML = '<p>No customization options available for this item.</p>';
+                modalCustomization.innerHTML = '<p style="text-align: center; color: #777;">No customization options available for this item.</p>';
             }
             
             // Set up add to cart button
@@ -2909,14 +2940,14 @@
         }
 
         // Show notification
-        function showNotification(message) {
+        function showNotification(message, type = 'success') {
             // Create notification element
             const notification = document.createElement('div');
             notification.textContent = message;
             notification.style.position = 'fixed';
             notification.style.top = '100px';
             notification.style.right = '20px';
-            notification.style.background = 'var(--success-color)';
+            notification.style.background = type === 'success' ? 'var(--success-color)' : type === 'warning' ? 'var(--warning-color)' : 'var(--danger-color)';
             notification.style.color = 'white';
             notification.style.padding = '15px 20px';
             notification.style.borderRadius = '10px';
@@ -3149,7 +3180,7 @@
             });
         });
 
-        // Order Status Panel Functionality - Fix
+        // Order Status Panel Functionality
         const orderStatusIcon = document.getElementById('order-status-icon');
         const orderStatusPanel = document.getElementById('order-status-panel');
         const closeOrderStatus = document.getElementById('close-order-status');
@@ -3175,6 +3206,7 @@
             orderStatusOverlay.classList.add('open');
             document.body.style.overflow = 'hidden';
         }
+
         // Initialize order status
         function initializeOrderStatus() {
             // Update orders badge on load
@@ -3492,34 +3524,6 @@
             return orderCard;
         }
 
-        // Create progress bar
-        function createProgressBar(status) {
-            let progress = 0;
-            
-            switch(status.toLowerCase()) {
-                case 'new':
-                    progress = 25;
-                    break;
-                case 'preparing':
-                    progress = 50;
-                    break;
-                case 'ready':
-                    progress = 75;
-                    break;
-                case 'completed':
-                    progress = 100;
-                    break;
-                default:
-                    progress = 0;
-            }
-            
-            return `
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: ${progress}%"></div>
-                </div>
-            `;
-        }
-
         // Calculate estimated completion time
         function calculateEstimatedTime(status, orderTimestamp) {
             const orderTime = new Date(orderTimestamp);
@@ -3550,7 +3554,6 @@
                 minute: '2-digit'
             });
         }
-
 
         // Create status timeline
         function createStatusTimeline(status) {
@@ -3596,34 +3599,6 @@
             
             timelineHTML += '</div>';
             return timelineHTML;
-        }
-
-        // Create progress bar
-        function createProgressBar(status) {
-            let progress = 0;
-            
-            switch(status.toLowerCase()) {
-                case 'new':
-                    progress = 25;
-                    break;
-                case 'preparing':
-                    progress = 50;
-                    break;
-                case 'ready':
-                    progress = 75;
-                    break;
-                case 'completed':
-                    progress = 100;
-                    break;
-                default:
-                    progress = 0;
-            }
-            
-            return `
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: ${progress}%"></div>
-                </div>
-            `;
         }
 
         // Create progress bar
@@ -3745,14 +3720,6 @@
             if (!userIcon.contains(e.target) && !userDropdownMenu.contains(e.target)) {
                 userDropdownMenu.style.display = 'none';
             }
-        });
-
-        // Logout functionality
-        document.getElementById('logout-link').addEventListener('click', (e) => {
-            e.preventDefault();
-            localStorage.removeItem('bistroLoggedInUser');
-            localStorage.removeItem('customerCart');
-            window.location.href = 'login.html';
         });
 
         // Update welcome message based on logged-in user
@@ -4416,11 +4383,36 @@
             });
         }
 
-        // Initialize everything on page load
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('Customer page loaded');
             createParticles();
-            generateMenu();
+            
+            // Load and generate menu
+            await generateMenu();
+            
+            // Setup auto-refresh
+            setupMenuAutoRefresh();
         });
+
+        // Check for menu updates every 30 seconds
+        setInterval(() => {
+            fetch('/menu-data.json?' + new Date().getTime())
+                .then(response => response.json())
+                .then(data => {
+                    const currentData = JSON.stringify(loadMenuData());
+                    const newData = JSON.stringify(data);
+                    
+                    if (currentData !== newData) {
+                        console.log('Menu data updated, refreshing...');
+                        localStorage.setItem('coffeeShopMenuData', JSON.stringify(data));
+                        location.reload();
+                    }
+                })
+                .catch(() => {
+                    console.log('Could not fetch updated menu data');
+                });
+        }, 30000);
     </script>
 </body>
 </html>
+[file content end]

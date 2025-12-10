@@ -1,0 +1,118 @@
+{
+  "lastUpdated": "2024-12-10T21:38:28.000Z",
+  "version": 2,
+  "categories": [
+    {
+      "id": "coffee",
+      "name": "Coffee",
+      "description": "Our premium coffee selection",
+      "image": "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60",
+      "displayOrder": 1,
+      "visible": true,
+      "items": [
+        {
+          "id": "americano",
+          "name": "Americano",
+          "description": "Rich espresso with hot water",
+          "price": 110,
+          "image": "https://images.unsplash.com/photo-1498804103079-a6351b050096?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+          "available": true
+        },
+        {
+          "id": "cappuccino",
+          "name": "Cappuccino",
+          "description": "Espresso with steamed milk and foam",
+          "price": 130,
+          "image": "https://images.unsplash.com/photo-1570197788417-0e82375c9371?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+          "available": true
+        },
+        {
+          "id": "cafe-latte",
+          "name": "Cafe Latte",
+          "description": "Smooth espresso with steamed milk",
+          "price": 120,
+          "image": "https://images.unsplash.com/photo-1561047029-3000c68339ca?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+          "available": true
+        }
+      ]
+    },
+    {
+      "id": "tea",
+      "name": "Tea",
+      "description": "Various tea selections",
+      "image": "https://images.unsplash.com/photo-1560512823-829485b8bf24?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+      "displayOrder": 2,
+      "visible": true,
+      "items": [
+        {
+          "id": "green-tea",
+          "name": "Green Tea",
+          "description": "Refreshing green tea leaves",
+          "price": 90,
+          "image": "https://images.unsplash.com/photo-1560512823-829485b8bf24?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+          "available": true
+        }
+      ]
+    },
+    {
+      "id": "non-coffee",
+      "name": "Non-Coffee",
+      "description": "Refreshing non-coffee beverages",
+      "image": "https://images.unsplash.com/photo-1544787219-7f47ccb76574?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+      "displayOrder": 3,
+      "visible": true,
+      "items": []
+    },
+    {
+      "id": "signature-drinks",
+      "name": "Signature Drinks",
+      "description": "Our special creations",
+      "image": "https://images.unsplash.com/photo-1470337458703-46ad1756a187?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+      "displayOrder": 4,
+      "visible": true,
+      "items": []
+    },
+    {
+      "id": "appetizers",
+      "name": "Appetizers",
+      "description": "Delicious starters",
+      "image": "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+      "displayOrder": 5,
+      "visible": true,
+      "items": []
+    },
+    {
+      "id": "signature-milkshakes",
+      "name": "Signature Milkshakes",
+      "description": "Creamy milkshake specials",
+      "image": "https://images.unsplash.com/photo-1572490122747-3968b75cc699?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+      "displayOrder": 6,
+      "visible": true,
+      "items": []
+    }
+  ],
+  "customizations": [
+    {
+      "id": "temperature",
+      "name": "Temperature",
+      "type": "single",
+      "required": true,
+      "categories": ["coffee", "tea", "non-coffee", "signature-drinks"],
+      "options": [
+        { "id": "hot", "name": "Hot", "price": 0 },
+        { "id": "cold", "name": "Cold", "price": 10 }
+      ]
+    },
+    {
+      "id": "size",
+      "name": "Size",
+      "type": "single",
+      "required": true,
+      "categories": ["coffee", "tea", "non-coffee", "signature-drinks", "appetizers"],
+      "options": [
+        { "id": "small", "name": "Small", "price": 0 },
+        { "id": "medium", "name": "Medium", "price": 15 }
+      ]
+    }
+  ]
+}

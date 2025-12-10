@@ -645,6 +645,12 @@
                                 <i class="fas fa-plus"></i> Quick Add Item
                             </button>
                         </div>
+                        <!-- Add this in menu.html after the admin-actions div -->
+                        <div class="admin-actions" style="margin-top: 10px;">
+                            <button class="btn btn-info" id="sync-test-btn">
+                                <i class="fas fa-sync"></i> Test Data Sync
+                            </button>
+                        </div>
                     </div>
 
                     <div class="stats-grid">
@@ -1266,6 +1272,10 @@
             document.getElementById('add-product-btn').addEventListener('click', () => openProductModal());
             document.getElementById('add-category-btn').addEventListener('click', () => openCategoryModal());
             document.getElementById('add-customization-btn').addEventListener('click', () => openCustomizationModal());
+            // Add this to the setupEventListeners() function in menu.html:
+            document.getElementById('sync-test-btn')?.addEventListener('click', () => {
+                alert(`Data synchronized to localStorage.\nCategories: ${menuData.categories.length}\nTotal Items: ${menuData.categories.reduce((sum, cat) => sum + cat.items.length, 0)}`);
+            });
 
             // Close modal buttons
             document.addEventListener('click', function(e) {
