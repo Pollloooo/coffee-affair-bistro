@@ -1482,10 +1482,6 @@
             
             <div class="pos-controls">
                 <input type="text" class="search-box" id="menu-search" placeholder="🔍 Search menu...">
-                <select class="category-filter" id="category-filter">
-                    <option value="all">All Categories</option>
-                    <!-- Options will be dynamically inserted here -->
-                </select>
             </div>
             
             <div class="menu-tabs" id="menu-tabs">
@@ -1546,82 +1542,142 @@
         <i class="fas fa-check"></i>
     </div>
 
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script>
-        // Global variables
-        let customizationsData = [];
-        let currentProduct = null;
-        let menuData = {};
-        let categoryOrder = [];
-        let categoryNames = {};
+        const firebaseConfig = {
+                    apiKey: "AIzaSyAHbxJ-UAJRI-0uZTn31onnN3EJl8pSchU",
+                    authDomain: "bistro-24639.firebaseapp.com",
+                    projectId: "bistro-24639",
+                    storageBucket: "bistro-24639.firebasestorage.app",
+                    messagingSenderId: "959887663454",
+                    appId: "1:959887663454:web:df89c3a38ddad15b0aefcf",
+                    measurementId: "G-BV0MV5PKJC"
+                };
 
-        // Load menu data from localStorage
-        function loadMenuData() {
-            const savedMenuData = localStorage.getItem('coffeeShopMenuData');
-            if (savedMenuData) {
-                try {
-                    const parsedData = JSON.parse(savedMenuData);
-                    
-                    // Reset data structures
-                    menuData = {};
-                    categoryOrder = [];
-                    categoryNames = {};
-                    
-                    // Check if data is in admin format
-                    if (parsedData.categories && Array.isArray(parsedData.categories)) {
-                        // Sort categories by displayOrder
-                        const sortedCategories = [...parsedData.categories].sort((a, b) => 
-                            (a.displayOrder || 999) - (b.displayOrder || 999)
-                        );
-                        
-                        // Store categories in order
-                        sortedCategories.forEach(category => {
-                            if (!category.visible && category.visible !== undefined) {
-                                return; // Skip hidden categories
+                // Initialize Firebase
+                firebase.initializeApp(firebaseConfig);
+                const db = firebase.firestore();
+
+                // Global variables
+                let customizationsData = [];
+                let currentProduct = null;
+                let menuData = {};
+                let categoryOrder = [];
+                let categoryNames = {};
+
+                // Load menu data from localStorage
+                function loadMenuData() {
+                    const savedMenuData = localStorage.getItem('coffeeShopMenuData');
+                    if (savedMenuData) {
+                        try {
+                            const parsedData = JSON.parse(savedMenuData);
+                            
+                            // Reset data structures
+                            menuData = {};
+                            categoryOrder = [];
+                            categoryNames = {};
+                            
+                            // Check if data is in admin format
+                            if (parsedData.categories && Array.isArray(parsedData.categories)) {
+                                // Sort categories by displayOrder
+                                const sortedCategories = [...parsedData.categories].sort((a, b) => 
+                                    (a.displayOrder || 999) - (b.displayOrder || 999)
+                                );
+                                
+                                // Store categories in order
+                                sortedCategories.forEach(category => {
+                                    if (!category.visible && category.visible !== undefined) {
+                                        return; // Skip hidden categories
+                                    }
+                                    
+                                    const categoryKey = category.id || category.name?.toLowerCase().replace(/\s+/g, '-');
+                                    if (categoryKey && category.items) {
+                                        categoryOrder.push(categoryKey);
+                                        categoryNames[categoryKey] = category.name;
+                                        
+                                        // Only add categories that have items
+                                        const availableItems = category.items.filter(item => item.available !== false);
+                                        if (availableItems.length > 0) {
+                                            menuData[categoryKey] = availableItems.map(item => ({
+                                                name: item.name,
+                                                price: parseFloat(item.price) || 0,
+                                                category: categoryKey,
+                                                id: item.id,
+                                                description: item.description,
+                                                available: item.available !== false
+                                            }));
+                                        }
+                                    }
+                                });
+                                
+                                // If no categories were loaded, load default structure
+                                if (categoryOrder.length === 0) {
+                                    loadDefaultMenuData();
+                                }
+                            } else {
+                                // Load default data if admin data is not in expected format
+                                loadDefaultMenuData();
                             }
                             
-                            const categoryKey = category.id || category.name?.toLowerCase().replace(/\s+/g, '-');
-                            if (categoryKey && category.items) {
-                                categoryOrder.push(categoryKey);
-                                categoryNames[categoryKey] = category.name;
-                                
-                                // Only add categories that have items
-                                const availableItems = category.items.filter(item => item.available !== false);
-                                if (availableItems.length > 0) {
-                                    menuData[categoryKey] = availableItems.map(item => ({
-                                        name: item.name,
-                                        price: parseFloat(item.price) || 0,
-                                        category: categoryKey,
-                                        id: item.id,
-                                        description: item.description,
-                                        available: item.available !== false
-                                    }));
-                                }
+                            // Load customizations if available
+                            if (parsedData.customizations && Array.isArray(parsedData.customizations)) {
+                                customizationsData = parsedData.customizations;
                             }
-                        });
-                        
-                        // If no categories were loaded, load default structure
-                        if (categoryOrder.length === 0) {
+                            
+                            console.log('Menu data loaded. Categories:', categoryOrder);
+                        } catch (error) {
+                            console.error('Error parsing menu data:', error);
                             loadDefaultMenuData();
                         }
                     } else {
-                        // Load default data if admin data is not in expected format
+                        // No saved data, load defaults
                         loadDefaultMenuData();
                     }
-                    
-                    // Load customizations if available
-                    if (parsedData.customizations && Array.isArray(parsedData.customizations)) {
-                        customizationsData = parsedData.customizations;
-                    }
-                    
-                    console.log('Menu data loaded. Categories:', categoryOrder);
-                } catch (error) {
-                    console.error('Error parsing menu data:', error);
-                    loadDefaultMenuData();
                 }
-            } else {
-                // No saved data, load defaults
-                loadDefaultMenuData();
-            }
+
+        // Update setupOrderSync function:
+        function setupOrderSync() {
+            console.log('Setting up real-time order synchronization...');
+            
+            db.collection('orders').onSnapshot((snapshot) => {
+                const orders = [];
+                snapshot.forEach((doc) => {
+                    orders.push({ id: doc.id, ...doc.data() });
+                });
+                
+                // Update localStorage as backup
+                localStorage.setItem('bistroOrders', JSON.stringify(orders));
+                
+                // Render directly from Firebase data
+                renderOrders(orders);
+                
+                console.log('Orders synchronized in real-time across devices:', orders.length);
+            }, (error) => {
+                console.error('Error syncing orders:', error);
+                // Fallback to localStorage
+                const orders = JSON.parse(localStorage.getItem('bistroOrders')) || [];
+                renderOrders(orders);
+                showToast('Sync failed. Using offline data.', 'warning');
+                // In renderOrders, after appending orderCard, update the event listeners:
+                document.querySelectorAll('.status-select').forEach(select => {
+                    select.addEventListener('change', (e) => {
+                        const orderId = e.target.dataset.orderId;
+                        const newStatus = e.target.value;
+                        
+                        // Find the order to check if it's cancelled
+                        const order = orders.find(o => o.id === orderId);
+                        if (order && (order.status === 'Cancelled' || order.cancelled === true)) {
+                            showToast('Cannot change status of a cancelled order.', 'warning');
+                            // Reset the select to its current value
+                            e.target.value = order.status;
+                            return;
+                        }
+                        
+                        updateOrderStatus(orderId, newStatus);
+                    });
+                });
+            });
         }
 
         // Load default menu data structure
@@ -1758,7 +1814,8 @@
                 switchMenuCategory(firstCategory);
             }, 100);
             
-            loadOrders();
+            
+            setupOrderSync();
             
             // Try to sync immediately
             syncMenuDataFromAdmin();
@@ -1851,6 +1908,23 @@
                 custom.categories && custom.categories.includes(categoryId)
             );
         }
+
+        function renderMenuItemsByCategory(selectedCategory) {
+            const filteredItems = allMenuData.filter(item => item.category === selectedCategory);
+            renderMenuItems(filteredItems);
+        }
+        db.collection('coffeeShop').doc('menuData')
+        .onSnapshot(doc => {
+            const data = doc.data();
+            allMenuData = data.items; // Assuming items array
+            const categories = [...new Set(allMenuData.map(item => item.category))];
+            
+            renderCategoryTabs(categories);
+            // Optionally select the first category by default
+            if (categories.length > 0) {
+            renderMenuItemsByCategory(categories[0]);
+            }
+        });
 
         // Format category name for display
         function formatCategoryName(category) {
@@ -2303,31 +2377,47 @@
             });
         }
 
-        // Load orders from localStorage
-        function loadOrders() {
+        async function loadOrders() {
             const ordersList = document.getElementById('orders-list');
-            const orders = JSON.parse(localStorage.getItem('bistroOrders')) || [];
-            
+            ordersList.innerHTML = '<div class="loading-spinner"></div> Loading orders...';  // Show loading indicator
+            try {
+                // Fetch from Firebase first
+                const snapshot = await db.collection('orders').get();
+                const orders = [];
+                snapshot.forEach((doc) => {
+                    orders.push({ id: doc.id, ...doc.data() });
+                });
+                // Save to localStorage as backup
+                localStorage.setItem('bistroOrders', JSON.stringify(orders));
+                // Render orders
+                renderOrders(orders);
+            } catch (error) {
+                console.error('Error loading orders from Firebase:', error);
+                // Fallback to localStorage
+                const orders = JSON.parse(localStorage.getItem('bistroOrders')) || [];
+                renderOrders(orders);
+                showToast('Using offline data. Check connection.', 'warning');
+            }
+        }
+
+        // Separate function to render orders (reused by sync)
+        function renderOrders(orders) {
+            const ordersList = document.getElementById('orders-list');
             ordersList.innerHTML = '';
-            
             if (orders.length === 0) {
                 ordersList.innerHTML = '<div class="empty-state"><i class="fas fa-clipboard-list"></i><p>No orders yet</p></div>';
                 return;
             }
-            
             // Sort orders by timestamp (newest first)
             orders.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-            
             orders.forEach(order => {
                 const orderCard = document.createElement('div');
                 orderCard.className = 'order-card';
                 orderCard.dataset.orderId = order.id;
-                
                 // Format timestamp
                 const orderDate = new Date(order.timestamp);
                 const formattedTime = orderDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                 const formattedDate = orderDate.toLocaleDateString();
-
                 const deliveryType = order.delivery && order.delivery.type ? order.delivery.type : null;
                 const deliveryTitle = deliveryType === 'delivery' ? 'Delivery' : (deliveryType === 'pickup' ? 'Pickup' : 'Order Type');
                 let deliveryInfoHTML = '';
@@ -2359,12 +2449,12 @@
                 const displayTotal = (typeof order.total === 'number' ? order.total : undefined)
                     ?? (typeof order.totalPrice === 'number' ? order.totalPrice : undefined)
                     ?? computedTotal;
-                
+                // In renderOrders function, replace the entire orderCard.innerHTML with this (single order-footer):
                 orderCard.innerHTML = `
                     <div class="order-header">
                         <div>
                             <span class="order-id">Order #${order.id}</span>
-                            <span class="order-customer"> - ${order.customerName}</span>
+                            <span class="order-customer"> - ${order.customerName || 'Unknown Customer'}</span>
                         </div>
                         <div class="order-timestamp">${formattedDate} ${formattedTime}</div>
                     </div>
@@ -2379,64 +2469,119 @@
                             `;
                         }).join('')}
                     </div>
-                    ${deliveryInfoHTML || ''}
-                    <div class="order-footer">
+                    <div class="order-customer-info" style="padding: 10px; background: rgba(125, 74, 45, 0.05); border-radius: 8px; margin: 10px 0;">
+                        <div><strong>Phone:</strong> ${order.customerPhone || 'N/A'}</div>
+                        ${order.delivery ? `
+                            <div><strong>Delivery:</strong> ${order.delivery.type === 'delivery' ? `Address: ${order.delivery.address || 'N/A'}` : `Pickup at: ${order.delivery.storeAddress || 'Store'}`}</div>
+                            ${order.delivery.instructions ? `<div><strong>Instructions:</strong> ${order.delivery.instructions}</div>` : ''}
+                        ` : ''}
+                    </div>
+                    <div class="order-footer">  <!-- Only ONE of these! -->
                         <div class="order-total">Total: ₱${displayTotal.toFixed(2)}</div>
                         <div>
                             <span class="status-badge status-${order.status.toLowerCase()}">${order.status}</span>
-                            <select class="status-select" data-order-id="${order.id}">
+                            <select class="status-select" data-order-id="${order.id}" ${order.status === 'Cancelled' || order.cancelled === true ? 'disabled style="pointer-events: none; opacity: 0.5;"' : ''}>
                                 <option value="New" ${order.status === 'New' ? 'selected' : ''}>New</option>
                                 <option value="Preparing" ${order.status === 'Preparing' ? 'selected' : ''}>Preparing</option>
                                 <option value="Ready" ${order.status === 'Ready' ? 'selected' : ''}>Ready</option>
                                 <option value="Completed" ${order.status === 'Completed' ? 'selected' : ''}>Completed</option>
+                                <option value="Cancelled" ${order.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
                             </select>
+                            <button class="void-order-btn" data-order-id="${order.id}" title="Void Order" style="margin-left: 10px; background: #B22222; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Void</button>
                         </div>
                     </div>
                 `;
-                
-                ordersList.appendChild(orderCard);
-            });
-            
-            // Add event listeners to status selects
-            document.querySelectorAll('.status-select').forEach(select => {
-                select.addEventListener('change', (e) => {
-                    const orderId = e.target.dataset.orderId;
-                    const newStatus = e.target.value;
-                    updateOrderStatus(orderId, newStatus);
-                });
-            });
-        }
 
-        // Update order status
-        function updateOrderStatus(orderId, newStatus) {
-            const orders = JSON.parse(localStorage.getItem('bistroOrders')) || [];
-            const orderIndex = orders.findIndex(order => String(order.id) === String(orderId));
-            
-            if (orderIndex !== -1) {
-                orders[orderIndex].status = newStatus;
-                localStorage.setItem('bistroOrders', JSON.stringify(orders));
-            
-                // Update the status badge in the UI
-                const orderCard = document.querySelector(`.order-card[data-order-id="${orderId}"]`);
-                if (orderCard) {
-                    const statusBadge = orderCard.querySelector('.status-badge');
-            
-                    // Update classes
-                    statusBadge.className = `status-badge status-${newStatus.toLowerCase()}`;
-                    statusBadge.textContent = newStatus;
-            
-                    // Show confirmation for completed orders
-                    if (newStatus === 'Completed') {
-                        showToast(`Order #${orderId} marked as completed!`, 'success');
-                        // Refresh stats when order is marked as completed
-                        initializeStats();
-                    }
+                ordersList.appendChild(orderCard);
+                // Add event listeners
+                const voidBtn = orderCard.querySelector('.void-order-btn');
+                if (voidBtn) {
+                  voidBtn.addEventListener('click', (e) => {
+                    const orderId = e.target.dataset.orderId;
+                        voidOrder(orderId);
+                    });
                 }
+             });
+                // Update stats after rendering
+                initializeStats();
+            }
+
+        // In voidOrder()
+        async function voidOrder(orderId) {
+            if (!confirm(`Are you sure you want to void Order #${orderId}? This action cannot be undone.`)) {
+                return;
+            }
             
-                // Reload orders to reflect changes
-                loadOrders();
+            console.log('Attempting to void order:', orderId);
+            
+            // First, check if the order exists in localStorage
+            const orders = JSON.parse(localStorage.getItem('bistroOrders')) || [];
+            const orderIndex = orders.findIndex(o => o.id === orderId);
+            
+            if (orderIndex === -1) {
+                console.warn('Order not found in localStorage:', orderId);
+                showToast('Order not found. It may have already been removed.', 'warning');
+                return;
+            }
+            
+            try {
+                // Attempt to delete from Firebase
+                await db.collection('orders').doc(orderId).delete();
+                console.log('Order deleted from Firebase:', orderId);
+                
+                // Remove from localStorage as well
+                orders.splice(orderIndex, 1);
+                localStorage.setItem('bistroOrders', JSON.stringify(orders));
+                
+                // Refresh the UI (the Firebase listener should handle this, but force it)
+                renderOrders(orders);
+                
+                showToast(`Order #${orderId} has been voided and removed.`, 'warning');
+            } catch (error) {
+                console.error('Error voiding order from Firebase:', error);
+                
+                // Fallback: Remove from localStorage only
+                orders.splice(orderIndex, 1);
+                localStorage.setItem('bistroOrders', JSON.stringify(orders));
+                renderOrders(orders);
+                
+                showToast(`Order #${orderId} removed locally (Firebase sync failed). Check connection.`, 'warning');
             }
         }
+
+
+
+        // In updateOrderStatus function:
+        async function updateOrderStatus(orderId, newStatus) {
+            try {
+                // Fetch current order to check cancellation
+                const orderDoc = await db.collection('orders').doc(orderId).get();
+                const order = orderDoc.data();
+                
+                if (order && (order.status === 'Cancelled' || order.cancelled === true) && newStatus !== 'Cancelled') {
+                    showToast('Cannot change status of a cancelled order.', 'warning');
+                    return;
+                }
+                
+                // Update in Firebase
+                await db.collection('orders').doc(orderId).update({ status: newStatus });
+                
+                showToast(`Order #${orderId} status updated to ${newStatus}`, 'success');
+            } catch (error) {
+                console.error('Error updating status:', error);
+                showToast('Failed to update status. Check connection.', 'error');
+                
+                // Fallback to localStorage
+                const orders = JSON.parse(localStorage.getItem('bistroOrders')) || [];
+                const orderIndex = orders.findIndex(o => o.id === orderId);
+                if (orderIndex !== -1 && !(orders[orderIndex].status === 'Cancelled' || orders[orderIndex].cancelled === true)) {
+                    orders[orderIndex].status = newStatus;
+                    localStorage.setItem('bistroOrders', JSON.stringify(orders));
+                    renderOrders(orders);
+                }
+            }
+        }
+
 
         // Show toast notification
         function showToast(message, type = 'success') {
